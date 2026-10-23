@@ -4,109 +4,708 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ishwar Search</title>
+  <meta name="theme-color" content="#09142f">
+  <meta name="description" content="Ishwar Search — सरकारी सेवाएँ, नौकरी, शिक्षा और उपयोगी वेबसाइटें एक जगह खोजें।">
+  <title>Ishwar Search | स्मार्ट सर्च</title>
+
   <style>
+    :root {
+      --navy: #09142f;
+      --blue: #2867ff;
+      --text: #172342;
+      --muted: #6b7892;
+      --white: #ffffff;
+    }
+
     * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      color: #172033;
-      background: linear-gradient(135deg, #eef5ff, #f8faff);
-      min-height: 100vh;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background: #f2f5ff;
     }
-    header {
-      padding: 24px 16px;
-      text-align: center;
-      background: #102b55;
+
+    a { text-decoration: none; }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 22px 18px 70px;
+      color: white;
+      background:
+        radial-gradient(ellipse at 10% 10%, #2253a9 0, transparent 40%),
+        radial-gradient(ellipse at 95% 55%, #642ca5 0, transparent 38%),
+        linear-gradient(135deg, #071128, #102958 60%, #10153a);
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border: 1px solid #ffffff18;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 320px;
+      height: 320px;
+      top: 120px;
+      left: -190px;
+    }
+
+    .hero::after {
+      width: 420px;
+      height: 420px;
+      right: -250px;
+      top: -180px;
+    }
+
+    .navbar {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
       color: white;
     }
-    .logo { font-size: 30px; font-weight: bold; }
-    header p { margin: 8px 0 0; color: #d6e5ff; }
-    main {
-      width: min(760px, 92%);
-      margin: 36px auto;
+
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      font-size: 25px;
+      background: linear-gradient(135deg, #4f8cff, #7148f5);
+      box-shadow: 0 7px 25px #2867ff55;
     }
-    .panel {
-      background: white;
-      border-radius: 18px;
-      padding: 24px;
-      box-shadow: 0 8px 30px #17203312;
+
+    .brand-name {
+      font-size: 23px;
+      font-weight: 850;
+      letter-spacing: -.5px;
     }
-    form { display: flex; gap: 8px; }
-    input {
-      flex: 1; min-width: 0; padding: 14px;
-      border: 1px solid #ccd5e4; border-radius: 10px;
+
+    .brand-sub {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: #b7caff;
+      margin-top: 3px;
+    }
+
+    .free-label {
+      border: 1px solid #8fb5ff70;
+      border-radius: 30px;
+      padding: 8px 13px;
+      color: #d6e5ff;
+      background: #ffffff0c;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 65px auto 0;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      color: #c4d6ff;
+      background: #ffffff12;
+      border: 1px solid #ffffff20;
+      border-radius: 30px;
+      padding: 8px 14px;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .hero h1 {
+      font-size: clamp(34px, 6vw, 58px);
+      line-height: 1.16;
+      margin: 22px 0 16px;
+      letter-spacing: -1.5px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #77c6ff, #c4a5ff, #ffffff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-description {
+      max-width: 600px;
+      margin: 0 auto;
+      color: #c2cde6;
       font-size: 16px;
+      line-height: 1.8;
     }
-    button {
-      border: 0; border-radius: 10px; padding: 14px 18px;
-      background: #1769e0; color: white; font-weight: bold;
+
+    .search-card {
+      max-width: 690px;
+      margin: 32px auto 0;
+      padding: 9px;
+      border: 1px solid #ffffff40;
+      border-radius: 20px;
+      background: #ffffff12;
+      box-shadow: 0 20px 60px #00000030;
+      backdrop-filter: blur(14px);
+    }
+
+    .search-form {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      padding: 7px;
+      border-radius: 14px;
+    }
+
+    .search-symbol {
+      font-size: 22px;
+      padding-left: 9px;
+      color: #60749b;
+    }
+
+    .search-form input {
+      flex: 1;
+      width: 100%;
+      min-width: 0;
+      padding: 15px 5px;
+      font-size: 16px;
+      border: 0;
+      outline: none;
+      color: #172342;
+      background: transparent;
+    }
+
+    .search-form input::placeholder { color: #8a96aa; }
+
+    .search-form:focus-within {
+      outline: 3px solid #78a7ff80;
+    }
+
+    .search-button {
+      flex-shrink: 0;
+      border: 0;
+      border-radius: 11px;
+      padding: 15px 23px;
+      color: white;
+      font-size: 15px;
+      font-weight: 750;
       cursor: pointer;
+      background: linear-gradient(135deg, #3478ff, #5845ec);
+      box-shadow: 0 5px 16px #2867ff40;
+      transition: transform .2s, box-shadow .2s;
     }
-    h2 { font-size: 20px; }
-    .result {
-      border: 1px solid #e1e7f0; border-radius: 12px;
-      padding: 15px; margin-top: 12px;
+
+    .search-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px #2867ff55;
     }
-    .result a { color: #155bc0; font-weight: bold; }
-    .muted { color: #68758a; font-size: 14px; }
-    footer { text-align: center; padding: 20px; color: #68758a; }
+
+    .search-hint {
+      color: #c4d0e9;
+      margin: 13px 4px 2px;
+      font-size: 12px;
+    }
+
+    .owner-line {
+      margin-top: 24px;
+      color: #b5c7ed;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+    }
+
+    .owner-line strong { color: white; }
+
+    .main {
+      max-width: 1100px;
+      margin: -28px auto 0;
+      padding: 0 18px 50px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 13px;
+      margin-bottom: 32px;
+    }
+
+    .stat {
+      background: white;
+      border: 1px solid #e6ebf6;
+      border-radius: 16px;
+      padding: 19px 12px;
+      text-align: center;
+      box-shadow: 0 8px 28px #172c5010;
+    }
+
+    .stat-number {
+      font-size: 25px;
+      font-weight: 850;
+      color: #1e56c9;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+      margin: 28px 0 18px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -.5px;
+    }
+
+    .section-heading p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .section-tag {
+      color: #245bd2;
+      background: #e3edff;
+      border-radius: 30px;
+      padding: 7px 11px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 13px;
+    }
+
+    .category-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 17px 14px;
+      border-radius: 16px;
+      background: white;
+      border: 1px solid #e7ecf5;
+      color: var(--text);
+      box-shadow: 0 5px 18px #172c5008;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
+
+    .category-card:hover {
+      transform: translateY(-3px);
+      border-color: #a9c3ff;
+      box-shadow: 0 12px 25px #172c5010;
+    }
+
+    .category-icon {
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      font-size: 21px;
+    }
+
+    .c-blue { background: #e8efff; }
+    .c-green { background: #e0f8ed; }
+    .c-purple { background: #f0e8ff; }
+    .c-orange { background: #fff0dd; }
+    .c-pink { background: #ffe9f1; }
+    .c-cyan { background: #e0f7fc; }
+    .c-yellow { background: #fff7d8; }
+    .c-slate { background: #e9eef5; }
+
+    .category-name {
+      font-size: 13px;
+      font-weight: 750;
+      line-height: 1.5;
+    }
+
+    .category-count {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .results-panel {
+      margin-top: 32px;
+      padding: 22px;
+      border: 1px solid #e5eaf4;
+      border-radius: 20px;
+      background: white;
+      box-shadow: 0 8px 30px #172c5008;
+    }
+
+    .results-title {
+      font-size: 22px;
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .results-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 8px 0 18px;
+    }
+
+    .result-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 13px;
+    }
+
+    .result-card {
+      border: 1px solid #e5eaf4;
+      border-radius: 15px;
+      padding: 17px;
+      min-width: 0;
+      transition: border-color .2s, transform .2s;
+    }
+
+    .result-card:hover {
+      border-color: #a9c3ff;
+      transform: translateY(-2px);
+    }
+
+    .result-category {
+      display: inline-block;
+      border-radius: 30px;
+      padding: 5px 9px;
+      color: #255bc5;
+      background: #eaf1ff;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .result-card h3 {
+      font-size: 17px;
+      line-height: 1.5;
+      margin: 12px 0 7px;
+    }
+
+    .result-card h3 a { color: #17396f; }
+    .result-card h3 a:hover { color: #2867ff; }
+
+    .result-url {
+      display: block;
+      color: #2870d9;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+      line-height: 1.6;
+    }
+
+    .keywords {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+      margin: 10px 0 0;
+    }
+
+    .open-link {
+      display: inline-block;
+      margin-top: 14px;
+      color: #285dcc;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .empty-state {
+      padding: 28px 12px;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .empty-icon { font-size: 34px; }
+
+    .all-categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 15px;
+    }
+
+    .category-chip {
+      background: white;
+      color: #31517e;
+      border: 1px solid #dfe7f4;
+      border-radius: 30px;
+      padding: 9px 13px;
+      font-size: 12px;
+    }
+
+    .category-chip:hover {
+      background: #e8efff;
+      border-color: #adc5ff;
+    }
+
+    footer {
+      text-align: center;
+      padding: 27px 16px;
+      background: #09142f;
+      color: #aebddb;
+      font-size: 12px;
+      line-height: 2;
+    }
+
+    footer strong { color: white; }
+
+    @media (max-width: 850px) {
+      .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .result-list { grid-template-columns: 1fr; }
+    }
+
     @media (max-width: 480px) {
-      form { flex-direction: column; }
-      button { width: 100%; }
-      .panel { padding: 17px; }
+      .hero { padding: 18px 13px 58px; }
+      .brand-icon { width: 42px; height: 42px; }
+      .brand-name { font-size: 19px; }
+      .free-label { font-size: 10px; padding: 7px 9px; }
+      .hero-content { margin-top: 47px; }
+      .hero h1 { letter-spacing: -.8px; }
+      .hero-description { font-size: 14px; }
+      .search-card { margin-top: 25px; padding: 6px; }
+      .search-form { gap: 4px; padding: 5px; }
+      .search-form input { font-size: 14px; }
+      .search-button { padding: 13px 12px; font-size: 13px; }
+      .main { padding-left: 12px; padding-right: 12px; }
+      .stats { gap: 7px; }
+      .stat { padding: 14px 5px; }
+      .stat-number { font-size: 21px; }
+      .stat-label { font-size: 10px; }
+      .category-card { padding: 12px 9px; gap: 8px; }
+      .category-icon { width: 37px; height: 37px; font-size: 18px; }
+      .category-name { font-size: 12px; }
+      .section-heading h2 { font-size: 20px; }
+      .section-heading p { font-size: 12px; }
+      .section-tag { font-size: 10px; }
+      .results-panel { padding: 15px; }
     }
   </style>
 </head>
+
 <body>
-  <header>
-    <div class="logo">🔎 Ishwar Search</div>
-    <p>Khojiye aasani se — useful websites ek jagah</p>
-    <p>Owner: {{ owner }}</p>
-  </header>
+  <header class="hero">
+    <nav class="navbar">
+      <a class="brand" href="/" aria-label="Ishwar Search Home">
+        <span class="brand-icon">⌕</span>
+        <span>
+          <span class="brand-name">Ishwar Search</span>
+          <span class="brand-sub" style="display:block">SMART SEARCH · INDIA</span>
+        </span>
+      </a>
+      <span class="free-label">✦ SIMPLE & FREE</span>
+    </nav>
 
-  <main>
-    <section class="panel">
-      <h2>क्या खोजें आज?</h2>
-      <form action="/" method="get">
-        <input name="q" value="{{ query }}"
-               placeholder="जैसे PAN Card, सरकारी योजना..."
-               maxlength="160" aria-label="Search">
-        <button type="submit">Search</button>
-      </form>
-
-      <p class="muted">
-        उपलब्ध वेबसाइटें: {{ service_count }}
+    <div class="hero-content">
+      <span class="eyebrow">✦ आपकी डिजिटल दुनिया का साथी</span>
+      <h1>आपकी हर खोज,<br><span class="gradient-text">अब आसान</span></h1>
+      <p class="hero-description">
+        सरकारी सेवाएँ, नौकरी, शिक्षा, दस्तावेज़ और उपयोगी वेबसाइटें —
+        सब कुछ एक ही जगह खोजें।
       </p>
 
-      {% if query %}
-        <h2>“{{ query }}” के परिणाम</h2>
-        {% if results %}
-          {% for item in results %}
-            <article class="result">
-              <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
-                {{ item.title }}
-              </a>
-              {% if item.category %}
-                <p class="muted">{{ item.category }}</p>
-              {% endif %}
-              {% if item.description %}
-                <p>{{ item.description }}</p>
-              {% endif %}
-            </article>
-          {% endfor %}
-        {% else %}
-          <p>कोई परिणाम नहीं मिला। दूसरा शब्द लिखकर खोजें।</p>
-        {% endif %}
-      {% else %}
-        <h2>श्रेणियाँ</h2>
-        {% for category in categories %}
-          <span class="muted">{{ category }}{% if not loop.last %} · {% endif %}</span>
-        {% endfor %}
-      {% endif %}
+      <div class="search-card">
+        <form class="search-form" action="/" method="get">
+          <span class="search-symbol" aria-hidden="true">⌕</span>
+          <input
+            type="search"
+            name="q"
+            value="{{ query }}"
+            placeholder="Aadhaar, PAN Card, Railway Jobs..."
+            maxlength="160"
+            aria-label="वेबसाइट खोजें"
+            required
+          >
+          <button class="search-button" type="submit">खोजें →</button>
+        </form>
+        <p class="search-hint">उदाहरण: Aadhaar · सरकारी नौकरी · छात्रवृत्ति · राजस्थान</p>
+      </div>
+
+      <div class="owner-line">CREATED WITH PURPOSE BY <strong>{{ owner }}</strong></div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="stats" aria-label="वेबसाइट जानकारी">
+      <div class="stat">
+        <div class="stat-number">{{ service_count }}</div>
+        <div class="stat-label">उपलब्ध वेबसाइटें</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">{{ categories|length }}</div>
+        <div class="stat-label">सेवा श्रेणियाँ</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">ऑनलाइन खोज</div>
+      </div>
     </section>
+
+    {% if query %}
+      <section class="results-panel" id="results">
+        <h2 class="results-title">“{{ query }}” के परिणाम</h2>
+        <p class="results-subtitle">
+          {% if results %}
+            {{ results|length }} मिलान वाली वेबसाइटें मिलीं
+          {% else %}
+            कोई मिलान नहीं मिला। दूसरा शब्द लिखकर कोशिश करें।
+          {% endif %}
+        </p>
+
+        {% if results %}
+          <div class="result-list">
+            {% for item in results %}
+              <article class="result-card">
+                <span class="result-category">{{ item.category }}</span>
+                <h3>
+                  <a href="{{ item.url }}" target="_blank"
+                     rel="noopener noreferrer">{{ item.name }}</a>
+                </h3>
+                <a class="result-url" href="{{ item.url }}"
+                   target="_blank" rel="noopener noreferrer">{{ item.url }}</a>
+                <p class="keywords">खोज शब्द: {{ item.keywords }}</p>
+                <a class="open-link" href="{{ item.url }}"
+                   target="_blank" rel="noopener noreferrer">वेबसाइट खोलें ↗</a>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">🔎</div>
+            <strong>हमें यह सेवा नहीं मिली</strong>
+            <p>स्पेलिंग बदलकर खोजें या नीचे दी गई श्रेणियों में देखें।</p>
+            <a class="open-link" href="/">होम पर वापस जाएँ ←</a>
+          </div>
+        {% endif %}
+      </section>
+    {% else %}
+      <section>
+        <div class="section-heading">
+          <div>
+            <h2>क्या खोजना चाहते हैं?</h2>
+            <p>लोकप्रिय विषयों से शुरुआत करें।</p>
+          </div>
+          <span class="section-tag">EXPLORE</span>
+        </div>
+
+        <div class="category-grid">
+          <a class="category-card" href="/?q=government">
+            <span class="category-icon c-blue">🏛️</span>
+            <span>
+              <span class="category-name">सरकारी सेवाएँ</span>
+              <span class="category-count" style="display:block">योजनाएँ व दस्तावेज़</span>
+            </span>
+          </a>
+
+          <a class="category-card" href="/?q=jobs">
+            <span class="category-icon c-green">💼</span>
+            <span>
+              <span class="category-name">नौकरी व भर्ती</span>
+              <span class="category-count" style="display:block">सरकारी व अन्य नौकरियाँ</span>
+            </span>
+          </a>
+
+          <a class="category-card" href="/?q=education">
+            <span class="category-icon c-purple">🎓</span>
+            <span>
+              <span class="category-name">शिक्षा</span>
+              <span class="category-count" style="display:block">पढ़ाई व छात्रवृत्ति</span>
+            </span>
+          </a>
+
+          <a class="category-card" href="/?q=railway">
+            <span class="category-icon c-orange">🚆</span>
+            <span>
+              <span class="category-name">रेलवे</span>
+              <span class="category-count" style="display:block">RRB व रेलवे भर्ती</span>
+            </span>
+          </a>
+
+          <a class="category-card" href="/?q=aadhar">
+            <span class="category-icon c-cyan">🪪</span>
+            <span>
+              <span class="category-name">दस्तावेज़</span>
+              <span class="category-count" style="display:block">आधार व अन्य सेवाएँ</span>
+            </span>
+          </a>
+
+          <a class="category-card" href="/?q=complaint">
+            <span class="category-icon c-pink">🛡️</span>
+            <span>
+              <span class="category-name">शिकायत व सुरक्षा</span>
+              <span class="category-count" style="display:block">शिकायत व साइबर सुरक्षा</span>
+            </span>
+          </a>
+
+          <a class="category-card" href="/?q=news">
+            <span class="category-icon c-yellow">📰</span>
+            <span>
+              <span class="category-name">समाचार</span>
+              <span class="category-count" style="display:block">समाचार वेबसाइटें</span>
+            </span>
+          </a>
+
+          <a class="category-card" href="/?q=learning">
+            <span class="category-icon c-slate">📚</span>
+            <span>
+              <span class="category-name">सीखें व कौशल</span>
+              <span class="category-count" style="display:block">कोर्स व पढ़ाई</span>
+            </span>
+          </a>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <div>
+            <h2>सभी श्रेणियाँ</h2>
+            <p>अपनी जरूरत के अनुसार श्रेणी खोजें।</p>
+          </div>
+        </div>
+        <div class="all-categories">
+          {% for category in categories %}
+            <a class="category-chip"
+               href="/?q={{ category|urlencode }}">{{ category }}</a>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
   </main>
 
-  <footer>© {{ current_year }} {{ app_name }} · {{ owner }}</footer>
+  <footer>
+    <strong>Ishwar Search</strong><br>
+    उपयोगी वेबसाइटें खोजने का आसान तरीका।<br>
+    © {{ current_year }} {{ owner }}
+  </footer>
 </body>
 </html>
