@@ -37,6 +37,9 @@ RAW_SERVICES = [
     ("Rajasthan Police", "Safety", "rajasthan police पुलिस", "https://police.rajasthan.gov.in/"),
     ("Rajasthan Board of Secondary Education", "Education", "rbse ajmer board राजस्थान बोर्ड", "https://rajeduboard.rajasthan.gov.in/"),
     ("Rajasthan University", "Education", "uniraj university राजस्थान विश्वविद्यालय", "https://www.uniraj.ac.in/"),
+        ("Rajasthan College Education Department", "Education", "rajasthan college education higher education राजस्थान कॉलेज", "https://hte.rajasthan.gov.in/"),
+    ("Rajasthan Government College Directory", "Education", "rajasthan government college list सरकारी कॉलेज सूची", "https://dceapp.rajasthan.gov.in/DCE_Application/DceWebCollegeList.aspx"),
+    ("Rajasthan Technical University", "Education", "rtu kota technical university राजस्थान तकनीकी विश्वविद्यालय", "https://www.rtu.ac.in/"),
     ("Rajasthan Single Sign On", "Rajasthan", "sso login राजस्थान", "https://sso.rajasthan.gov.in/"),
 
     ("UIDAI Aadhaar", "Government", "aadhaar aadhar आधार uidai", "https://uidai.gov.in/"),
