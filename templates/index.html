@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ishwar Search</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: #172033;
+      background: linear-gradient(135deg, #eef5ff, #f8faff);
+      min-height: 100vh;
+    }
+    header {
+      padding: 24px 16px;
+      text-align: center;
+      background: #102b55;
+      color: white;
+    }
+    .logo { font-size: 30px; font-weight: bold; }
+    header p { margin: 8px 0 0; color: #d6e5ff; }
+    main {
+      width: min(760px, 92%);
+      margin: 36px auto;
+    }
+    .panel {
+      background: white;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 8px 30px #17203312;
+    }
+    form { display: flex; gap: 8px; }
+    input {
+      flex: 1; min-width: 0; padding: 14px;
+      border: 1px solid #ccd5e4; border-radius: 10px;
+      font-size: 16px;
+    }
+    button {
+      border: 0; border-radius: 10px; padding: 14px 18px;
+      background: #1769e0; color: white; font-weight: bold;
+      cursor: pointer;
+    }
+    h2 { font-size: 20px; }
+    .result {
+      border: 1px solid #e1e7f0; border-radius: 12px;
+      padding: 15px; margin-top: 12px;
+    }
+    .result a { color: #155bc0; font-weight: bold; }
+    .muted { color: #68758a; font-size: 14px; }
+    footer { text-align: center; padding: 20px; color: #68758a; }
+    @media (max-width: 480px) {
+      form { flex-direction: column; }
+      button { width: 100%; }
+      .panel { padding: 17px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">🔎 Ishwar Search</div>
+    <p>Khojiye aasani se — useful websites ek jagah</p>
+    <p>Owner: {{ owner }}</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>क्या खोजें आज?</h2>
+      <form action="/" method="get">
+        <input name="q" value="{{ query }}"
+               placeholder="जैसे PAN Card, सरकारी योजना..."
+               maxlength="160" aria-label="Search">
+        <button type="submit">Search</button>
+      </form>
+
+      <p class="muted">
+        उपलब्ध वेबसाइटें: {{ service_count }}
+      </p>
+
+      {% if query %}
+        <h2>“{{ query }}” के परिणाम</h2>
+        {% if results %}
+          {% for item in results %}
+            <article class="result">
+              <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
+                {{ item.title }}
+              </a>
+              {% if item.category %}
+                <p class="muted">{{ item.category }}</p>
+              {% endif %}
+              {% if item.description %}
+                <p>{{ item.description }}</p>
+              {% endif %}
+            </article>
+          {% endfor %}
+        {% else %}
+          <p>कोई परिणाम नहीं मिला। दूसरा शब्द लिखकर खोजें।</p>
+        {% endif %}
+      {% else %}
+        <h2>श्रेणियाँ</h2>
+        {% for category in categories %}
+          <span class="muted">{{ category }}{% if not loop.last %} · {% endif %}</span>
+        {% endfor %}
+      {% endif %}
+    </section>
+  </main>
+
+  <footer>© {{ current_year }} {{ app_name }} · {{ owner }}</footer>
+</body>
+</html>
