@@ -48,6 +48,30 @@ RAW_SERVICES = [
     ("Mohanlal Sukhadia University (MLSU)", "Education", "mlsu mohanlal sukhadia university udaipur एमएलएसयू मोहनलाल सुखाड़िया विश्वविद्यालय", "https://mlsu.ac.in/"),
     ("Jai Narain Vyas University (JNVU)", "Education", "jnvu jai narain vyas university jodhpur जेएनवीयू जयनारायण व्यास विश्वविद्यालय", "https://jnvu.info/"),
     ("University of Kota", "Education", "uok kota university कोटा यूनिवर्सिटी विश्वविद्यालय", "https://uok.ac.in/"),
+        ("Maharshi Dayanand Saraswati University (MDSU)", "Education", "mdsu ajmer university एमडीएसयू अजमेर", "https://mdsu.ac.in/"),
+    ("MDSU Admission and Examination", "Education", "mdsu admission exam form परीक्षा फॉर्म", "https://mdsu.ac.in/"),
+    ("MDSU Results", "Education", "mdsu result results रिजल्ट परिणाम", "https://mdsu.ac.in/"),
+
+    ("University of Rajasthan Jaipur", "Education", "uniraj rajasthan university jaipur राजस्थान विश्वविद्यालय", "https://uniraj.ac.in/"),
+    ("Rajasthan University Admission", "Education", "uniraj admission online form एडमिशन प्रवेश फॉर्म", "https://admissions.univraj.org/"),
+    ("Rajasthan University Results", "Education", "uniraj results result रिजल्ट परिणाम", "https://results.uniraj.ac.in/"),
+
+    ("MLSU Udaipur Admission and Examination", "Education", "mlsu udaipur admission examination form एमएलएसयू", "https://mlsuexamination.sumsraj.com/"),
+    ("MLSU Results", "Education", "mlsu udaipur results result रिजल्ट", "https://mlsuexamination.sumsraj.com/"),
+
+    ("JNVU Jodhpur Admission and Examination", "Education", "jnvu jodhpur admission examination form जेएनवीयू", "https://jnvu.info/"),
+    ("JNVU Results", "Education", "jnvu jodhpur results result रिजल्ट", "https://jnvu.info/"),
+
+    ("University of Kota Admission and Examination", "Education", "uok kota admission examination form कोटा यूनिवर्सिटी", "https://uok.ac.in/"),
+    ("University of Kota Results", "Education", "uok kota university results result रिजल्ट", "https://uok.ac.in/"),
+
+    ("Rajasthan Technical University Admission and Examination", "Education", "rtu kota admission examination form आरटीयू", "https://www.rtu.ac.in/"),
+    ("Rajasthan Technical University Results", "Education", "rtu kota results result रिजल्ट", "https://www.rtu.ac.in/"),
+
+    ("Maharaja Ganga Singh University (MGSU)", "Education", "mg su bikaner university एमजीएसयू बीकानेर", "https://mgsubikaner.ac.in/"),
+    ("Vardhman Mahaveer Open University (VMOU)", "Education", "vmou kota open university वर्धमान महावीर खुला विश्वविद्यालय", "https://www.vmou.ac.in/"),
+    ("Govind Guru Tribal University (GGTU)", "Education", "ggtu banswara tribal university गोविंद गुरु जनजातीय विश्वविद्यालय", "https://www.ggtu.ac.in/"),
+    ("Shekhawati University", "Education", "pdusu sikar shekhawati university शेखावाटी विश्वविद्यालय", "https://www.shekhauni.ac.in/"),
     ("Rajasthan Single Sign On", "Rajasthan", "sso login राजस्थान", "https://sso.rajasthan.gov.in/"),
 
     ("UIDAI Aadhaar", "Government", "aadhaar aadhar आधार uidai", "https://uidai.gov.in/"),
