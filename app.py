@@ -72,6 +72,45 @@ RAW_SERVICES = [
     ("Vardhman Mahaveer Open University (VMOU)", "Education", "vmou kota open university वर्धमान महावीर खुला विश्वविद्यालय", "https://www.vmou.ac.in/"),
     ("Govind Guru Tribal University (GGTU)", "Education", "ggtu banswara tribal university गोविंद गुरु जनजातीय विश्वविद्यालय", "https://www.ggtu.ac.in/"),
     ("Shekhawati University", "Education", "pdusu sikar shekhawati university शेखावाटी विश्वविद्यालय", "https://www.shekhauni.ac.in/"),
+        # SOCIAL MEDIA
+    ("YouTube", "Social Media", "youtube video shorts यूट्यूब वीडियो", "https://www.youtube.com/"),
+    ("Facebook", "Social Media", "facebook social media फेसबुक", "https://www.facebook.com/"),
+    ("Instagram", "Social Media", "instagram reels photos इंस्टाग्राम", "https://www.instagram.com/"),
+    ("WhatsApp", "Social Media", "whatsapp chat messaging व्हाट्सएप", "https://www.whatsapp.com/"),
+    ("Telegram", "Social Media", "telegram messages groups टेलीग्राम", "https://telegram.org/"),
+    ("X", "Social Media", "x twitter posts एक्स ट्विटर", "https://x.com/"),
+    ("LinkedIn", "Social Media", "linkedin jobs professional लिंक्डइन", "https://www.linkedin.com/"),
+    ("Pinterest", "Social Media", "pinterest photos ideas पिन्टरेस्ट", "https://www.pinterest.com/"),
+    ("Reddit", "Social Media", "reddit discussions community रेडिट", "https://www.reddit.com/"),
+    ("Snapchat", "Social Media", "snapchat stories snaps स्नैपचैट", "https://www.snapchat.com/"),
+
+    # GOOGLE SERVICES
+    ("Google", "Technology", "google search गूगल सर्च", "https://www.google.com/"),
+    ("Gmail", "Technology", "gmail email जीमेल ईमेल", "https://mail.google.com/"),
+    ("Google Maps", "Technology", "google maps location directions रास्ता", "https://maps.google.com/"),
+    ("Google Drive", "Technology", "google drive files storage फाइल", "https://drive.google.com/"),
+    ("Google Translate", "Education", "google translate hindi english अनुवाद", "https://translate.google.com/"),
+    ("Google Meet", "Technology", "google meet online meeting वीडियो मीटिंग", "https://meet.google.com/"),
+
+    # AI TOOLS
+    ("ChatGPT", "AI Tools", "chatgpt artificial intelligence एआई", "https://chatgpt.com/"),
+    ("Google Gemini", "AI Tools", "google gemini ai assistant जेमिनी", "https://gemini.google.com/"),
+    ("Microsoft Copilot", "AI Tools", "microsoft copilot ai कोपायलट", "https://copilot.microsoft.com/"),
+
+    # DESIGN AND CREATION
+    ("Canva", "Design", "canva poster logo design कैनवा", "https://www.canva.com/"),
+    ("Adobe Express", "Design", "adobe express photo poster design", "https://www.adobe.com/express/"),
+    ("CapCut", "Video Tools", "capcut video editing वीडियो एडिटिंग", "https://www.capcut.com/"),
+
+    # CODING AND TECHNOLOGY
+    ("GitHub", "Technology", "github coding programming गिटहब", "https://github.com/"),
+    ("Stack Overflow", "Technology", "stack overflow programming coding", "https://stackoverflow.com/"),
+    ("Python", "Technology", "python programming language पाइथन", "https://www.python.org/"),
+
+    # GOVERNMENT AND PUBLIC INFORMATION
+    ("India Government Web Directory", "Government", "official government websites india सरकारी वेबसाइट", "https://igod.gov.in/"),
+    ("MyGov India", "Government", "mygov india government schemes सरकारी योजनाएं", "https://www.mygov.in/"),
+    ("National Cyber Crime Reporting Portal", "Safety", "cyber crime complaint online fraud साइबर शिकायत", "https://cybercrime.gov.in/"),
     ("Rajasthan Single Sign On", "Rajasthan", "sso login राजस्थान", "https://sso.rajasthan.gov.in/"),
 
     ("UIDAI Aadhaar", "Government", "aadhaar aadhar आधार uidai", "https://uidai.gov.in/"),
