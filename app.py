@@ -103,6 +103,16 @@ RAW_SERVICES = [
     ("CodePen", "Technology", "codepen web design html css javascript", "https://codepen.io/"),
     ("Replit", "Technology", "replit online coding programming", "https://replit.com/"),
     ("Kaggle", "Technology", "kaggle datasets machine learning data", "https://www.kaggle.com/"),
+        # APP STORES
+    ("Google Play Store", "Apps", "play store google android apps प्ले स्टोर ऐप डाउनलोड", "https://play.google.com/store"),
+    ("Google Play Store Games", "Apps", "play store games android games गेम डाउनलोड", "https://play.google.com/store/games"),
+    ("Google Play Store Apps", "Apps", "android applications mobile apps एंड्रॉयड ऐप्स", "https://play.google.com/store/apps"),
+    ("Google Play Store Books", "Apps", "google play books ebooks किताबें", "https://play.google.com/store/books"),
+    ("Google Play Store Movies", "Apps", "google play movies entertainment फिल्में", "https://play.google.com/store/movies"),
+    ("Google Play Help", "Apps", "play store help support प्ले स्टोर सहायता", "https://support.google.com/googleplay/"),
+    ("Google Play Protect", "Apps", "google play protect app security सुरक्षा", "https://support.google.com/googleplay/answer/2812853"),
+    ("Android Official Website", "Apps", "android official website एंड्रॉयड जानकारी", "https://www.android.com/"),
+    ("Google Play Console", "Technology", "google play console developer publish android apps", "https://play.google.com/console/"),
     # GOOGLE SERVICES
     ("Google", "Technology", "google search गूगल सर्च", "https://www.google.com/"),
     ("Gmail", "Technology", "gmail email जीमेल ईमेल", "https://mail.google.com/"),
