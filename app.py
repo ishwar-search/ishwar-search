@@ -225,6 +225,54 @@ def search_services(query):
     if not q:
         return []
 
+
+    aliases = {
+        "railway": "rail train rrb railway रेलवे",
+        "scholarship": "scholarship छात्रवृत्ति",
+        "aadhaar": "aadhaar aadhar आधार uidai",
+        "aadhar": "aadhaar aadhar आधार uidai",
+        "rajasthan": "rajasthan राजस्थान rpsc rssb sso",
+        "jobs": "job jobs career recruitment भर्ती नौकरी",
+        "iti": "iti ncvt fitter apprentice",
+        "fitter": "fitter iti ncvt apprentice",
+        "pan": "pan card income tax",
+        "police": "police राजस्थान पुलिस",
+        "news": "news समाचार pib bbc",
+        "ai": "ai artificial intelligence chatgpt gemini",
+        "map": "map maps नक्शा google",
+    }
+
+    expanded = aliases.get(q, q)
+    terms = set(expanded.split())
+    ranked = []
+
+    for service in SERVICES:
+        name = normalize(service["name"])
+        category = normalize(service["category"])
+        keywords = normalize(service["keywords"])
+        url = normalize(service["url"])
+        searchable = f"{name} {category} {keywords} {url}"
+
+        score = 0
+        if q == name:
+            score += 100
+        if q in name:
+            score += 60
+        if q in category:
+            score += 20
+        if q in keywords:
+            score += 25
+        if q in url:
+            score += 10
+
+        matched = sum(1 for term in terms if term and term in searchable)
+        score += matched * 5
+
+        if score > 0:
+            ranked.append((score, service))
+
+    ranked.sort(key=lambda pair: (-pair[0], pair[1]["name"].lower()))
+    return [service for _, service in ranked[:50]]
 # Smart Search Suggestions — existing services are preserved
 SMART_SUGGESTIONS = [
     {
@@ -414,55 +462,6 @@ def api_suggestions():
         "query": query,
         "results": get_suggestions(query)
     })
-
-    aliases = {
-        "railway": "rail train rrb railway रेलवे",
-        "scholarship": "scholarship छात्रवृत्ति",
-        "aadhaar": "aadhaar aadhar आधार uidai",
-        "aadhar": "aadhaar aadhar आधार uidai",
-        "rajasthan": "rajasthan राजस्थान rpsc rssb sso",
-        "jobs": "job jobs career recruitment भर्ती नौकरी",
-        "iti": "iti ncvt fitter apprentice",
-        "fitter": "fitter iti ncvt apprentice",
-        "pan": "pan card income tax",
-        "police": "police राजस्थान पुलिस",
-        "news": "news समाचार pib bbc",
-        "ai": "ai artificial intelligence chatgpt gemini",
-        "map": "map maps नक्शा google",
-    }
-
-    expanded = aliases.get(q, q)
-    terms = set(expanded.split())
-    ranked = []
-
-    for service in SERVICES:
-        name = normalize(service["name"])
-        category = normalize(service["category"])
-        keywords = normalize(service["keywords"])
-        url = normalize(service["url"])
-        searchable = f"{name} {category} {keywords} {url}"
-
-        score = 0
-        if q == name:
-            score += 100
-        if q in name:
-            score += 60
-        if q in category:
-            score += 20
-        if q in keywords:
-            score += 25
-        if q in url:
-            score += 10
-
-        matched = sum(1 for term in terms if term and term in searchable)
-        score += matched * 5
-
-        if score > 0:
-            ranked.append((score, service))
-
-    ranked.sort(key=lambda pair: (-pair[0], pair[1]["name"].lower()))
-    return [service for _, service in ranked[:50]]
-
 RSS_FEEDS = [
     ("Google News India", "https://news.google.com/rss?hl=hi&gl=IN&ceid=IN:hi"),
     ("PIB India", "https://pib.gov.in/RssMain.aspx"),
