@@ -1,0 +1,302 @@
+[
+  {
+    "name": "National Career Service",
+    "category": "Jobs",
+    "keywords": "job employment career नौकरी रोजगार",
+    "url": "https://www.ncs.gov.in/"
+  },
+  {
+    "name": "Employment News",
+    "category": "Jobs",
+    "keywords": "government jobs employment news रोजगार समाचार",
+    "url": "https://employmentnews.gov.in/"
+  },
+  {
+    "name": "Staff Selection Commission",
+    "category": "Recruitment",
+    "keywords": "SSC CGL CHSL MTS GD भर्ती",
+    "url": "https://ssc.gov.in/"
+  },
+  {
+    "name": "Union Public Service Commission",
+    "category": "Recruitment",
+    "keywords": "UPSC civil services NDA CDS",
+    "url": "https://upsc.gov.in/"
+  },
+  {
+    "name": "Railway Recruitment Boards",
+    "category": "Railway",
+    "keywords": "RRB ALP NTPC Group D railway भर्ती",
+    "url": "https://www.rrbcdg.gov.in/"
+  },
+  {
+    "name": "Railway Recruitment Cell North Western Railway",
+    "category": "Railway",
+    "keywords": "RRC NWR Jaipur apprentice रेलवे",
+    "url": "https://nwr.indianrailways.gov.in/"
+  },
+  {
+    "name": "Rajasthan Public Service Commission",
+    "category": "Recruitment",
+    "keywords": "RPSC Rajasthan भर्ती परीक्षा",
+    "url": "https://rpsc.rajasthan.gov.in/"
+  },
+  {
+    "name": "Rajasthan Staff Selection Board",
+    "category": "Recruitment",
+    "keywords": "RSSB RSMSSB Rajasthan jobs",
+    "url": "https://rssb.rajasthan.gov.in/"
+  },
+  {
+    "name": "National Testing Agency",
+    "category": "Education",
+    "keywords": "NTA exam JEE NEET CUET परीक्षा",
+    "url": "https://nta.ac.in/"
+  },
+  {
+    "name": "University Grants Commission",
+    "category": "Education",
+    "keywords": "UGC university higher education",
+    "url": "https://www.ugc.gov.in/"
+  },
+  {
+    "name": "All India Council for Technical Education",
+    "category": "Education",
+    "keywords": "AICTE technical education college",
+    "url": "https://www.aicte-india.org/"
+  },
+  {
+    "name": "National Scholarship Portal",
+    "category": "Education",
+    "keywords": "scholarship छात्रवृत्ति students",
+    "url": "https://scholarships.gov.in/"
+  },
+  {
+    "name": "SWAYAM Online Courses",
+    "category": "Learning",
+    "keywords": "online courses free learning",
+    "url": "https://swayam.gov.in/"
+  },
+  {
+    "name": "DIKSHA Learning Platform",
+    "category": "Learning",
+    "keywords": "school education learning courses",
+    "url": "https://diksha.gov.in/"
+  },
+  {
+    "name": "Khan Academy",
+    "category": "Learning",
+    "keywords": "math science learning free lessons",
+    "url": "https://www.khanacademy.org/"
+  },
+  {
+    "name": "National Digital Library of India",
+    "category": "Learning",
+    "keywords": "digital library books study",
+    "url": "https://ndl.iitkgp.ac.in/"
+  },
+  {
+    "name": "ePathshala",
+    "category": "Learning",
+    "keywords": "NCERT books textbook school",
+    "url": "https://epathshala.nic.in/"
+  },
+  {
+    "name": "NCERT",
+    "category": "Education",
+    "keywords": "NCERT textbooks syllabus education",
+    "url": "https://ncert.nic.in/"
+  },
+  {
+    "name": "All India Radio News",
+    "category": "News",
+    "keywords": "Akashvani news radio भारत समाचार",
+    "url": "https://www.newsonair.gov.in/"
+  },
+  {
+    "name": "Press Information Bureau",
+    "category": "News",
+    "keywords": "PIB government press release सरकारी खबर",
+    "url": "https://pib.gov.in/"
+  },
+  {
+    "name": "DD News",
+    "category": "News",
+    "keywords": "Doordarshan news India समाचार",
+    "url": "https://ddnews.gov.in/"
+  },
+  {
+    "name": "Google News India",
+    "category": "News",
+    "keywords": "latest news India ताजा खबर",
+    "url": "https://news.google.com/"
+  },
+  {
+    "name": "BBC News Hindi",
+    "category": "News",
+    "keywords": "Hindi news international समाचार",
+    "url": "https://www.bbc.com/hindi"
+  },
+  {
+    "name": "The Hindu",
+    "category": "News",
+    "keywords": "English news India newspaper",
+    "url": "https://www.thehindu.com/"
+  },
+  {
+    "name": "Indian Express",
+    "category": "News",
+    "keywords": "news India explainers newspaper",
+    "url": "https://indianexpress.com/"
+  },
+  {
+    "name": "India Code",
+    "category": "Legal",
+    "keywords": "Indian laws acts कानूनी जानकारी",
+    "url": "https://www.indiacode.nic.in/"
+  },
+  {
+    "name": "eCourts Services",
+    "category": "Legal",
+    "keywords": "court case status district court",
+    "url": "https://ecourts.gov.in/"
+  },
+  {
+    "name": "National Legal Services Authority",
+    "category": "Legal",
+    "keywords": "NALSA legal aid free कानूनी सहायता",
+    "url": "https://nalsa.gov.in/"
+  },
+  {
+    "name": "Consumer Helpline",
+    "category": "Consumer",
+    "keywords": "consumer complaint 1915 ग्राहक शिकायत",
+    "url": "https://consumerhelpline.gov.in/"
+  },
+  {
+    "name": "National Cyber Crime Reporting Portal",
+    "category": "Safety",
+    "keywords": "cyber crime online fraud complaint साइबर ठगी",
+    "url": "https://cybercrime.gov.in/"
+  },
+  {
+    "name": "CPGRAMS Public Grievances",
+    "category": "Government",
+    "keywords": "government complaint grievance शिकायत",
+    "url": "https://pgportal.gov.in/"
+  },
+  {
+    "name": "MyGov India",
+    "category": "Government",
+    "keywords": "citizen participation government भारत सरकार",
+    "url": "https://www.mygov.in/"
+  },
+  {
+    "name": "National Portal of India",
+    "category": "Government",
+    "keywords": "India government services सरकारी सेवाएं",
+    "url": "https://www.india.gov.in/"
+  },
+  {
+    "name": "MyScheme",
+    "category": "Government",
+    "keywords": "government schemes eligibility योजना",
+    "url": "https://www.myscheme.gov.in/"
+  },
+  {
+    "name": "UMANG",
+    "category": "Government",
+    "keywords": "government services mobile app सरकारी सेवा",
+    "url": "https://web.umang.gov.in/"
+  },
+  {
+    "name": "DigiLocker",
+    "category": "Documents",
+    "keywords": "digital documents marksheet certificate",
+    "url": "https://www.digilocker.gov.in/"
+  },
+  {
+    "name": "Passport Seva",
+    "category": "Documents",
+    "keywords": "passport apply renewal पासपोर्ट",
+    "url": "https://www.passportindia.gov.in/"
+  },
+  {
+    "name": "Voter Services Portal",
+    "category": "Documents",
+    "keywords": "voter ID electoral roll चुनाव कार्ड",
+    "url": "https://voters.eci.gov.in/"
+  },
+  {
+    "name": "Election Commission of India",
+    "category": "Government",
+    "keywords": "election voter election commission",
+    "url": "https://www.eci.gov.in/"
+  },
+  {
+    "name": "UIDAI Aadhaar",
+    "category": "Documents",
+    "keywords": "Aadhaar update download आधार",
+    "url": "https://uidai.gov.in/"
+  },
+  {
+    "name": "Income Tax e-Filing",
+    "category": "Finance",
+    "keywords": "income tax return ITR PAN tax",
+    "url": "https://www.incometax.gov.in/"
+  },
+  {
+    "name": "GST Portal",
+    "category": "Business",
+    "keywords": "GST registration return tax business",
+    "url": "https://www.gst.gov.in/"
+  },
+  {
+    "name": "EPFO",
+    "category": "Finance",
+    "keywords": "PF UAN provident fund pension",
+    "url": "https://www.epfindia.gov.in/"
+  },
+  {
+    "name": "ESIC",
+    "category": "Health",
+    "keywords": "employee insurance medical benefits",
+    "url": "https://www.esic.gov.in/"
+  },
+  {
+    "name": "Rajasthan SSO",
+    "category": "Rajasthan",
+    "keywords": "Rajasthan SSO login services राजस्थान",
+    "url": "https://sso.rajasthan.gov.in/"
+  },
+  {
+    "name": "Rajasthan Sampark",
+    "category": "Rajasthan",
+    "keywords": "Rajasthan complaint grievance जन शिकायत",
+    "url": "https://sampark.rajasthan.gov.in/"
+  },
+  {
+    "name": "Rajasthan Jan Aadhaar",
+    "category": "Rajasthan",
+    "keywords": "Jan Aadhaar family ID राजस्थान",
+    "url": "https://janaadhaar.rajasthan.gov.in/"
+  },
+  {
+    "name": "Rajasthan Board of Secondary Education",
+    "category": "Education",
+    "keywords": "RBSE result exam Rajasthan board",
+    "url": "https://rajeduboard.rajasthan.gov.in/"
+  },
+  {
+    "name": "Rajasthan Police",
+    "category": "Safety",
+    "keywords": "Rajasthan police citizen services",
+    "url": "https://police.rajasthan.gov.in/"
+  },
+  {
+    "name": "Rajasthan High Court",
+    "category": "Legal",
+    "keywords": "Rajasthan High Court case judgement",
+    "url": "https://hcraj.nic.in/"
+  }
+]
