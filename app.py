@@ -225,6 +225,196 @@ def search_services(query):
     if not q:
         return []
 
+# Smart Search Suggestions — existing services are preserved
+SMART_SUGGESTIONS = [
+    {
+        "name": "Railway Recruitment Boards (RRB)",
+        "category": "Railway Jobs",
+        "keywords": "railway rrb recruitment vacancy railway jobs भर्ती",
+        "url": "https://www.rrbapply.gov.in/"
+    },
+    {
+        "name": "Indian Railways",
+        "category": "Railway",
+        "keywords": "railway train रेलगाड़ी railway information",
+        "url": "https://indianrailways.gov.in/"
+    },
+    {
+        "name": "IRCTC Train Ticket Booking",
+        "category": "Railway",
+        "keywords": "train ticket booking reservation irctc टिकट",
+        "url": "https://www.irctc.co.in/"
+    },
+    {
+        "name": "National Train Enquiry System",
+        "category": "Railway",
+        "keywords": "train status running status train enquiry",
+        "url": "https://enquiry.indianrail.gov.in/"
+    },
+    {
+        "name": "RRB NTPC Recruitment",
+        "category": "Railway Jobs",
+        "keywords": "rrb ntpc graduate undergraduate 12th exam",
+        "url": "https://www.rrbapply.gov.in/"
+    },
+    {
+        "name": "Railway ALP Recruitment",
+        "category": "Railway Jobs",
+        "keywords": "alp assistant loco pilot railway exam",
+        "url": "https://www.rrbapply.gov.in/"
+    },
+    {
+        "name": "Railway Group D Recruitment",
+        "category": "Railway Jobs",
+        "keywords": "group d level 1 railway vacancy",
+        "url": "https://www.rrbapply.gov.in/"
+    },
+    {
+        "name": "Railway Technician Recruitment",
+        "category": "Railway Jobs",
+        "keywords": "technician railway fitter iti recruitment",
+        "url": "https://www.rrbapply.gov.in/"
+    },
+    {
+        "name": "RRC North Western Railway",
+        "category": "Railway Jobs",
+        "keywords": "rrc nwr jaipur apprentice railway राजस्थान",
+        "url": "https://nwr.indianrailways.gov.in/"
+    },
+    {
+        "name": "National Career Service",
+        "category": "Jobs",
+        "keywords": "government private job employment नौकरी",
+        "url": "https://www.ncs.gov.in/"
+    },
+    {
+        "name": "Apprenticeship India",
+        "category": "ITI Jobs",
+        "keywords": "iti fitter apprenticeship apprentice अप्रेंटिस",
+        "url": "https://www.apprenticeshipindia.gov.in/"
+    },
+    {
+        "name": "NCVT MIS",
+        "category": "ITI",
+        "keywords": "iti ncvt marksheet certificate pntc fitter",
+        "url": "https://www.ncvtmis.gov.in/"
+    },
+    {
+        "name": "Skill India Digital Hub",
+        "category": "ITI",
+        "keywords": "sidh skill india iti training कौशल",
+        "url": "https://www.skillindiadigital.gov.in/"
+    },
+    {
+        "name": "Staff Selection Commission",
+        "category": "Jobs",
+        "keywords": "ssc government job recruitment परीक्षा",
+        "url": "https://ssc.gov.in/"
+    },
+    {
+        "name": "Rajasthan Staff Selection Board",
+        "category": "Rajasthan Jobs",
+        "keywords": "rssb rsmssb राजस्थान भर्ती",
+        "url": "https://rssb.rajasthan.gov.in/"
+    },
+    {
+        "name": "Rajasthan Public Service Commission",
+        "category": "Rajasthan Jobs",
+        "keywords": "rpsc राजस्थान सरकारी भर्ती",
+        "url": "https://rpsc.rajasthan.gov.in/"
+    },
+    {
+        "name": "National Scholarship Portal",
+        "category": "Education",
+        "keywords": "scholarship student छात्रवृत्ति",
+        "url": "https://scholarships.gov.in/"
+    },
+    {
+        "name": "Rajasthan Sampark Complaints",
+        "category": "Complaints",
+        "keywords": "complaint shikayat sampark राजस्थान शिकायत",
+        "url": "https://sampark.rajasthan.gov.in/"
+    },
+    {
+        "name": "National Consumer Helpline",
+        "category": "Complaints",
+        "keywords": "consumer complaint customer ग्राहक शिकायत",
+        "url": "https://consumerhelpline.gov.in/"
+    },
+    {
+        "name": "National Cyber Crime Reporting Portal",
+        "category": "Safety",
+        "keywords": "online fraud cyber crime scam साइबर ठगी",
+        "url": "https://cybercrime.gov.in/"
+    },
+]
+
+
+def get_suggestions(query, limit=10):
+    """Return relevant suggestions without changing the main search."""
+    q = normalize(query)
+
+    if len(q) < 2:
+        return []
+
+    # Existing services and new suggestions are combined.
+    candidates = SERVICES + SMART_SUGGESTIONS
+    ranked = []
+    seen_urls = set()
+
+    for service in candidates:
+        url = service.get("url", "")
+        if not url.startswith("https://") or url in seen_urls:
+            continue
+        seen_urls.add(url)
+
+        name = normalize(service.get("name", ""))
+        category = normalize(service.get("category", ""))
+        keywords = normalize(service.get("keywords", ""))
+        searchable = f"{name} {category} {keywords}"
+
+        score = 0
+        if q == name:
+            score += 100
+        if name.startswith(q):
+            score += 80
+        elif q in name:
+            score += 55
+        if q in category:
+            score += 30
+        if q in keywords:
+            score += 25
+
+        query_terms = q.split()
+        score += sum(
+            8 for term in query_terms
+            if len(term) > 1 and term in searchable
+        )
+
+        if score > 0:
+            ranked.append((score, service))
+
+    ranked.sort(key=lambda item: (-item[0], item[1]["name"].lower()))
+
+    return [
+        {
+            "name": service["name"],
+            "category": service["category"],
+            "url": service["url"]
+        }
+        for _, service in ranked[:limit]
+    ]
+
+
+@app.route("/api/suggestions")
+def api_suggestions():
+    query = request.args.get("q", "").strip()[:160]
+    return jsonify({
+        "success": True,
+        "query": query,
+        "results": get_suggestions(query)
+    })
+
     aliases = {
         "railway": "rail train rrb railway रेलवे",
         "scholarship": "scholarship छात्रवृत्ति",
