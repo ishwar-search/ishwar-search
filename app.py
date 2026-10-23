@@ -263,6 +263,67 @@ RAW_SERVICES += [
     ("National Disaster Management Authority", "Safety", "ndma disaster emergency आपदा", "https://ndma.gov.in/"),
     ("India Meteorological Department", "Weather", "imd weather forecast मौसम", "https://mausam.imd.gov.in/"),
     ("National Portal for Disaster Alerts", "Safety", "disaster alert emergency चेतावनी", "https://sachet.ndma.gov.in/"),
+    
+    # GOVERNMENT AND DIGITAL SERVICES
+    ("DigiLocker", "Government", "digilocker digital documents marksheet certificate डिजिलॉकर", "https://www.digilocker.gov.in/"),
+    ("UMANG", "Government", "umang government services सरकारी सेवाएं", "https://web.umang.gov.in/"),
+    ("UIDAI Aadhaar", "Government", "uidai aadhaar आधार कार्ड official", "https://uidai.gov.in/"),
+    ("Passport Seva", "Government", "passport seva passport application पासपोर्ट", "https://www.passportindia.gov.in/"),
+    ("Voter Services", "Government", "voter id election registration वोटर आईडी", "https://voters.eci.gov.in/"),
+    ("Parivahan Sewa", "Government", "parivahan driving licence vehicle परिवहन", "https://parivahan.gov.in/"),
+    ("Income Tax India", "Government", "income tax pan tax return इनकम टैक्स", "https://www.incometax.gov.in/"),
+    ("EPFO", "Government", "epfo pf pension provident fund पीएफ", "https://www.epfindia.gov.in/"),
+    ("ESIC", "Government", "esic employee health insurance कर्मचारी बीमा", "https://www.esic.gov.in/"),
+    ("National Career Service", "Jobs", "ncs national career service jobs नौकरी", "https://www.ncs.gov.in/"),
+    ("National Scholarship Portal", "Education", "scholarship national scholarship portal छात्रवृत्ति", "https://scholarships.gov.in/"),
+    ("NTA", "Education", "nta exams entrance test राष्ट्रीय परीक्षा एजेंसी", "https://www.nta.ac.in/"),
+    ("UPSC", "Jobs", "upsc civil services government exam", "https://upsc.gov.in/"),
+    ("SSC", "Jobs", "ssc recruitment government jobs कर्मचारी चयन", "https://ssc.gov.in/"),
+    ("Railway Recruitment Board", "Jobs", "rrb railway recruitment jobs रेलवे भर्ती", "https://www.rrbcdg.gov.in/"),
+    ("Rajasthan SSO", "Government", "rajasthan sso login राजस्थान एसएसओ", "https://sso.rajasthan.gov.in/"),
+    ("Rajasthan Jan Aadhaar", "Government", "jan aadhaar rajasthan जन आधार", "https://janaadhaar.rajasthan.gov.in/"),
+    ("Rajasthan Sampark", "Government", "rajasthan sampark complaint राजस्थान शिकायत", "https://sampark.rajasthan.gov.in/"),
+    ("MyScheme", "Government", "myscheme government schemes सरकारी योजनाएं", "https://www.myscheme.gov.in/"),
+    ("National Consumer Helpline", "Government", "consumer complaint customer grievance उपभोक्ता शिकायत", "https://consumerhelpline.gov.in/"),
+
+    # TRAVEL AND TRANSPORT
+    ("IRCTC", "Travel", "irctc train ticket railway reservation ट्रेन टिकट", "https://www.irctc.co.in/"),
+    ("Indian Railways", "Travel", "indian railways railway information भारतीय रेलवे", "https://indianrailways.gov.in/"),
+    ("Air India", "Travel", "air india flight booking एयर इंडिया", "https://www.airindia.com/"),
+    ("IndiGo", "Travel", "indigo flight booking flight status", "https://www.goindigo.in/"),
+    ("RedBus", "Travel", "redbus bus ticket booking बस टिकट", "https://www.redbus.in/"),
+    ("MakeMyTrip", "Travel", "makemytrip hotel flight travel booking", "https://www.makemytrip.com/"),
+
+    # PDF AND DOCUMENT TOOLS
+    ("iLovePDF", "Tools", "ilovepdf merge compress convert pdf पीडीएफ", "https://www.ilovepdf.com/"),
+    ("Smallpdf", "Tools", "smallpdf compress merge pdf पीडीएफ टूल", "https://smallpdf.com/"),
+    ("PDF24 Tools", "Tools", "pdf24 merge compress convert pdf", "https://tools.pdf24.org/en/"),
+    ("Adobe Acrobat Online", "Tools", "adobe acrobat pdf convert edit पीडीएफ", "https://www.adobe.com/acrobat/online.html"),
+    ("Photopea", "Design", "photopea online photo editor image editing", "https://www.photopea.com/"),
+    ("Remove.bg", "Design", "remove bg background remover फोटो बैकग्राउंड", "https://www.remove.bg/"),
+    ("TinyPNG", "Tools", "tinypng compress png jpg images", "https://tinypng.com/"),
+    ("QR Code Generator", "Tools", "qr code generator create qr code", "https://www.qrcode-monkey.com/"),
+    ("Speedtest", "Tools", "internet speed test इंटरनेट स्पीड", "https://www.speedtest.net/"),
+    ("VirusTotal", "Security", "virustotal check suspicious file link security", "https://www.virustotal.com/"),
+
+    # LEARNING AND KNOWLEDGE
+    ("SWAYAM", "Education", "swayam online courses भारत ऑनलाइन पढ़ाई", "https://swayam.gov.in/"),
+    ("ePathshala", "Education", "epathshala ncert textbooks ebooks एनसीईआरटी", "https://epathshala.nic.in/"),
+    ("DIKSHA", "Education", "diksha learning education courses दीक्षा", "https://diksha.gov.in/"),
+    ("Khan Academy", "Education", "khan academy free learning गणित विज्ञान", "https://www.khanacademy.org/"),
+    ("Coursera", "Education", "coursera online courses learning", "https://www.coursera.org/"),
+    ("edX", "Education", "edx online courses education", "https://www.edx.org/"),
+    ("Wikimedia Commons", "Education", "wikimedia commons free educational media", "https://commons.wikimedia.org/"),
+    ("Internet Archive", "Education", "internet archive books historical resources", "https://archive.org/"),
+
+    # SHOPPING AND EVERYDAY SERVICES
+    ("Amazon India", "Shopping", "amazon india online shopping अमेजन", "https://www.amazon.in/"),
+    ("Flipkart", "Shopping", "flipkart online shopping फ्लिपकार्ट", "https://www.flipkart.com/"),
+    ("Myntra", "Shopping", "myntra clothing fashion shopping", "https://www.myntra.com/"),
+    ("AJIO", "Shopping", "ajio fashion clothes online shopping", "https://www.ajio.com/"),
+    ("India Post", "Services", "india post postal services speed post डाक", "https://www.indiapost.gov.in/"),
+    ("OpenStreetMap", "Travel", "openstreetmap maps location रास्ता नक्शा", "https://www.openstreetmap.org/"),
+
 ]
 
 def normalize(value):
