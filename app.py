@@ -1,12 +1,11 @@
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from pathlib import Path
 from datetime import datetime
 import re
 import json
 import html
 import urllib.request
-import urllib.error
 import xml.etree.ElementTree as ET
 
 app = Flask(__name__)
@@ -15,547 +14,186 @@ APP_NAME = "Ishwar Search"
 OWNER = "Ishwar Ghanchi"
 BASE_DIR = Path(__file__).resolve().parent
 
-# सभी सेवाएँ इसी फ़ाइल में रखी गई हैं।
-# प्रारूप: नाम, श्रेणी, खोज शब्द, वेबसाइट URL
 RAW_SERVICES = [
-    ("Indian Railways", "Railway", "railway train रेल रेलगाड़ी", "https://indianrailways.gov.in/"),
-    ("Railway Recruitment Boards", "Jobs", "rrb railway recruitment भर्ती", "https://www.rrbapply.gov.in/"),
-    ("Railway Recruitment Control Board", "Jobs", "rrcb railway भर्ती", "https://rrcb.gov.in/"),
-    ("National Career Service", "Jobs", "job jobs नौकरी रोजगार", "https://www.ncs.gov.in/"),
-    ("Employment News", "Jobs", "employment news सरकारी नौकरी", "https://employmentnews.gov.in/"),
-    ("UPSC", "Jobs", "upsc civil services आईएएस", "https://upsc.gov.in/"),
-    ("SSC", "Jobs", "ssc staff selection आयोग", "https://ssc.gov.in/"),
-    ("Institute of Banking Personnel Selection", "Jobs", "ibps bank banking बैंक भर्ती", "https://www.ibps.in/"),
-    ("SBI Careers", "Jobs", "sbi bank job बैंक भर्ती", "https://sbi.co.in/web/careers"),
-    ("Rajasthan Public Service Commission", "Rajasthan Jobs", "rpsc राजस्थान भर्ती", "https://rpsc.rajasthan.gov.in/"),
-    ("Rajasthan Staff Selection Board", "Rajasthan Jobs", "rssb rsmssb राजस्थान कर्मचारी चयन", "https://rssb.rajasthan.gov.in/"),
-    ("Rajasthan SSO", "Rajasthan", "rajasthan sso राजस्थान एसएसओ", "https://sso.rajasthan.gov.in/"),
-    ("Rajasthan Government", "Rajasthan", "rajasthan government राजस्थान सरकार", "https://rajasthan.gov.in/"),
-    ("Rajasthan Jan Aadhaar", "Rajasthan", "jan aadhaar जन आधार राजस्थान", "https://janaadhaar.rajasthan.gov.in/"),
-    ("Rajasthan Sampark", "Rajasthan", "rajasthan sampark complaint शिकायत", "https://sampark.rajasthan.gov.in/"),
-    ("Rajasthan High Court", "Legal", "rajasthan high court राजस्थान उच्च न्यायालय", "https://hcraj.nic.in/"),
-    ("Rajasthan Police", "Safety", "rajasthan police पुलिस", "https://police.rajasthan.gov.in/"),
-    ("Rajasthan Board of Secondary Education", "Education", "rbse ajmer board राजस्थान बोर्ड", "https://rajeduboard.rajasthan.gov.in/"),
-    ("Rajasthan University", "Education", "uniraj university राजस्थान विश्वविद्यालय", "https://www.uniraj.ac.in/"),
-        ("Rajasthan College Education Department", "Education", "rajasthan college education higher education राजस्थान कॉलेज", "https://hte.rajasthan.gov.in/"),
-    ("Rajasthan Government College Directory", "Education", "rajasthan government college list सरकारी कॉलेज सूची", "https://dceapp.rajasthan.gov.in/DCE_Application/DceWebCollegeList.aspx"),
-    ("Rajasthan Technical University", "Education", "rtu kota technical university राजस्थान तकनीकी विश्वविद्यालय", "https://www.rtu.ac.in/"),
-        ("Government College, Bali", "Education", "government college bali pali सरकारी कॉलेज बाली पाली", "https://dceapp.rajasthan.gov.in/DCE_Application/DceWebCollegeList.aspx"),
-    ("Bangur Government P.G. College, Pali", "Education", "bangur college pali बांगड़ कॉलेज पाली", "https://dceapp.rajasthan.gov.in/DCE_Application/DceWebCollegeList.aspx"),
-    ("Government College, Sumerpur", "Education", "government college sumerpur pali सरकारी कॉलेज सुमेरपुर", "https://dceapp.rajasthan.gov.in/DCE_Application/DceWebCollegeList.aspx"),
-    ("Government College, Jaitaran", "Education", "government college jaitaran pali सरकारी कॉलेज जैतारण", "https://dceapp.rajasthan.gov.in/DCE_Application/DceWebCollegeList.aspx"),
-    ("Rajasthan Government College List", "Education", "all government colleges rajasthan राजस्थान सरकारी कॉलेज सूची", "https://dceapp.rajasthan.gov.in/DCE_Application/DceWebCollegeList.aspx"),
-    ("Mohanlal Sukhadia University (MLSU)", "Education", "mlsu mohanlal sukhadia university udaipur एमएलएसयू मोहनलाल सुखाड़िया विश्वविद्यालय", "https://mlsu.ac.in/"),
-    ("Jai Narain Vyas University (JNVU)", "Education", "jnvu jai narain vyas university jodhpur जेएनवीयू जयनारायण व्यास विश्वविद्यालय", "https://jnvu.info/"),
-    ("University of Kota", "Education", "uok kota university कोटा यूनिवर्सिटी विश्वविद्यालय", "https://uok.ac.in/"),
-        ("Maharshi Dayanand Saraswati University (MDSU)", "Education", "mdsu ajmer university एमडीएसयू अजमेर", "https://mdsu.ac.in/"),
-    ("MDSU Admission and Examination", "Education", "mdsu admission exam form परीक्षा फॉर्म", "https://mdsu.ac.in/"),
-    ("MDSU Results", "Education", "mdsu result results रिजल्ट परिणाम", "https://mdsu.ac.in/"),
+    # Search engines
+    ("Google Search", "Search", "google web search खोज", "https://www.google.com/"),
+    ("Bing Search", "Search", "bing web search", "https://www.bing.com/"),
+    ("DuckDuckGo", "Search", "private search", "https://duckduckgo.com/"),
 
-    ("University of Rajasthan Jaipur", "Education", "uniraj rajasthan university jaipur राजस्थान विश्वविद्यालय", "https://uniraj.ac.in/"),
-    ("Rajasthan University Admission", "Education", "uniraj admission online form एडमिशन प्रवेश फॉर्म", "https://admissions.univraj.org/"),
-    ("Rajasthan University Results", "Education", "uniraj results result रिजल्ट परिणाम", "https://results.uniraj.ac.in/"),
-
-    ("MLSU Udaipur Admission and Examination", "Education", "mlsu udaipur admission examination form एमएलएसयू", "https://mlsuexamination.sumsraj.com/"),
-    ("MLSU Results", "Education", "mlsu udaipur results result रिजल्ट", "https://mlsuexamination.sumsraj.com/"),
-
-    ("JNVU Jodhpur Admission and Examination", "Education", "jnvu jodhpur admission examination form जेएनवीयू", "https://jnvu.info/"),
-    ("JNVU Results", "Education", "jnvu jodhpur results result रिजल्ट", "https://jnvu.info/"),
-
-    ("University of Kota Admission and Examination", "Education", "uok kota admission examination form कोटा यूनिवर्सिटी", "https://uok.ac.in/"),
-    ("University of Kota Results", "Education", "uok kota university results result रिजल्ट", "https://uok.ac.in/"),
-
-    ("Rajasthan Technical University Admission and Examination", "Education", "rtu kota admission examination form आरटीयू", "https://www.rtu.ac.in/"),
-    ("Rajasthan Technical University Results", "Education", "rtu kota results result रिजल्ट", "https://www.rtu.ac.in/"),
-
-    ("Maharaja Ganga Singh University (MGSU)", "Education", "mg su bikaner university एमजीएसयू बीकानेर", "https://mgsubikaner.ac.in/"),
-    ("Vardhman Mahaveer Open University (VMOU)", "Education", "vmou kota open university वर्धमान महावीर खुला विश्वविद्यालय", "https://www.vmou.ac.in/"),
-    ("Govind Guru Tribal University (GGTU)", "Education", "ggtu banswara tribal university गोविंद गुरु जनजातीय विश्वविद्यालय", "https://www.ggtu.ac.in/"),
-    ("Shekhawati University", "Education", "pdusu sikar shekhawati university शेखावाटी विश्वविद्यालय", "https://www.shekhauni.ac.in/"),
-        # SOCIAL MEDIA
-    ("YouTube", "Social Media", "youtube video shorts यूट्यूब वीडियो", "https://www.youtube.com/"),
-    ("Facebook", "Social Media", "facebook social media फेसबुक", "https://www.facebook.com/"),
-    ("Instagram", "Social Media", "instagram reels photos इंस्टाग्राम", "https://www.instagram.com/"),
-    ("WhatsApp", "Social Media", "whatsapp chat messaging व्हाट्सएप", "https://www.whatsapp.com/"),
-    ("Telegram", "Social Media", "telegram messages groups टेलीग्राम", "https://telegram.org/"),
-    ("X", "Social Media", "x twitter posts एक्स ट्विटर", "https://x.com/"),
-    ("LinkedIn", "Social Media", "linkedin jobs professional लिंक्डइन", "https://www.linkedin.com/"),
-    ("Pinterest", "Social Media", "pinterest photos ideas पिन्टरेस्ट", "https://www.pinterest.com/"),
-    ("Reddit", "Social Media", "reddit discussions community रेडिट", "https://www.reddit.com/"),
-    ("Snapchat", "Social Media", "snapchat stories snaps स्नैपचैट", "https://www.snapchat.com/"),
-    ("Threads", "Social Media", "threads instagram text social थ्रेड्स", "https://www.threads.net/"),
-    ("Discord", "Social Media", "discord chat gaming community डिस्कॉर्ड", "https://discord.com/"),
-    ("Twitch", "Social Media", "twitch live streaming gaming लाइव स्ट्रीम", "https://www.twitch.tv/"),
-    ("Tumblr", "Social Media", "tumblr blogging photos ब्लॉग", "https://www.tumblr.com/"),
-    ("Mastodon", "Social Media", "mastodon decentralized social network", "https://joinmastodon.org/"),
-    ("Bluesky", "Social Media", "bluesky social posts ब्लूस्काई", "https://bsky.app/"),
-    ("Quora", "Social Media", "quora questions answers सवाल जवाब", "https://www.quora.com/"),
-    ("Medium", "Social Media", "medium articles blogging लेख", "https://medium.com/"),
-    ("Vimeo", "Social Media", "vimeo video hosting वीडियो", "https://vimeo.com/"),
-    ("Dailymotion", "Social Media", "dailymotion videos वीडियो", "https://www.dailymotion.com/"),
-    ("SoundCloud", "Social Media", "soundcloud music audio संगीत", "https://soundcloud.com/"),
-    ("Spotify", "Social Media", "spotify music podcasts गाने पॉडकास्ट", "https://open.spotify.com/"),
-    ("Behance", "Social Media", "behance creative portfolio design", "https://www.behance.net/"),
-    ("Dribbble", "Social Media", "dribbble design creative designers", "https://dribbble.com/"),
-    ("Flickr", "Social Media", "flickr photography photos फोटोग्राफी", "https://www.flickr.com/"),
-    ("Product Hunt", "Technology", "product hunt new apps startups", "https://www.producthunt.com/"),
-    ("GitLab", "Technology", "gitlab coding software development", "https://gitlab.com/"),
-    ("CodePen", "Technology", "codepen web design html css javascript", "https://codepen.io/"),
-    ("Replit", "Technology", "replit online coding programming", "https://replit.com/"),
-    ("Kaggle", "Technology", "kaggle datasets machine learning data", "https://www.kaggle.com/"),
-        # APP STORES
-    ("Google Play Store", "Apps", "play store google android apps प्ले स्टोर ऐप डाउनलोड", "https://play.google.com/store"),
-    ("Google Play Store Games", "Apps", "play store games android games गेम डाउनलोड", "https://play.google.com/store/games"),
-    ("Google Play Store Apps", "Apps", "android applications mobile apps एंड्रॉयड ऐप्स", "https://play.google.com/store/apps"),
-    ("Google Play Store Books", "Apps", "google play books ebooks किताबें", "https://play.google.com/store/books"),
-    ("Google Play Store Movies", "Apps", "google play movies entertainment फिल्में", "https://play.google.com/store/movies"),
-    ("Google Play Help", "Apps", "play store help support प्ले स्टोर सहायता", "https://support.google.com/googleplay/"),
-    ("Google Play Protect", "Apps", "google play protect app security सुरक्षा", "https://support.google.com/googleplay/answer/2812853"),
-    ("Android Official Website", "Apps", "android official website एंड्रॉयड जानकारी", "https://www.android.com/"),
-    ("Google Play Console", "Technology", "google play console developer publish android apps", "https://play.google.com/console/"),
-    # GOOGLE SERVICES
-    ("Google", "Technology", "google search गूगल सर्च", "https://www.google.com/"),
-    ("Gmail", "Technology", "gmail email जीमेल ईमेल", "https://mail.google.com/"),
-    ("Google Maps", "Technology", "google maps location directions रास्ता", "https://maps.google.com/"),
-    ("Google Drive", "Technology", "google drive files storage फाइल", "https://drive.google.com/"),
-    ("Google Translate", "Education", "google translate hindi english अनुवाद", "https://translate.google.com/"),
-    ("Google Meet", "Technology", "google meet online meeting वीडियो मीटिंग", "https://meet.google.com/"),
-
-    # AI TOOLS
-    ("ChatGPT", "AI Tools", "chatgpt artificial intelligence एआई", "https://chatgpt.com/"),
-    ("Google Gemini", "AI Tools", "google gemini ai assistant जेमिनी", "https://gemini.google.com/"),
-    ("Microsoft Copilot", "AI Tools", "microsoft copilot ai कोपायलट", "https://copilot.microsoft.com/"),
-
-    # DESIGN AND CREATION
-    ("Canva", "Design", "canva poster logo design कैनवा", "https://www.canva.com/"),
-    ("Adobe Express", "Design", "adobe express photo poster design", "https://www.adobe.com/express/"),
-    ("CapCut", "Video Tools", "capcut video editing वीडियो एडिटिंग", "https://www.capcut.com/"),
-
-    # CODING AND TECHNOLOGY
-    ("GitHub", "Technology", "github coding programming गिटहब", "https://github.com/"),
-    ("Stack Overflow", "Technology", "stack overflow programming coding", "https://stackoverflow.com/"),
-    ("Python", "Technology", "python programming language पाइथन", "https://www.python.org/"),
-
-    # GOVERNMENT AND PUBLIC INFORMATION
-    ("India Government Web Directory", "Government", "official government websites india सरकारी वेबसाइट", "https://igod.gov.in/"),
-    ("MyGov India", "Government", "mygov india government schemes सरकारी योजनाएं", "https://www.mygov.in/"),
-    ("National Cyber Crime Reporting Portal", "Safety", "cyber crime complaint online fraud साइबर शिकायत", "https://cybercrime.gov.in/"),
-    ("Rajasthan Single Sign On", "Rajasthan", "sso login राजस्थान", "https://sso.rajasthan.gov.in/"),
-
+    # Government and identity
+    ("India Government Portal", "Government", "india government भारत सरकार", "https://www.india.gov.in/"),
+    ("DigiLocker", "Government", "documents marksheet certificate", "https://www.digilocker.gov.in/"),
+    ("UMANG", "Government", "government services सरकारी सेवाएं", "https://web.umang.gov.in/"),
     ("UIDAI Aadhaar", "Government", "aadhaar aadhar आधार uidai", "https://uidai.gov.in/"),
-    ("My Aadhaar", "Government", "download aadhaar आधार डाउनलोड", "https://myaadhaar.uidai.gov.in/"),
-    ("Income Tax e-Filing", "Government", "income tax pan आयकर पैन", "https://www.incometax.gov.in/"),
-    ("PAN Services NSDL Protean", "Government", "pan card पैन कार्ड", "https://www.protean-tinpan.com/"),
-    ("DigiLocker", "Government", "digilocker documents दस्तावेज", "https://www.digilocker.gov.in/"),
-    ("UMANG", "Government", "umang government services सरकारी सेवा", "https://web.umang.gov.in/"),
-    ("National Scholarship Portal", "Education", "scholarship छात्रवृत्ति स्कॉलरशिप", "https://scholarships.gov.in/"),
-    ("National Portal of India", "Government", "india government भारत सरकार", "https://www.india.gov.in/"),
-    ("MyScheme", "Government", "scheme yojana सरकारी योजना", "https://www.myscheme.gov.in/"),
-    ("Public Grievances Portal", "Government", "pgportal complaint grievance शिकायत", "https://pgportal.gov.in/"),
-    ("National Consumer Helpline", "Safety", "consumer complaint ग्राहक शिकायत", "https://consumerhelpline.gov.in/"),
-    ("Cyber Crime Reporting Portal", "Safety", "cyber crime fraud online fraud साइबर ठगी", "https://cybercrime.gov.in/"),
-    ("eCourts Services", "Legal", "ecourts court case अदालत केस", "https://ecourts.gov.in/"),
-    ("India Code", "Legal", "india code law कानून अधिनियम", "https://www.indiacode.nic.in/"),
-    ("National Legal Services Authority", "Legal", "nalsa legal aid मुफ्त कानूनी सहायता", "https://nalsa.gov.in/"),
+    ("My Aadhaar", "Government", "aadhaar services आधार सेवा", "https://myaadhaar.uidai.gov.in/"),
+    ("PAN Income Tax", "Government", "pan card income tax पैन कार्ड", "https://www.incometax.gov.in/"),
     ("Passport Seva", "Government", "passport पासपोर्ट", "https://www.passportindia.gov.in/"),
     ("Voter Services", "Government", "voter id election वोटर कार्ड", "https://voters.eci.gov.in/"),
-    ("Election Commission of India", "Government", "election चुनाव", "https://www.eci.gov.in/"),
-    ("EPFO", "Government", "epfo pf provident fund पीएफ", "https://www.epfindia.gov.in/"),
-    ("ESIC", "Government", "esic employee insurance", "https://www.esic.gov.in/"),
-    ("Public Distribution System", "Government", "ration card राशन कार्ड", "https://nfsa.gov.in/"),
-    ("PM Kisan", "Government", "pm kisan farmer किसान सम्मान निधि", "https://pmkisan.gov.in/"),
-    ("eShram", "Government", "eshram labour श्रमिक कार्ड", "https://eshram.gov.in/"),
-    ("Ayushman Bharat PM-JAY", "Health", "ayushman bharat आयुष्मान कार्ड", "https://pmjay.gov.in/"),
-    ("ABHA Health Account", "Health", "abha health account स्वास्थ्य", "https://abha.abdm.gov.in/"),
-    ("Ministry of Health", "Health", "health ministry स्वास्थ्य मंत्रालय", "https://mohfw.gov.in/"),
-    ("CoWIN", "Health", "cowin vaccine टीकाकरण", "https://www.cowin.gov.in/"),
-    ("Bharat BillPay", "Payments", "bill payment बिजली बिल", "https://www.bharatbillpay.com/"),
-    ("National Scholarship Information", "Education", "scholarships education छात्रवृत्ति", "https://www.education.gov.in/"),
+    ("EPFO", "Government", "pf provident fund पीएफ", "https://www.epfindia.gov.in/"),
+    ("ESIC", "Government", "employee insurance कर्मचारी बीमा", "https://www.esic.gov.in/"),
+    ("MyScheme", "Government", "government scheme yojana सरकारी योजना", "https://www.myscheme.gov.in/"),
+    ("National Consumer Helpline", "Complaints", "consumer complaint ग्राहक शिकायत", "https://consumerhelpline.gov.in/"),
+    ("CPGRAMS Grievance Portal", "Complaints", "government complaint grievance शिकायत", "https://pgportal.gov.in/"),
+    ("Cyber Crime Reporting", "Safety", "online fraud cyber crime साइबर ठगी", "https://cybercrime.gov.in/"),
+    ("RTI Online", "Government", "right to information सूचना अधिकार", "https://rtionline.gov.in/"),
+
+    # Rajasthan services
+    ("Rajasthan SSO", "Rajasthan", "rajasthan sso login राजस्थान एसएसओ", "https://sso.rajasthan.gov.in/"),
+    ("Rajasthan Jan Aadhaar", "Rajasthan", "jan aadhaar जन आधार", "https://janaadhaar.rajasthan.gov.in/"),
+    ("Rajasthan Sampark", "Complaints", "rajasthan complaint sampark शिकायत", "https://sampark.rajasthan.gov.in/"),
+    ("Rajasthan Public Service Commission", "Jobs", "rpsc recruitment राजस्थान भर्ती", "https://rpsc.rajasthan.gov.in/"),
+    ("Rajasthan Staff Selection Board", "Jobs", "rssb rsmssb recruitment राजस्थान भर्ती", "https://rssb.rajasthan.gov.in/"),
+    ("Rajasthan High Court", "Legal", "rajasthan high court अदालत", "https://hcraj.nic.in/"),
+    ("Rajasthan Tourism", "Travel", "rajasthan tourism राजस्थान पर्यटन", "https://www.tourism.rajasthan.gov.in/"),
+    ("Rajasthan Agriculture Department", "Agriculture", "farmer agriculture किसान कृषि", "https://agriculture.rajasthan.gov.in/"),
+    ("Bhu Naksha Rajasthan", "Agriculture", "land map जमीन नक्शा", "https://bhunaksha.rajasthan.gov.in/"),
+
+    # Railways and jobs
+    ("Indian Railways", "Railway", "railway train रेलवे", "https://indianrailways.gov.in/"),
+    ("IRCTC", "Railway", "train ticket booking टिकट", "https://www.irctc.co.in/"),
+    ("Railway Recruitment Boards", "Railway Jobs", "rrb railway recruitment भर्ती", "https://www.rrbcdg.gov.in/"),
+    ("RRB Apply", "Railway Jobs", "rrb alp ntpc group d technician", "https://www.rrbapply.gov.in/"),
+    ("Rail Madad", "Railway", "railway complaint रेलवे शिकायत", "https://railmadad.indianrailways.gov.in/"),
+    ("National Train Enquiry", "Railway", "train status running status ट्रेन स्थिति", "https://enquiry.indianrail.gov.in/"),
+    ("National Career Service", "Jobs", "job vacancy employment नौकरी", "https://www.ncs.gov.in/"),
+    ("Staff Selection Commission", "Jobs", "ssc government jobs भर्ती", "https://ssc.gov.in/"),
+    ("UPSC", "Jobs", "upsc civil services examination", "https://upsc.gov.in/"),
+    ("Employment News", "Jobs", "employment news government jobs", "https://employmentnews.gov.in/"),
+    ("Apprenticeship India", "ITI Jobs", "apprentice fitter iti अप्रेंटिस", "https://www.apprenticeshipindia.gov.in/"),
+    ("NCVT MIS", "ITI", "ncvt iti marksheet certificate fitter", "https://www.ncvtmis.gov.in/"),
+    ("Skill India Digital Hub", "ITI", "skill india sidh training कौशल", "https://www.skillindiadigital.gov.in/"),
+    ("DRDO", "Jobs", "drdo careers recruitment", "https://www.drdo.gov.in/"),
+    ("ISRO Careers", "Jobs", "isro space jobs अंतरिक्ष नौकरी", "https://www.isro.gov.in/"),
+    ("BHEL", "Jobs", "bhel recruitment apprentice", "https://www.bhel.com/"),
+    ("Indian Oil", "Jobs", "iocl careers apprentice", "https://iocl.com/"),
+    ("Airport Authority of India", "Jobs", "aai recruitment airport jobs", "https://www.aai.aero/"),
+
+    # Education
+    ("National Scholarship Portal", "Education", "scholarship छात्रवृत्ति", "https://scholarships.gov.in/"),
+    ("National Testing Agency", "Education", "nta exams परीक्षा", "https://nta.ac.in/"),
+    ("CBSE", "Education", "cbse school board result", "https://www.cbse.gov.in/"),
+    ("CBSE Results", "Education", "cbse results रिजल्ट", "https://results.cbse.nic.in/"),
+    ("NCERT", "Education", "ncert books किताबें", "https://ncert.nic.in/"),
+    ("NIOS", "Education", "nios open schooling", "https://www.nios.ac.in/"),
+    ("UGC", "Education", "ugc university college", "https://www.ugc.gov.in/"),
     ("AICTE", "Education", "aicte technical education", "https://www.aicte-india.org/"),
-    ("UGC", "Education", "ugc university कॉलेज", "https://www.ugc.gov.in/"),
-    ("National Testing Agency", "Education", "nta exam परीक्षा", "https://nta.ac.in/"),
-    ("CBSE", "Education", "cbse school result बोर्ड", "https://www.cbse.gov.in/"),
-    ("NCERT", "Education", "ncert books textbook किताबें", "https://ncert.nic.in/"),
-    ("National Digital Library", "Education", "digital library किताबें अध्ययन", "https://ndl.iitkgp.ac.in/"),
-    ("SWAYAM", "Education", "swayam online course पढ़ाई", "https://swayam.gov.in/"),
-    ("Khan Academy", "Education", "khan academy maths science सीखें", "https://www.khanacademy.org/"),
-    ("NCVT MIS", "ITI", "ncvt iti mis आईटीआई", "https://www.ncvtmis.gov.in/"),
-    ("Skill India Digital Hub", "ITI", "skill india sidh कौशल प्रशिक्षण", "https://www.skillindiadigital.gov.in/"),
-    ("Apprenticeship India", "ITI Jobs", "apprenticeship apprentice अप्रेंटिस", "https://www.apprenticeshipindia.gov.in/"),
-    ("Directorate General of Training", "ITI", "dgt iti fitter training", "https://dgt.gov.in/"),
-    ("AICTE Internship Portal", "Jobs", "internship student इंटर्नशिप", "https://internship.aicte-india.org/"),
-        # 1. BUSINESS AND DIGITAL SERVICES
-    ("GST Portal", "Business", "gst goods services tax return registration जीएसटी टैक्स", "https://www.gst.gov.in/"),
-    ("MCA Company Services", "Business", "mca company registration corporate affairs कंपनी रजिस्ट्रेशन", "https://www.mca.gov.in/"),
-    ("Government e Marketplace", "Business", "gem government e marketplace सरकारी खरीद", "https://gem.gov.in/"),
-    ("Startup India", "Business", "startup india startup registration स्टार्टअप", "https://www.startupindia.gov.in/"),
-    ("Udyam Registration", "Business", "udyam msme registration small business एमएसएमई", "https://udyamregistration.gov.in/"),
-    ("Invest India", "Business", "invest india business investment भारत निवेश", "https://www.investindia.gov.in/"),
-    ("India Trade Portal", "Business", "india trade export import व्यापार निर्यात", "https://www.indiantradeportal.in/"),
-    ("DGFT", "Business", "dgft import export licence विदेश व्यापार", "https://www.dgft.gov.in/"),
-    ("Geographical Indications Registry", "Business", "geographical indication gi tag जीआई टैग", "https://ipindia.gov.in/"),
-    ("National Intellectual Property Awareness", "Business", "intellectual property patent trademark बौद्धिक संपदा", "https://ipindia.gov.in/"),
+    ("IGNOU", "Education", "ignou distance education", "https://www.ignou.ac.in/"),
+    ("SWAYAM", "Education", "online courses पढ़ाई", "https://swayam.gov.in/"),
+    ("DIKSHA", "Education", "learning education courses", "https://diksha.gov.in/"),
+    ("Khan Academy", "Education", "free learning maths science", "https://www.khanacademy.org/"),
+    ("FreeCodeCamp", "Education", "free coding programming", "https://www.freecodecamp.org/"),
 
-    # 2. SKILLS AND CAREER LEARNING
-    ("Skill India Digital Hub", "Education", "skill india digital hub skills training कौशल प्रशिक्षण", "https://www.skillindiadigital.gov.in/"),
-    ("Apprenticeship India", "Education", "apprenticeship india apprentice training अप्रेंटिस", "https://www.apprenticeshipindia.gov.in/"),
-    ("NIELIT", "Education", "nielit computer courses digital skills कंप्यूटर कोर्स", "https://www.nielit.gov.in/"),
-    ("National Council for Vocational Education", "Education", "ncvet vocational training व्यावसायिक प्रशिक्षण", "https://ncvet.gov.in/"),
-    ("National Institute of Open Schooling Vocational", "Education", "nios vocational courses skill training", "https://voc.nios.ac.in/"),
-    ("British Council Learn English", "Education", "british council learn english अंग्रेजी सीखें", "https://learnenglish.britishcouncil.org/"),
-    ("Duolingo", "Education", "duolingo learn languages भाषा सीखें", "https://www.duolingo.com/"),
-    ("GeoGebra", "Education", "geogebra mathematics geometry गणित ज्यामिति", "https://www.geogebra.org/"),
-    ("Desmos", "Education", "desmos graphing calculator गणित ग्राफ", "https://www.desmos.com/"),
-    ("Project Gutenberg", "Education", "project gutenberg free ebooks मुफ्त किताबें", "https://www.gutenberg.org/"),
+    # Health and agriculture
+    ("Ayushman Bharat PM-JAY", "Health", "ayushman card आयुष्मान", "https://pmjay.gov.in/"),
+    ("ABHA Health Account", "Health", "abha digital health account", "https://abha.abdm.gov.in/"),
+    ("eSanjeevani", "Health", "online doctor consultation", "https://esanjeevani.mohfw.gov.in/"),
+    ("Ministry of Health", "Health", "health ministry स्वास्थ्य मंत्रालय", "https://mohfw.gov.in/"),
+    ("PM Kisan", "Agriculture", "pm kisan farmer किसान", "https://pmkisan.gov.in/"),
+    ("eShram", "Government", "labour worker श्रमिक कार्ड", "https://eshram.gov.in/"),
+    ("e-NAM", "Agriculture", "farmer mandi कृषि मंडी", "https://enam.gov.in/"),
+    ("PM Fasal Bima Yojana", "Agriculture", "crop insurance फसल बीमा", "https://pmfby.gov.in/"),
+    ("India Meteorological Department", "Weather", "weather forecast मौसम", "https://mausam.imd.gov.in/"),
 
-    # 3. RESEARCH AND KNOWLEDGE
-    ("Wikipedia", "Knowledge", "wikipedia encyclopedia जानकारी विश्वकोश", "https://www.wikipedia.org/"),
-    ("Wiktionary", "Knowledge", "wiktionary dictionary word meaning शब्द अर्थ", "https://www.wiktionary.org/"),
-    ("Wikibooks", "Knowledge", "wikibooks free books study material", "https://www.wikibooks.org/"),
-    ("Wikisource", "Knowledge", "wikisource free source texts साहित्य", "https://wikisource.org/"),
-    ("Open Library", "Knowledge", "open library online books पुस्तकालय", "https://openlibrary.org/"),
-    ("Internet Encyclopedia of Philosophy", "Knowledge", "philosophy encyclopedia दर्शन जानकारी", "https://iep.utm.edu/"),
-    ("Stanford Encyclopedia of Philosophy", "Knowledge", "stanford encyclopedia philosophy दर्शन", "https://plato.stanford.edu/"),
-    ("Wolfram Alpha", "Knowledge", "wolfram alpha calculations answers गणना उत्तर", "https://www.wolframalpha.com/"),
-    ("Our World in Data", "Knowledge", "our world in data statistics आंकड़े", "https://ourworldindata.org/"),
-    ("World Bank Data", "Knowledge", "world bank data economy statistics आर्थिक आंकड़े", "https://data.worldbank.org/"),
+    # Finance and business
+    ("Reserve Bank of India", "Finance", "rbi banking आरबीआई", "https://www.rbi.org.in/"),
+    ("SEBI", "Finance", "sebi investor securities", "https://www.sebi.gov.in/"),
+    ("GST Portal", "Business", "gst registration tax जीएसटी", "https://www.gst.gov.in/"),
+    ("MCA Company Services", "Business", "company registration कंपनी", "https://www.mca.gov.in/"),
+    ("Udyam Registration", "Business", "msme small business उद्योग", "https://udyamregistration.gov.in/"),
+    ("Startup India", "Business", "startup business उद्यम", "https://www.startupindia.gov.in/"),
+    ("Government e Marketplace", "Business", "gem government procurement", "https://gem.gov.in/"),
 
-    # 4. SCIENCE AND SPACE
-    ("NASA", "Science", "nasa space science astronomy अंतरिक्ष विज्ञान", "https://www.nasa.gov/"),
-    ("European Space Agency", "Science", "esa space missions यूरोपीय अंतरिक्ष एजेंसी", "https://www.esa.int/"),
-    ("National Oceanic and Atmospheric Administration", "Science", "noaa climate ocean weather जलवायु महासागर", "https://www.noaa.gov/"),
-    ("United States Geological Survey", "Science", "usgs geology earthquakes भूविज्ञान भूकंप", "https://www.usgs.gov/"),
-    ("Smithsonian Institution", "Science", "smithsonian museum science history संग्रहालय", "https://www.si.edu/"),
-    ("CERN", "Science", "cern particle physics research कण भौतिकी", "https://home.cern/"),
-    ("European Southern Observatory", "Science", "eso astronomy telescope खगोल विज्ञान", "https://www.eso.org/"),
-    ("National Science Foundation", "Science", "nsf science research विज्ञान अनुसंधान", "https://www.nsf.gov/"),
-    ("PubMed", "Science", "pubmed biomedical research medical papers चिकित्सा शोध", "https://pubmed.ncbi.nlm.nih.gov/"),
-    ("arXiv", "Science", "arxiv research papers physics mathematics शोध पत्र", "https://arxiv.org/"),
-
-    # 5. ENVIRONMENT AND CLIMATE
-    ("United Nations Environment Programme", "Environment", "unep environment climate पर्यावरण जलवायु", "https://www.unep.org/"),
-    ("World Wildlife Fund", "Environment", "wwf wildlife nature conservation वन्यजीव", "https://www.worldwildlife.org/"),
-    ("International Union for Conservation of Nature", "Environment", "iucn conservation biodiversity जैव विविधता", "https://iucn.org/"),
-    ("Global Forest Watch", "Environment", "global forest watch forests जंगल निगरानी", "https://www.globalforestwatch.org/"),
-    ("Earth Observatory", "Environment", "earth observatory satellite earth images पृथ्वी चित्र", "https://earthobservatory.nasa.gov/"),
-    ("Climate Reanalyzer", "Environment", "climate reanalyzer climate data जलवायु आंकड़े", "https://climatereanalyzer.org/"),
-    ("AirNow", "Environment", "airnow air quality pollution वायु गुणवत्ता", "https://www.airnow.gov/"),
-    ("Global Biodiversity Information Facility", "Environment", "gbif biodiversity species जैव विविधता प्रजाति", "https://www.gbif.org/"),
-    ("World Resources Institute", "Environment", "wri environment energy resources पर्यावरण ऊर्जा", "https://www.wri.org/"),
-    ("International Renewable Energy Agency", "Environment", "irena renewable energy solar wind नवीकरणीय ऊर्जा", "https://www.irena.org/"),
-
-    # 6. NEWS AND INTERNATIONAL INFORMATION
-    ("Reuters", "News", "reuters world news international समाचार", "https://www.reuters.com/"),
-    ("Associated Press", "News", "associated press ap news विश्व समाचार", "https://apnews.com/"),
-    ("BBC News", "News", "bbc news world india समाचार", "https://www.bbc.com/news"),
-    ("Deutsche Welle", "News", "dw news international समाचार", "https://www.dw.com/"),
-    ("France 24", "News", "france 24 world news समाचार", "https://www.france24.com/"),
-    ("Al Jazeera", "News", "al jazeera international news विश्व समाचार", "https://www.aljazeera.com/"),
-    ("The Conversation", "News", "the conversation expert analysis विशेषज्ञ लेख", "https://theconversation.com/"),
-    ("ProPublica", "News", "propublica investigative journalism खोजी पत्रकारिता", "https://www.propublica.org/"),
-    ("The Hindu", "News", "the hindu india news भारत समाचार", "https://www.thehindu.com/"),
-    ("Indian Express", "News", "indian express india news भारतीय समाचार", "https://indianexpress.com/"),
-
-    # 7. MAPS AND GEOGRAPHY
-    ("NASA Worldview", "Travel", "nasa worldview satellite maps पृथ्वी सैटेलाइट नक्शे", "https://worldview.earthdata.nasa.gov/"),
-    ("Google Earth", "Travel", "google earth satellite globe सैटेलाइट पृथ्वी", "https://earth.google.com/"),
-    ("Bing Maps", "Travel", "bing maps directions location रास्ता नक्शा", "https://www.bing.com/maps"),
-    ("MapQuest", "Travel", "mapquest maps directions यात्रा रास्ता", "https://www.mapquest.com/"),
-    ("Geonames", "Travel", "geonames geographic database स्थान जानकारी", "https://www.geonames.org/"),
-    ("Natural Earth Data", "Travel", "natural earth maps geography नक्शा भूगोल", "https://www.naturalearthdata.com/"),
-    ("OpenTopoMap", "Travel", "opentopomap terrain topographic maps स्थलाकृतिक नक्शा", "https://opentopomap.org/"),
-    ("PeakVisor", "Travel", "peakvisor mountains terrain पहाड़ नक्शे", "https://peakvisor.com/"),
-    ("MarineTraffic", "Travel", "marinetraffic ship tracking जहाज ट्रैकिंग", "https://www.marinetraffic.com/"),
-    ("FlightAware", "Travel", "flightaware flight tracking उड़ान ट्रैकिंग", "https://www.flightaware.com/"),
-
-    # 8. DESIGN AND CREATIVE TOOLS
-    ("Mozilla Firefox", "Tools", "firefox browser web browsing ब्राउज़र", "https://www.mozilla.org/firefox/"),
-    ("Brave Browser", "Tools", "brave browser privacy ब्राउज़र गोपनीयता", "https://brave.com/"),
-    ("Opera Browser", "Tools", "opera browser internet ब्राउज़र इंटरनेट", "https://www.opera.com/"),
-    ("Vivaldi Browser", "Tools", "vivaldi browser productivity ब्राउज़र", "https://vivaldi.com/"),
-    ("Blender", "Design", "blender 3d modeling animation थ्रीडी एनिमेशन", "https://www.blender.org/"),
-    ("Godot Engine", "Design", "godot game engine game development गेम बनाना", "https://godotengine.org/"),
-    ("Audacity", "Tools", "audacity audio editing sound एडियो एडिटिंग", "https://www.audacityteam.org/"),
-    ("OBS Studio", "Tools", "obs studio screen recording livestream स्क्रीन रिकॉर्डिंग", "https://obsproject.com/"),
-    ("Shotcut", "Tools", "shotcut video editor वीडियो एडिटर", "https://shotcut.org/"),
-    ("HandBrake", "Tools", "handbrake video converter वीडियो कन्वर्टर", "https://handbrake.fr/"),
-
-    # 9. ACCESSIBILITY AND ONLINE UTILITIES
-    ("Web Accessibility Initiative", "Tools", "w3c accessibility website accessibility वेबसाइट सुलभता", "https://www.w3.org/WAI/"),
-    ("Lighthouse Documentation", "Tools", "lighthouse website performance audit वेबसाइट स्पीड जांच", "https://developer.chrome.com/docs/lighthouse/"),
-    ("Can I Use", "Tools", "can i use browser compatibility html css", "https://caniuse.com/"),
-    ("Regex101", "Tools", "regex101 regular expressions text search", "https://regex101.com/"),
-    ("JSONLint", "Tools", "jsonlint json validator code check", "https://jsonlint.com/"),
-    ("Diffchecker", "Tools", "diffchecker compare text files तुलना", "https://www.diffchecker.com/"),
-    ("LanguageTool", "Tools", "languagetool grammar spelling checker व्याकरण जांच", "https://languagetool.org/"),
-    ("DeepL Translator", "Tools", "deepl translator language translation अनुवाद", "https://www.deepl.com/translator"),
-    ("Time and Date", "Tools", "timeanddate world clock calendar समय तारीख", "https://www.timeanddate.com/"),
-    ("World Time Buddy", "Tools", "world time buddy timezone converter समय क्षेत्र", "https://www.worldtimebuddy.com/"),
-
-    # 10. CULTURE AND INTERNATIONAL RESOURCES
-    ("UNESCO", "Culture", "unesco education science culture यूनेस्को संस्कृति", "https://www.unesco.org/"),
-    ("UNICEF", "Culture", "unicef children education बाल कल्याण", "https://www.unicef.org/"),
-    ("World Health Organization", "Culture", "who global health public health विश्व स्वास्थ्य", "https://www.who.int/"),
-    ("United Nations", "Culture", "un united nations international affairs संयुक्त राष्ट्र", "https://www.un.org/"),
-    ("National Geographic", "Culture", "national geographic nature history geography", "https://www.nationalgeographic.com/"),
-    ("Europeana", "Culture", "europeana digital cultural heritage संस्कृति इतिहास", "https://www.europeana.eu/"),
-    ("Google Arts and Culture", "Culture", "google arts culture museums art कला संग्रहालय", "https://artsandculture.google.com/"),
-    ("The Metropolitan Museum of Art", "Culture", "met museum art collection कला संग्रह", "https://www.metmuseum.org/"),
-    ("Louvre Museum", "Culture", "louvre museum art history कला इतिहास", "https://www.louvre.fr/en"),
-    ("Olympics", "Culture", "olympics sports games ओलंपिक खेल", "https://olympics.com/")
-]
-
-RAW_SERVICES += [
-    ("Google Search", "Search", "google web search इंटरनेट खोज", "https://www.google.com/"),
-    ("Bing Search", "Search", "bing web search", "https://www.bing.com/"),
-    ("DuckDuckGo", "Search", "duckduckgo private search", "https://duckduckgo.com/"),
-    ("Wikipedia Hindi", "Learning", "wikipedia knowledge जानकारी", "https://hi.wikipedia.org/"),
+    # Search, maps and media
+    ("Google Maps", "Maps", "maps directions रास्ता नक्शा", "https://maps.google.com/"),
+    ("OpenStreetMap", "Maps", "openstreetmap maps नक्शा", "https://www.openstreetmap.org/"),
     ("Google Translate", "Tools", "translate language अनुवाद", "https://translate.google.com/"),
-    ("Google Maps", "Maps", "maps map रास्ता नक्शा", "https://maps.google.com/"),
-    ("OpenStreetMap", "Maps", "openstreetmap map नक्शा", "https://www.openstreetmap.org/"),
-    ("Google Drive", "Files", "drive cloud file storage", "https://drive.google.com/"),
-    ("Microsoft OneDrive", "Files", "onedrive cloud files", "https://onedrive.live.com/"),
-    ("Adobe Acrobat Online", "PDF", "pdf merge convert पीडीएफ", "https://www.adobe.com/acrobat/online.html"),
-    ("Canva", "Design", "canva poster design पोस्टर", "https://www.canva.com/"),
-    ("Photopea", "Image", "photopea photo image editor फोटो", "https://www.photopea.com/"),
-    ("Remove.bg", "Image", "remove background background remover", "https://www.remove.bg/"),
-    ("Unsplash", "Image", "unsplash photos तस्वीर", "https://unsplash.com/"),
-    ("Pexels", "Media", "pexels free photos videos", "https://www.pexels.com/"),
-    ("Pixabay", "Media", "pixabay images videos", "https://pixabay.com/"),
-    ("YouTube", "Video", "youtube video वीडियो", "https://www.youtube.com/"),
     ("Google News", "News", "news समाचार खबर", "https://news.google.com/"),
+    ("PIB India", "News", "government press release सरकारी समाचार", "https://pib.gov.in/"),
     ("BBC Hindi", "News", "bbc hindi news समाचार", "https://www.bbc.com/hindi"),
     ("DD News", "News", "dd news india समाचार", "https://ddnews.gov.in/"),
-    ("PIB India", "News", "pib press information bureau सरकारी समाचार", "https://pib.gov.in/"),
-    ("ChatGPT", "AI", "chatgpt artificial intelligence एआई चैट", "https://chatgpt.com/"),
+    ("YouTube", "Video", "youtube video वीडियो", "https://www.youtube.com/"),
+    ("Google Drive", "Files", "cloud storage files", "https://drive.google.com/"),
+    ("DigiLocker", "Government", "digital documents डिजिलॉकर", "https://www.digilocker.gov.in/"),
+
+    # AI and technology
+    ("ChatGPT", "AI", "chatgpt artificial intelligence एआई", "https://chatgpt.com/"),
     ("Google Gemini", "AI", "gemini google ai", "https://gemini.google.com/"),
     ("Microsoft Copilot", "AI", "copilot microsoft ai", "https://copilot.microsoft.com/"),
     ("Claude", "AI", "claude ai assistant", "https://claude.ai/"),
-    ("Perplexity", "AI", "perplexity ai answer search", "https://www.perplexity.ai/"),
-    ("Hugging Face", "AI", "huggingface machine learning models", "https://huggingface.co/"),
-    ("GitHub", "Technology", "github coding code repository", "https://github.com/"),
-    ("GitLab", "Technology", "gitlab source code development", "https://gitlab.com/"),
-    ("Stack Overflow", "Technology", "programming coding questions", "https://stackoverflow.com/"),
+    ("Perplexity", "AI", "perplexity ai search", "https://www.perplexity.ai/"),
+    ("Hugging Face", "AI", "machine learning ai models", "https://huggingface.co/"),
+    ("GitHub", "Technology", "github code repository coding", "https://github.com/"),
     ("Python", "Technology", "python programming language", "https://www.python.org/"),
     ("MDN Web Docs", "Technology", "html css javascript web development", "https://developer.mozilla.org/"),
-    ("W3Schools", "Learning", "html css javascript coding सीखें", "https://www.w3schools.com/"),
-    ("CodePen", "Technology", "codepen html css javascript", "https://codepen.io/"),
-    ("Replit", "Technology", "replit online coding", "https://replit.com/"),
-    ("FreeCodeCamp", "Learning", "free coding course programming", "https://www.freecodecamp.org/"),
-    ("Coursera", "Learning", "coursera online course", "https://www.coursera.org/"),
-    ("edX", "Learning", "edx online courses", "https://www.edx.org/"),
-    ("Google Trends", "Tools", "google trends trending topics", "https://trends.google.com/"),
-    ("Internet Archive", "Learning", "archive books website history", "https://archive.org/"),
-    ("India Post", "Government", "india post post office डाक", "https://www.indiapost.gov.in/"),
-    ("IRCTC", "Railway", "irctc train ticket रेलवे टिकट", "https://www.irctc.co.in/"),
-    ("National Highways Authority", "Transport", "nhai highway road", "https://nhai.gov.in/"),
-    ("Parivahan", "Transport", "driving licence vehicle आरसी लाइसेंस", "https://parivahan.gov.in/"),
-    ("VAHAN", "Transport", "vahan vehicle registration", "https://vahan.parivahan.gov.in/"),
-    ("Sarathi", "Transport", "sarathi driving licence", "https://sarathi.parivahan.gov.in/"),
-    ("Bhuvan ISRO", "Maps", "bhuvan satellite map isro", "https://bhuvan.nrsc.gov.in/"),
-    ("ISRO", "Science", "isro space science", "https://www.isro.gov.in/"),
-    ("DRDO", "Jobs", "drdo defence research recruitment", "https://www.drdo.gov.in/"),
-    ("BHEL", "Jobs", "bhel recruitment apprentice", "https://www.bhel.com/"),
-    ("ONGC", "Jobs", "ongc recruitment careers", "https://ongcindia.com/"),
-    ("Indian Oil", "Jobs", "indian oil recruitment apprentice", "https://iocl.com/"),
-    ("Bharat Petroleum", "Jobs", "bpcl careers recruitment", "https://www.bharatpetroleum.in/"),
-    ("Coal India", "Jobs", "coal india recruitment", "https://www.coalindia.in/"),
-    ("AAI", "Jobs", "airport authority recruitment", "https://www.aai.aero/"),
-    ("NABARD", "Jobs", "nabard agriculture bank recruitment", "https://www.nabard.org/"),
-    ("RBI", "Finance", "rbi reserve bank india", "https://www.rbi.org.in/"),
-    ("SEBI", "Finance", "sebi securities market", "https://www.sebi.gov.in/"),
-    ("National Stock Exchange", "Finance", "nse stock market", "https://www.nseindia.com/"),
-    ("Bombay Stock Exchange", "Finance", "bse stock market", "https://www.bseindia.com/"),
-    ("Startup India", "Business", "startup business उद्यम", "https://www.startupindia.gov.in/"),
-    ("Udyam Registration", "Business", "udyam msme registration उद्योग", "https://udyamregistration.gov.in/"),
-    ("GeM Portal", "Business", "gem government e marketplace tender", "https://gem.gov.in/"),
-    ("GST Portal", "Business", "gst goods services tax", "https://www.gst.gov.in/"),
-    ("MCA Portal", "Business", "mca company registration", "https://www.mca.gov.in/"),
-    ("e-NAM", "Agriculture", "enam mandi farmer कृषि मंडी", "https://enam.gov.in/"),
-    ("Agriculture Ministry", "Agriculture", "agriculture किसान कृषि", "https://agriwelfare.gov.in/"),
-    ("PM Fasal Bima Yojana", "Agriculture", "fasal bima crop insurance फसल बीमा", "https://pmfby.gov.in/"),
-    ("Soil Health Card", "Agriculture", "soil health card मिट्टी", "https://soilhealth.dac.gov.in/"),
-    ("Jal Jeevan Mission", "Government", "jal jeevan mission water पानी", "https://jaljeevanmission.gov.in/"),
-    ("Swachh Bharat Mission", "Government", "swachh bharat cleanliness स्वच्छता", "https://swachhbharatmission.ddws.gov.in/"),
-    ("National Health Mission", "Health", "nhm health mission", "https://nhm.gov.in/"),
-    ("Food Safety Authority", "Health", "fssai food safety खाद्य सुरक्षा", "https://www.fssai.gov.in/"),
-    ("National Disaster Management Authority", "Safety", "ndma disaster emergency आपदा", "https://ndma.gov.in/"),
-    ("India Meteorological Department", "Weather", "imd weather forecast मौसम", "https://mausam.imd.gov.in/"),
-    ("National Portal for Disaster Alerts", "Safety", "disaster alert emergency चेतावनी", "https://sachet.ndma.gov.in/"),
-        # GOVERNMENT AND CITIZEN SERVICES
-    ("National Portal of India", "Services", "national portal india government भारत सरकार", "https://www.india.gov.in/"),
-    ("Election Commission of India", "Services", "election commission india चुनाव आयोग", "https://www.eci.gov.in/"),
-    ("My Aadhaar", "Services", "my aadhaar uidai आधार कार्ड", "https://myaadhaar.uidai.gov.in/"),
-    ("DigiYatra", "Services", "digiyatra airport travel डिजिटल यात्रा", "https://www.digiyatra.com/"),
-    ("eCourts Services", "Services", "ecourts court case न्यायालय केस", "https://ecourts.gov.in/"),
-    ("Supreme Court of India", "Services", "supreme court india सुप्रीम कोर्ट", "https://www.sci.gov.in/"),
-    ("Rajasthan High Court", "Services", "rajasthan high court राजस्थान उच्च न्यायालय", "https://hcraj.nic.in/"),
-    ("RTI Online", "Services", "rti online information सूचना का अधिकार", "https://rtionline.gov.in/"),
-    ("CPGRAMS Public Grievance", "Services", "cpgrams public grievance government complaint सरकारी शिकायत", "https://pgportal.gov.in/"),
-    ("National Legal Services Authority", "Services", "nalsa legal aid मुफ्त कानूनी सहायता", "https://nalsa.gov.in/"),
+    ("W3Schools", "Education", "html css javascript coding", "https://www.w3schools.com/"),
+    ("Replit", "Technology", "online coding programming", "https://replit.com/"),
+    ("Canva", "Design", "canva poster graphic design", "https://www.canva.com/"),
+    ("Photopea", "Design", "photo editor image editing", "https://www.photopea.com/"),
+    ("Blender", "Design", "3d modelling animation", "https://www.blender.org/"),
+    ("OBS Studio", "Tools", "screen recording livestream", "https://obsproject.com/"),
+    ("VirusTotal", "Security", "check suspicious file link", "https://www.virustotal.com/"),
+    ("Mozilla Firefox", "Tools", "firefox browser", "https://www.mozilla.org/firefox/"),
+    ("Brave Browser", "Tools", "brave browser privacy", "https://brave.com/"),
 
-    # JOBS AND RECRUITMENT
-    ("Rajasthan Public Service Commission", "Services", "rpsc rajasthan recruitment राजस्थान भर्ती", "https://rpsc.rajasthan.gov.in/"),
-    ("Employment News", "Services", "employment news government jobs सरकारी नौकरी समाचार", "https://employmentnews.gov.in/"),
-    ("UPSC Online Application", "Services", "upsc online application civil services", "https://upsconline.nic.in/"),
-    ("SSC Candidate Portal", "Services", "ssc candidate portal staff selection", "https://ssc.gov.in/"),
-    ("Indian Navy Recruitment", "Services", "indian navy recruitment नौसेना भर्ती", "https://www.joinindiannavy.gov.in/"),
-    ("Indian Air Force Agniveer", "Services", "indian air force agniveer वायुसेना भर्ती", "https://agnipathvayu.cdac.in/"),
-    ("Indian Army Recruitment", "Services", "indian army recruitment सेना भर्ती", "https://joinindianarmy.nic.in/"),
-    ("DRDO", "Services", "drdo defence research jobs रक्षा अनुसंधान", "https://www.drdo.gov.in/"),
-    ("ISRO Careers", "Services", "isro careers space jobs अंतरिक्ष नौकरी", "https://www.isro.gov.in/"),
-
-    # RAILWAY AND TRAVEL
-    ("National Train Enquiry System", "Services", "train enquiry live train status ट्रेन स्थिति", "https://enquiry.indianrail.gov.in/"),
-    ("IRCTC Tourism", "Services", "irctc tourism tour packages रेलवे पर्यटन", "https://www.irctctourism.com/"),
-    ("Rail Madad", "Services", "rail madad railway complaint रेलवे शिकायत", "https://railmadad.indianrailways.gov.in/"),
-    ("Indian Railway Catering", "Services", "irctc railway catering train ticket", "https://www.irctc.co.in/"),
-    ("Airport Authority of India", "Services", "airport authority india airport हवाई अड्डा", "https://www.aai.aero/"),
-    ("AirSewa", "Services", "airsewa aviation complaint हवाई यात्रा शिकायत", "https://airsewa.gov.in/"),
-    ("Delhi Metro", "Services", "delhi metro route दिल्ली मेट्रो", "https://delhimetrorail.com/"),
-    ("Rajasthan Roadways", "Services", "rajasthan roadways bus राजस्थान रोडवेज", "https://rsrtconline.rajasthan.gov.in/"),
-    ("Rajasthan Tourism", "Services", "rajasthan tourism राजस्थान पर्यटन", "https://www.tourism.rajasthan.gov.in/"),
-    ("Incredible India", "Services", "incredible india tourism भारत पर्यटन", "https://www.incredibleindia.gov.in/"),
-
-    # EDUCATION AND EXAMINATIONS
-    ("CBSE", "Services", "cbse board education सीबीएसई बोर्ड", "https://www.cbse.gov.in/"),
-    ("CBSE Results", "Services", "cbse results board result सीबीएसई रिजल्ट", "https://results.cbse.nic.in/"),
-    ("National Testing Agency Exams", "Services", "nta exams entrance exam राष्ट्रीय परीक्षा", "https://exams.nta.ac.in/"),
-    ("NCERT", "Services", "ncert textbooks books एनसीईआरटी किताबें", "https://ncert.nic.in/"),
-    ("NIOS", "Services", "nios open schooling ओपन स्कूल", "https://www.nios.ac.in/"),
-    ("AICTE", "Services", "aicte technical education तकनीकी शिक्षा", "https://www.aicte-india.org/"),
-    ("UGC", "Services", "ugc university grants commission विश्वविद्यालय", "https://www.ugc.gov.in/"),
-    ("IGNOU", "Services", "ignou distance learning दूरस्थ शिक्षा", "https://www.ignou.ac.in/"),
-    ("Sanskrit Education Rajasthan", "Services", "sanskrit education rajasthan संस्कृत शिक्षा", "https://sanskrit.nic.in/"),
-    ("National Digital Library of India", "Services", "national digital library books डिजिटल पुस्तकालय", "https://ndl.iitkgp.ac.in/"),
-
-    # BANKING AND FINANCIAL INFORMATION
-    ("Reserve Bank of India", "Services", "rbi reserve bank india आरबीआई", "https://www.rbi.org.in/"),
-    ("RBI Sachet", "Services", "rbi sachet financial fraud शिकायत", "https://sachet.rbi.org.in/"),
-    ("SEBI Investor", "Services", "sebi investor awareness निवेशक जानकारी", "https://investor.sebi.gov.in/"),
-    ("NPCI", "Services", "npci digital payments payment system", "https://www.npci.org.in/"),
-    ("Unified Payments Interface", "Services", "upi unified payments interface यूपीआई", "https://www.npci.org.in/what-we-do/upi/product-overview"),
-    ("State Bank of India", "Services", "sbi bank online banking एसबीआई बैंक", "https://sbi.co.in/"),
-    ("Punjab National Bank", "Services", "pnb bank online banking पीएनबी", "https://www.pnbindia.in/"),
-    ("Canara Bank", "Services", "canara bank online banking केनरा बैंक", "https://canarabank.com/"),
-    ("India Post Payments Bank", "Services", "ippb india post payments bank डाक बैंक", "https://www.ippbonline.com/"),
-
-    # FARMERS AND RURAL SERVICES
-    ("PM-Kisan", "Services", "pm kisan farmer scheme किसान सम्मान निधि", "https://pmkisan.gov.in/"),
-    ("Soil Health Card", "Services", "soil health card मिट्टी स्वास्थ्य कार्ड", "https://soilhealth.dac.gov.in/"),
-    ("Kisan Call Centre Information", "Services", "kisan call centre farmer help किसान सहायता", "https://agriwelfare.gov.in/"),
-    ("Rajasthan Agriculture Department", "Services", "rajasthan agriculture farming राजस्थान कृषि", "https://agriculture.rajasthan.gov.in/"),
-    ("Rajasthan Revenue Department", "Services", "rajasthan revenue land records राजस्व विभाग", "https://landrevenue.rajasthan.gov.in/"),
-    ("Bhu Naksha Rajasthan", "Services", "bhu naksha land map जमीन नक्शा", "https://bhunaksha.rajasthan.gov.in/"),
-    ("India Meteorological Department", "Services", "imd weather forecast मौसम जानकारी", "https://mausam.imd.gov.in/"),
-    ("National Livestock Mission", "Services", "national livestock mission पशुपालन योजना", "https://nlm.udyamimitra.in/"),
-
-    # HEALTH SERVICES
-    ("Ayushman Bharat PM-JAY", "Services", "ayushman bharat pmjay आयुष्मान भारत", "https://pmjay.gov.in/"),
-    ("ABHA Health ID", "Services", "abha health id digital health आभा हेल्थ आईडी", "https://abha.abdm.gov.in/"),
-    ("eSanjeevani", "Services", "esanjeevani online doctor consultation ऑनलाइन डॉक्टर", "https://esanjeevani.mohfw.gov.in/"),
-    ("Ministry of Health", "Services", "ministry health india स्वास्थ्य मंत्रालय", "https://mohfw.gov.in/"),
-    ("National Health Mission", "Services", "national health mission स्वास्थ्य मिशन", "https://nhm.gov.in/"),
-    ("Food Safety Authority of India", "Services", "fssai food safety खाद्य सुरक्षा", "https://www.fssai.gov.in/"),
-    ("Tele-MANAS Information", "Services", "tele manas mental health support मानसिक स्वास्थ्य", "https://mohfw.gov.in/"),
-    ("National Blood Centre Information", "Services", "ors hospital appointment online hospital", "https://ors.gov.in/"),
-    ("Indian Red Cross Society", "Services", "indian red cross society blood donation", "https://indianredcross.org/"),
-    ("National Disaster Management Authority", "Services", "ndma disaster safety आपदा प्रबंधन", "https://ndma.gov.in/"),
-
-    # AI AND CODING
-    ("Hugging Face", "Services", "hugging face ai models machine learning", "https://huggingface.co/"),
-    ("Google AI Studio", "Services", "google ai studio ai development", "https://aistudio.google.com/"),
-    ("Kaggle Learn", "Services", "kaggle learn data science machine learning", "https://www.kaggle.com/learn"),
-    ("MDN Web Docs", "Services", "mdn web docs html css javascript", "https://developer.mozilla.org/"),
-    ("W3Schools", "Services", "w3schools coding html css python", "https://www.w3schools.com/"),
-    ("freeCodeCamp", "Services", "freecodecamp free coding courses", "https://www.freecodecamp.org/"),
-    ("The Odin Project", "Services", "odin project web development coding", "https://www.theodinproject.com/"),
-    ("Python Package Index", "Services", "pypi python packages pip", "https://pypi.org/"),
-    ("GitHub Pages", "Services", "github pages host website free", "https://pages.github.com/"),
-    ("Cloudflare", "Services", "cloudflare web security dns", "https://www.cloudflare.com/"),
-
-    # NEWS AND PUBLIC INFORMATION
-    ("Press Information Bureau", "Services", "pib government news प्रेस सूचना ब्यूरो", "https://pib.gov.in/"),
-    ("Rajasthan Information Department", "Services", "dipr rajasthan government news राजस्थान समाचार", "https://dipr.rajasthan.gov.in/"),
-    ("All India Radio", "Services", "all india radio akashvani आकाशवाणी", "https://prasarbharati.gov.in/"),
-    ("Doordarshan", "Services", "doordarshan national news दूरदर्शन समाचार", "https://www.youtube.com/@DoordarshanNational"),
-    ("Census of India", "Services", "census india population जनगणना", "https://censusindia.gov.in/"),
-    ("data.gov.in", "Services", "data gov india open government data सरकारी आंकड़े", "https://www.data.gov.in/"),
-    ("Bureau of Indian Standards", "Services", "bis standards product quality मानक गुणवत्ता", "https://www.bis.gov.in/"),
-    ("Consumer Affairs Department", "Services", "consumer affairs consumer rights उपभोक्ता अधिकार", "https://consumeraffairs.nic.in/"),
-    ("National Testing Agency", "Services", "nta national testing agency परीक्षा एजेंसी", "https://www.nta.ac.in/"),
-    
-    # GOVERNMENT AND DIGITAL SERVICES
-    ("DigiLocker", "Government", "digilocker digital documents marksheet certificate डिजिलॉकर", "https://www.digilocker.gov.in/"),
-    ("UMANG", "Government", "umang government services सरकारी सेवाएं", "https://web.umang.gov.in/"),
-    ("UIDAI Aadhaar", "Government", "uidai aadhaar आधार कार्ड official", "https://uidai.gov.in/"),
-    ("Passport Seva", "Government", "passport seva passport application पासपोर्ट", "https://www.passportindia.gov.in/"),
-    ("Voter Services", "Government", "voter id election registration वोटर आईडी", "https://voters.eci.gov.in/"),
-    ("Parivahan Sewa", "Government", "parivahan driving licence vehicle परिवहन", "https://parivahan.gov.in/"),
-    ("Income Tax India", "Government", "income tax pan tax return इनकम टैक्स", "https://www.incometax.gov.in/"),
-    ("EPFO", "Government", "epfo pf pension provident fund पीएफ", "https://www.epfindia.gov.in/"),
-    ("ESIC", "Government", "esic employee health insurance कर्मचारी बीमा", "https://www.esic.gov.in/"),
-    ("National Career Service", "Jobs", "ncs national career service jobs नौकरी", "https://www.ncs.gov.in/"),
-    ("National Scholarship Portal", "Education", "scholarship national scholarship portal छात्रवृत्ति", "https://scholarships.gov.in/"),
-    ("NTA", "Education", "nta exams entrance test राष्ट्रीय परीक्षा एजेंसी", "https://www.nta.ac.in/"),
-    ("UPSC", "Jobs", "upsc civil services government exam", "https://upsc.gov.in/"),
-    ("SSC", "Jobs", "ssc recruitment government jobs कर्मचारी चयन", "https://ssc.gov.in/"),
-    ("Railway Recruitment Board", "Jobs", "rrb railway recruitment jobs रेलवे भर्ती", "https://www.rrbcdg.gov.in/"),
-    ("Rajasthan SSO", "Government", "rajasthan sso login राजस्थान एसएसओ", "https://sso.rajasthan.gov.in/"),
-    ("Rajasthan Jan Aadhaar", "Government", "jan aadhaar rajasthan जन आधार", "https://janaadhaar.rajasthan.gov.in/"),
-    ("Rajasthan Sampark", "Government", "rajasthan sampark complaint राजस्थान शिकायत", "https://sampark.rajasthan.gov.in/"),
-    ("MyScheme", "Government", "myscheme government schemes सरकारी योजनाएं", "https://www.myscheme.gov.in/"),
-    ("National Consumer Helpline", "Government", "consumer complaint customer grievance उपभोक्ता शिकायत", "https://consumerhelpline.gov.in/"),
-
-    # TRAVEL AND TRANSPORT
-    ("IRCTC", "Travel", "irctc train ticket railway reservation ट्रेन टिकट", "https://www.irctc.co.in/"),
-    ("Indian Railways", "Travel", "indian railways railway information भारतीय रेलवे", "https://indianrailways.gov.in/"),
-    ("Air India", "Travel", "air india flight booking एयर इंडिया", "https://www.airindia.com/"),
-    ("IndiGo", "Travel", "indigo flight booking flight status", "https://www.goindigo.in/"),
-    ("RedBus", "Travel", "redbus bus ticket booking बस टिकट", "https://www.redbus.in/"),
-    ("MakeMyTrip", "Travel", "makemytrip hotel flight travel booking", "https://www.makemytrip.com/"),
-
-    # PDF AND DOCUMENT TOOLS
-    ("iLovePDF", "Tools", "ilovepdf merge compress convert pdf पीडीएफ", "https://www.ilovepdf.com/"),
-    ("Smallpdf", "Tools", "smallpdf compress merge pdf पीडीएफ टूल", "https://smallpdf.com/"),
-    ("PDF24 Tools", "Tools", "pdf24 merge compress convert pdf", "https://tools.pdf24.org/en/"),
-    ("Adobe Acrobat Online", "Tools", "adobe acrobat pdf convert edit पीडीएफ", "https://www.adobe.com/acrobat/online.html"),
-    ("Photopea", "Design", "photopea online photo editor image editing", "https://www.photopea.com/"),
-    ("Remove.bg", "Design", "remove bg background remover फोटो बैकग्राउंड", "https://www.remove.bg/"),
-    ("TinyPNG", "Tools", "tinypng compress png jpg images", "https://tinypng.com/"),
-    ("QR Code Generator", "Tools", "qr code generator create qr code", "https://www.qrcode-monkey.com/"),
-    ("Speedtest", "Tools", "internet speed test इंटरनेट स्पीड", "https://www.speedtest.net/"),
-    ("VirusTotal", "Security", "virustotal check suspicious file link security", "https://www.virustotal.com/"),
-
-    # LEARNING AND KNOWLEDGE
-    ("SWAYAM", "Education", "swayam online courses भारत ऑनलाइन पढ़ाई", "https://swayam.gov.in/"),
-    ("ePathshala", "Education", "epathshala ncert textbooks ebooks एनसीईआरटी", "https://epathshala.nic.in/"),
-    ("DIKSHA", "Education", "diksha learning education courses दीक्षा", "https://diksha.gov.in/"),
-    ("Khan Academy", "Education", "khan academy free learning गणित विज्ञान", "https://www.khanacademy.org/"),
-    ("Coursera", "Education", "coursera online courses learning", "https://www.coursera.org/"),
-    ("edX", "Education", "edx online courses education", "https://www.edx.org/"),
-    ("Wikimedia Commons", "Education", "wikimedia commons free educational media", "https://commons.wikimedia.org/"),
-    ("Internet Archive", "Education", "internet archive books historical resources", "https://archive.org/"),
-
-    # SHOPPING AND EVERYDAY SERVICES
-    ("Amazon India", "Shopping", "amazon india online shopping अमेजन", "https://www.amazon.in/"),
-    ("Flipkart", "Shopping", "flipkart online shopping फ्लिपकार्ट", "https://www.flipkart.com/"),
-    ("Myntra", "Shopping", "myntra clothing fashion shopping", "https://www.myntra.com/"),
-    ("AJIO", "Shopping", "ajio fashion clothes online shopping", "https://www.ajio.com/"),
-    ("India Post", "Services", "india post postal services speed post डाक", "https://www.indiapost.gov.in/"),
-    ("OpenStreetMap", "Travel", "openstreetmap maps location रास्ता नक्शा", "https://www.openstreetmap.org/"),
-
+    # More everyday resources
+    ("Wikipedia Hindi", "Knowledge", "wikipedia जानकारी", "https://hi.wikipedia.org/"),
+    ("Internet Archive", "Knowledge", "archive books historical resources", "https://archive.org/"),
+    ("Coursera", "Education", "online courses learning", "https://www.coursera.org/"),
+    ("edX", "Education", "online courses education", "https://www.edx.org/"),
+    ("Amazon India", "Shopping", "amazon online shopping", "https://www.amazon.in/"),
+    ("Flipkart", "Shopping", "flipkart online shopping", "https://www.flipkart.com/"),
+    ("Myntra", "Shopping", "myntra fashion clothes", "https://www.myntra.com/"),
+    ("India Post", "Services", "india post postal services", "https://www.indiapost.gov.in/"),
+    ("Parivahan", "Transport", "driving licence vehicle registration", "https://parivahan.gov.in/"),
+    ("National Legal Services Authority", "Legal", "nalsa legal aid मुफ्त कानूनी सहायता", "https://nalsa.gov.in/"),
+    ("eCourts Services", "Legal", "court case अदालत केस", "https://ecourts.gov.in/"),
+    ("India Code", "Legal", "laws acts कानून", "https://www.indiacode.nic.in/"),
+    ("National Disaster Management Authority", "Safety", "disaster emergency आपदा", "https://ndma.gov.in/"),
+    ("Food Safety Authority of India", "Health", "fssai food safety", "https://www.fssai.gov.in/"),
+    ("World Health Organization", "Health", "who public health", "https://www.who.int/"),
+    ("NASA", "Science", "space science astronomy", "https://www.nasa.gov/"),
+    ("ISRO", "Science", "space science india", "https://www.isro.gov.in/"),
+    ("UNESCO", "Knowledge", "education science culture", "https://www.unesco.org/"),
 ]
 
 def normalize(value):
     value = str(value or "").lower().strip()
-    value = value.replace("आधार", "aadhaar")
-    value = value.replace("छात्रवृत्ति", "scholarship")
-    value = value.replace("राजस्थान", "rajasthan")
-    value = value.replace("रेलवे", "railway")
-    value = value.replace("नौकरी", "job")
+    replacements = {
+        "आधार": "aadhaar",
+        "छात्रवृत्ति": "scholarship",
+        "राजस्थान": "rajasthan",
+        "रेलवे": "railway",
+        "नौकरी": "job",
+        "भर्ती": "recruitment",
+        "किसान": "farmer",
+        "पैन कार्ड": "pan card",
+        "परीक्षा": "exam",
+    }
+    for old, new in replacements.items():
+        value = value.replace(old, new)
+
     value = re.sub(r"[^\w\s]", " ", value, flags=re.UNICODE)
     return re.sub(r"\s+", " ", value).strip()
+
+
+ALIASES = {
+    "railway": "railway train rrb recruitment",
+    "scholarship": "scholarship student education",
+    "aadhaar": "aadhaar aadhar uidai",
+    "aadhar": "aadhaar aadhar uidai",
+    "rajasthan": "rajasthan sso rpsc rssb sampark",
+    "job": "jobs recruitment career vacancy",
+    "jobs": "job jobs recruitment career",
+    "iti": "iti ncvt fitter apprentice",
+    "fitter": "fitter iti ncvt apprentice",
+    "pan": "pan card income tax",
+    "police": "police recruitment",
+    "news": "news pib bbc india",
+    "ai": "ai artificial intelligence chatgpt gemini",
+    "map": "map maps google location",
+    "complaint": "complaint grievance sampark consumer",
+    "fraud": "fraud cyber crime online safety",
+}
 
 
 def build_services():
@@ -563,9 +201,8 @@ def build_services():
     seen = set()
 
     for name, category, keywords, url in RAW_SERVICES:
-        if url in seen:
-            continue
-        if not url.startswith("https://"):
+        url = str(url).strip()
+        if not url.startswith("https://") or url in seen:
             continue
 
         seen.add(url)
@@ -573,31 +210,42 @@ def build_services():
             "name": name,
             "category": category,
             "keywords": keywords,
-            "url": url
+            "url": url,
         })
 
-    # Extra services from services.json, if that file exists.
     extra_file = BASE_DIR / "services.json"
+
     if extra_file.exists():
         try:
             data = json.loads(extra_file.read_text(encoding="utf-8"))
+
             if isinstance(data, list):
                 for item in data:
                     if not isinstance(item, dict):
                         continue
+
                     name = str(item.get("name", "")).strip()
                     url = str(item.get("url", "")).strip()
-                    if not name or not url.startswith("https://") or url in seen:
+
+                    if not name or not url.startswith("https://"):
                         continue
+                    if url in seen:
+                        continue
+
                     seen.add(url)
                     result.append({
                         "name": name[:120],
-                        "category": str(item.get("category", "Other"))[:60],
-                        "keywords": str(item.get("keywords", ""))[:500],
-                        "url": url
+                        "category": str(
+                            item.get("category", "Other")
+                        )[:60],
+                        "keywords": str(
+                            item.get("keywords", "")
+                        )[:500],
+                        "url": url,
                     })
+
         except (OSError, json.JSONDecodeError):
-            app.logger.warning("services.json could not be read")
+            app.logger.warning("Could not read services.json")
 
     return result
 
@@ -605,29 +253,13 @@ def build_services():
 SERVICES = build_services()
 
 
-def search_services(query):
+def search_services(query, limit=50):
     q = normalize(query)
+
     if not q:
         return []
 
-
-    aliases = {
-        "railway": "rail train rrb railway रेलवे",
-        "scholarship": "scholarship छात्रवृत्ति",
-        "aadhaar": "aadhaar aadhar आधार uidai",
-        "aadhar": "aadhaar aadhar आधार uidai",
-        "rajasthan": "rajasthan राजस्थान rpsc rssb sso",
-        "jobs": "job jobs career recruitment भर्ती नौकरी",
-        "iti": "iti ncvt fitter apprentice",
-        "fitter": "fitter iti ncvt apprentice",
-        "pan": "pan card income tax",
-        "police": "police राजस्थान पुलिस",
-        "news": "news समाचार pib bbc",
-        "ai": "ai artificial intelligence chatgpt gemini",
-        "map": "map maps नक्शा google",
-    }
-
-    expanded = aliases.get(q, q)
+    expanded = ALIASES.get(q, q)
     terms = set(expanded.split())
     ranked = []
 
@@ -639,10 +271,13 @@ def search_services(query):
         searchable = f"{name} {category} {keywords} {url}"
 
         score = 0
+
         if q == name:
             score += 100
-        if q in name:
-            score += 60
+        if name.startswith(q):
+            score += 70
+        elif q in name:
+            score += 45
         if q in category:
             score += 20
         if q in keywords:
@@ -650,155 +285,101 @@ def search_services(query):
         if q in url:
             score += 10
 
-        matched = sum(1 for term in terms if term and term in searchable)
-        score += matched * 5
+        score += sum(
+            8 for term in terms
+            if len(term) > 1 and term in searchable
+        )
 
         if score > 0:
             ranked.append((score, service))
 
-    ranked.sort(key=lambda pair: (-pair[0], pair[1]["name"].lower()))
-    return [service for _, service in ranked[:50]]
-# Smart Search Suggestions — existing services are preserved
+    ranked.sort(
+        key=lambda item: (-item[0], item[1]["name"].lower())
+    )
+
+    return [service for _, service in ranked[:limit]]
+
+
 SMART_SUGGESTIONS = [
     {
-        "name": "Railway Recruitment Boards (RRB)",
+        "name": "Railway Recruitment Boards",
         "category": "Railway Jobs",
-        "keywords": "railway rrb recruitment vacancy railway jobs भर्ती",
-        "url": "https://www.rrbapply.gov.in/"
-    },
-    {
-        "name": "Indian Railways",
-        "category": "Railway",
-        "keywords": "railway train रेलगाड़ी railway information",
-        "url": "https://indianrailways.gov.in/"
-    },
-    {
-        "name": "IRCTC Train Ticket Booking",
-        "category": "Railway",
-        "keywords": "train ticket booking reservation irctc टिकट",
-        "url": "https://www.irctc.co.in/"
-    },
-    {
-        "name": "National Train Enquiry System",
-        "category": "Railway",
-        "keywords": "train status running status train enquiry",
-        "url": "https://enquiry.indianrail.gov.in/"
-    },
-    {
-        "name": "RRB NTPC Recruitment",
-        "category": "Railway Jobs",
-        "keywords": "rrb ntpc graduate undergraduate 12th exam",
-        "url": "https://www.rrbapply.gov.in/"
-    },
-    {
-        "name": "Railway ALP Recruitment",
-        "category": "Railway Jobs",
-        "keywords": "alp assistant loco pilot railway exam",
-        "url": "https://www.rrbapply.gov.in/"
-    },
-    {
-        "name": "Railway Group D Recruitment",
-        "category": "Railway Jobs",
-        "keywords": "group d level 1 railway vacancy",
-        "url": "https://www.rrbapply.gov.in/"
-    },
-    {
-        "name": "Railway Technician Recruitment",
-        "category": "Railway Jobs",
-        "keywords": "technician railway fitter iti recruitment",
-        "url": "https://www.rrbapply.gov.in/"
+        "keywords": "railway rrb alp ntpc group d technician",
+        "url": "https://www.rrbapply.gov.in/",
     },
     {
         "name": "RRC North Western Railway",
         "category": "Railway Jobs",
-        "keywords": "rrc nwr jaipur apprentice railway राजस्थान",
-        "url": "https://nwr.indianrailways.gov.in/"
+        "keywords": "rrc nwr jaipur apprentice",
+        "url": "https://nwr.indianrailways.gov.in/",
     },
     {
-        "name": "National Career Service",
-        "category": "Jobs",
-        "keywords": "government private job employment नौकरी",
-        "url": "https://www.ncs.gov.in/"
-    },
-    {
-        "name": "Apprenticeship India",
-        "category": "ITI Jobs",
-        "keywords": "iti fitter apprenticeship apprentice अप्रेंटिस",
-        "url": "https://www.apprenticeshipindia.gov.in/"
-    },
-    {
-        "name": "NCVT MIS",
-        "category": "ITI",
-        "keywords": "iti ncvt marksheet certificate pntc fitter",
-        "url": "https://www.ncvtmis.gov.in/"
-    },
-    {
-        "name": "Skill India Digital Hub",
-        "category": "ITI",
-        "keywords": "sidh skill india iti training कौशल",
-        "url": "https://www.skillindiadigital.gov.in/"
-    },
-    {
-        "name": "Staff Selection Commission",
-        "category": "Jobs",
-        "keywords": "ssc government job recruitment परीक्षा",
-        "url": "https://ssc.gov.in/"
-    },
-    {
-        "name": "Rajasthan Staff Selection Board",
-        "category": "Rajasthan Jobs",
-        "keywords": "rssb rsmssb राजस्थान भर्ती",
-        "url": "https://rssb.rajasthan.gov.in/"
-    },
-    {
-        "name": "Rajasthan Public Service Commission",
-        "category": "Rajasthan Jobs",
-        "keywords": "rpsc राजस्थान सरकारी भर्ती",
-        "url": "https://rpsc.rajasthan.gov.in/"
-    },
-    {
-        "name": "National Scholarship Portal",
-        "category": "Education",
-        "keywords": "scholarship student छात्रवृत्ति",
-        "url": "https://scholarships.gov.in/"
-    },
-    {
-        "name": "Rajasthan Sampark Complaints",
+        "name": "Rajasthan Sampark",
         "category": "Complaints",
-        "keywords": "complaint shikayat sampark राजस्थान शिकायत",
-        "url": "https://sampark.rajasthan.gov.in/"
-    },
-    {
-        "name": "National Consumer Helpline",
-        "category": "Complaints",
-        "keywords": "consumer complaint customer ग्राहक शिकायत",
-        "url": "https://consumerhelpline.gov.in/"
+        "keywords": "rajasthan complaint shikayat",
+        "url": "https://sampark.rajasthan.gov.in/",
     },
     {
         "name": "National Cyber Crime Reporting Portal",
         "category": "Safety",
-        "keywords": "online fraud cyber crime scam साइबर ठगी",
-        "url": "https://cybercrime.gov.in/"
+        "keywords": "online fraud scam cyber crime",
+        "url": "https://cybercrime.gov.in/",
+    },
+    {
+        "name": "National Consumer Helpline",
+        "category": "Complaints",
+        "keywords": "consumer complaint customer grievance",
+        "url": "https://consumerhelpline.gov.in/",
+    },
+    {
+        "name": "NCVT MIS",
+        "category": "ITI",
+        "keywords": "iti marksheet certificate pntc fitter",
+        "url": "https://www.ncvtmis.gov.in/",
+    },
+    {
+        "name": "National Career Service",
+        "category": "Jobs",
+        "keywords": "job vacancy employment career",
+        "url": "https://www.ncs.gov.in/",
+    },
+    {
+        "name": "Rajasthan Staff Selection Board",
+        "category": "Rajasthan Jobs",
+        "keywords": "rssb rsmssb government recruitment",
+        "url": "https://rssb.rajasthan.gov.in/",
+    },
+    {
+        "name": "National Scholarship Portal",
+        "category": "Education",
+        "keywords": "scholarship student education",
+        "url": "https://scholarships.gov.in/",
+    },
+    {
+        "name": "Apprenticeship India",
+        "category": "ITI Jobs",
+        "keywords": "iti fitter apprenticeship apprentice",
+        "url": "https://www.apprenticeshipindia.gov.in/",
     },
 ]
 
 
 def get_suggestions(query, limit=10):
-    """Return relevant suggestions without changing the main search."""
     q = normalize(query)
 
     if len(q) < 2:
         return []
 
-    # Existing services and new suggestions are combined.
     candidates = SERVICES + SMART_SUGGESTIONS
     ranked = []
     seen_urls = set()
 
     for service in candidates:
         url = service.get("url", "")
+
         if not url.startswith("https://") or url in seen_urls:
             continue
+
         seen_urls.add(url)
 
         name = normalize(service.get("name", ""))
@@ -807,48 +388,45 @@ def get_suggestions(query, limit=10):
         searchable = f"{name} {category} {keywords}"
 
         score = 0
+
         if q == name:
             score += 100
         if name.startswith(q):
             score += 80
         elif q in name:
-            score += 55
+            score += 50
         if q in category:
-            score += 30
-        if q in keywords:
             score += 25
+        if q in keywords:
+            score += 20
 
-        query_terms = q.split()
         score += sum(
-            8 for term in query_terms
+            8 for term in q.split()
             if len(term) > 1 and term in searchable
         )
 
         if score > 0:
             ranked.append((score, service))
 
-    ranked.sort(key=lambda item: (-item[0], item[1]["name"].lower()))
+    ranked.sort(
+        key=lambda item: (-item[0], item[1]["name"].lower())
+    )
 
     return [
         {
             "name": service["name"],
             "category": service["category"],
-            "url": service["url"]
+            "url": service["url"],
         }
         for _, service in ranked[:limit]
     ]
 
 
-@app.route("/api/suggestions")
-def api_suggestions():
-    query = request.args.get("q", "").strip()[:160]
-    return jsonify({
-        "success": True,
-        "query": query,
-        "results": get_suggestions(query)
-    })
 RSS_FEEDS = [
-    ("Google News India", "https://news.google.com/rss?hl=hi&gl=IN&ceid=IN:hi"),
+    (
+        "Google News India",
+        "https://news.google.com/rss?hl=hi&gl=IN&ceid=IN:hi",
+    ),
     ("PIB India", "https://pib.gov.in/RssMain.aspx"),
     ("BBC Hindi", "https://feeds.bbci.co.uk/hindi/rss.xml"),
 ]
@@ -856,37 +434,45 @@ RSS_FEEDS = [
 
 def fetch_news(limit=15):
     articles = []
+    seen_links = set()
 
     for source, url in RSS_FEEDS:
         try:
             req = urllib.request.Request(
                 url,
-                headers={"User-Agent": "IshwarSearch/1.0"}
+                headers={"User-Agent": "IshwarSearch/1.0"},
             )
+
             with urllib.request.urlopen(req, timeout=4) as response:
                 root = ET.fromstring(response.read())
 
             for item in root.findall(".//item"):
-                title = html.unescape(item.findtext("title", "")).strip()
+                title = html.unescape(
+                    item.findtext("title", "")
+                ).strip()
                 link = item.findtext("link", "").strip()
                 date = item.findtext("pubDate", "").strip()
 
-                if title and link.startswith("https://"):
+                if (
+                    title
+                    and link.startswith("https://")
+                    and link not in seen_links
+                ):
+                    seen_links.add(link)
                     articles.append({
                         "title": title,
                         "url": link,
                         "source": source,
-                        "date": date
+                        "date": date,
                     })
 
                 if len(articles) >= limit:
                     return articles
 
         except Exception:
-            app.logger.info("News source unavailable: %s", source)
+            app.logger.info("News feed unavailable: %s", source)
 
     return articles
-
 
 @app.route("/")
 def home():
@@ -900,10 +486,12 @@ def home():
         news=[],
         service_count=len(SERVICES),
         services_count=len(SERVICES),
-        categories=sorted({s["category"] for s in SERVICES}),
+        categories=sorted({
+            service["category"] for service in SERVICES
+        }),
         current_year=datetime.now().year,
         owner=OWNER,
-        app_name=APP_NAME
+        app_name=APP_NAME,
     )
 
 
@@ -916,7 +504,18 @@ def api_search():
         "success": True,
         "query": query,
         "count": len(results),
-        "results": results
+        "results": results,
+    })
+
+
+@app.route("/api/suggestions")
+def api_suggestions():
+    query = request.args.get("q", "").strip()[:160]
+
+    return jsonify({
+        "success": True,
+        "query": query,
+        "results": get_suggestions(query),
     })
 
 
@@ -924,7 +523,7 @@ def api_search():
 def api_news():
     return jsonify({
         "success": True,
-        "results": fetch_news()
+        "results": fetch_news(),
     })
 
 
@@ -934,7 +533,7 @@ def health():
         "status": "ok",
         "app": APP_NAME,
         "owner": OWNER,
-        "services": len(SERVICES)
+        "services": len(SERVICES),
     })
 
 
@@ -946,4 +545,8 @@ if __name__ == "__main__":
     print("Open http://127.0.0.1:5000")
     print("=" * 42)
 
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(
+        host="127.0.0.1",
+        port=5000,
+        debug=False,
+    )
