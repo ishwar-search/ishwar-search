@@ -1,9 +1,10 @@
-
 from flask import Flask, request, jsonify, render_template
 from pathlib import Path
 from datetime import datetime
 import re
 import json
+import os
+from urllib.parse import quote_plus
 import html
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -113,7 +114,6 @@ RAW_SERVICES = [
     ("DD News", "News", "dd news india समाचार", "https://ddnews.gov.in/"),
     ("YouTube", "Video", "youtube video वीडियो", "https://www.youtube.com/"),
     ("Google Drive", "Files", "cloud storage files", "https://drive.google.com/"),
-    ("DigiLocker", "Government", "digital documents डिजिलॉकर", "https://www.digilocker.gov.in/"),
 
     # AI and technology
     ("ChatGPT", "AI", "chatgpt artificial intelligence एआई", "https://chatgpt.com/"),
@@ -131,19 +131,8 @@ RAW_SERVICES = [
     ("Photopea", "Design", "photo editor image editing", "https://www.photopea.com/"),
     ("Blender", "Design", "3d modelling animation", "https://www.blender.org/"),
     ("OBS Studio", "Tools", "screen recording livestream", "https://obsproject.com/"),
-    ("VirusTotal", "Security", "check suspicious file link", "https://www.virustotal.com/"),
-    ("Mozilla Firefox", "Tools", "firefox browser", "https://www.mozilla.org/firefox/"),
-    ("Brave Browser", "Tools", "brave browser privacy", "https://brave.com/"),
 
-    # More everyday resources
-    ("Wikipedia Hindi", "Knowledge", "wikipedia जानकारी", "https://hi.wikipedia.org/"),
-    ("Internet Archive", "Knowledge", "archive books historical resources", "https://archive.org/"),
-    ("Coursera", "Education", "online courses learning", "https://www.coursera.org/"),
-    ("edX", "Education", "online courses education", "https://www.edx.org/"),
-    ("Amazon India", "Shopping", "amazon online shopping", "https://www.amazon.in/"),
-    ("Flipkart", "Shopping", "flipkart online shopping", "https://www.flipkart.com/"),
-    ("Myntra", "Shopping", "myntra fashion clothes", "https://www.myntra.com/"),
-    ("India Post", "Services", "india post postal services", "https://www.indiapost.gov.in/"),
+    # Additional public services
     ("Parivahan", "Transport", "driving licence vehicle registration", "https://parivahan.gov.in/"),
     ("National Legal Services Authority", "Legal", "nalsa legal aid मुफ्त कानूनी सहायता", "https://nalsa.gov.in/"),
     ("eCourts Services", "Legal", "court case अदालत केस", "https://ecourts.gov.in/"),
@@ -154,7 +143,113 @@ RAW_SERVICES = [
     ("NASA", "Science", "space science astronomy", "https://www.nasa.gov/"),
     ("ISRO", "Science", "space science india", "https://www.isro.gov.in/"),
     ("UNESCO", "Knowledge", "education science culture", "https://www.unesco.org/"),
+
+    # Additional curated services: land, cyber safety, education, jobs, media and public services
+    ("Rajasthan Apna Khata", "Rajasthan Land", "jamabandi khasra land record राजस्थान जमाबंदी", "https://apnakhata.rajasthan.gov.in/"),
+    ("Rajasthan e-Mitra", "Rajasthan", "emitra bill certificate service ई मित्र", "https://emitra.rajasthan.gov.in/"),
+    ("Rajasthan e-Panjiyan", "Rajasthan Land", "property registration stamp duty जमीन रजिस्ट्री", "https://epanjiyan.rajasthan.gov.in/"),
+    ("Rajasthan Rajdharaa GIS", "Rajasthan Land", "gis map urban khasra नक्शा", "https://rajdharaa.rajasthan.gov.in/"),
+    ("Rajasthan Revenue Board", "Rajasthan Land", "revenue department land राजस्व", "https://landrevenue.rajasthan.gov.in/"),
+    ("Rajasthan Police", "Safety", "police complaint citizen राजस्थान पुलिस", "https://police.rajasthan.gov.in/"),
+    ("Rajasthan Jan Soochna Portal", "Rajasthan", "jan soochna scheme information जन सूचना", "https://jansoochna.rajasthan.gov.in/"),
+    ("Rajasthan State Election Commission", "Government", "local election राजस्थान चुनाव", "https://sec.rajasthan.gov.in/"),
+    ("Rajasthan Legislative Assembly", "Government", "assembly legislation राजस्थान विधानसभा", "https://assembly.rajasthan.gov.in/"),
+    ("Rajasthan Forest Department", "Environment", "forest wildlife राजस्थान वन", "https://forest.rajasthan.gov.in/"),
+    ("Rajasthan Medical Health", "Health", "medical health department राजस्थान स्वास्थ्य", "https://medical.rajasthan.gov.in/"),
+    ("Rajasthan Education Department", "Education", "school education राजस्थान शिक्षा", "https://education.rajasthan.gov.in/"),
+    ("Rajasthan Board of Secondary Education", "Education", "rbse ajmer board result", "https://rajeduboard.rajasthan.gov.in/"),
+    ("Rajasthan Scholarship Portal", "Education", "scholarship social justice राजस्थान छात्रवृत्ति", "https://sje.rajasthan.gov.in/"),
+    ("Rajasthan Social Justice Department", "Government", "pension social justice राजस्थान पेंशन", "https://sje.rajasthan.gov.in/"),
+    ("Rajasthan Labour Department", "Government", "labour worker registration श्रमिक", "https://labour.rajasthan.gov.in/"),
+    ("Rajasthan Transport Department", "Transport", "driving licence vehicle राजस्थान परिवहन", "https://transport.rajasthan.gov.in/"),
+    ("Rajasthan PHED", "Utilities", "water supply public health engineering पानी", "https://phed.rajasthan.gov.in/"),
+    ("Rajasthan Energy Department", "Utilities", "electricity energy राजस्थान बिजली", "https://energy.rajasthan.gov.in/"),
+    ("Rajasthan DISCOM", "Utilities", "electricity bill bijli राजस्थान", "https://energy.rajasthan.gov.in/"),
+    ("National Cyber Security Portal", "Safety", "cyber security awareness साइबर सुरक्षा", "https://www.cybercrime.gov.in/"),
+    ("CERT-In Advisories", "Safety", "cyber security alerts vulnerability", "https://www.cert-in.org.in/"),
+    ("Sanchar Saathi", "Safety", "mobile connections lost phone fraud", "https://sancharsaathi.gov.in/"),
+    ("Chakshu Report Suspected Fraud", "Safety", "report suspicious call sms fraud", "https://sancharsaathi.gov.in/"),
+    ("I4C Indian Cyber Crime Coordination Centre", "Safety", "cyber crime coordination india", "https://www.mha.gov.in/"),
+    ("National Digital Library of India", "Education", "digital library books research", "https://ndl.iitkgp.ac.in/"),
+    ("ePathshala", "Education", "ncert textbook e books", "https://epathshala.nic.in/"),
+    ("NPTEL", "Education", "engineering courses online learning", "https://nptel.ac.in/"),
+    ("AICTE Internship Portal", "Education", "internship technical students", "https://internship.aicte-india.org/"),
+    ("National Apprenticeship Training Scheme", "ITI Jobs", "nats apprenticeship diploma graduate", "https://nats.education.gov.in/"),
+    ("National Institute of Open Schooling", "Education", "nios admission examination", "https://nios.ac.in/"),
+    ("All India Council for Technical Education", "Education", "technical college approval", "https://www.aicte-india.org/"),
+    ("National Academic Depository", "Education", "academic certificates degree documents", "https://nad.gov.in/"),
+    ("NIRF India", "Education", "college university ranking", "https://www.nirfindia.org/"),
+    ("National Testing Agency Exams", "Education", "nta exam registration", "https://exams.nta.ac.in/"),
+    ("Railway Recruitment Cell North Western Railway", "Railway Jobs", "rrc nwr jaipur apprentice", "https://rrcjaipur.in/"),
+    ("Railway Recruitment Cell Western Railway", "Railway Jobs", "western railway apprentice recruitment", "https://www.rrc-wr.com/"),
+    ("Railway Recruitment Cell Central Railway", "Railway Jobs", "central railway apprentice recruitment", "https://rrccr.com/"),
+    ("Railway Recruitment Cell Northern Railway", "Railway Jobs", "northern railway apprentice recruitment", "https://rrcnr.org/"),
+    ("Indian Navy Recruitment", "Jobs", "navy recruitment apprentice", "https://www.joinindiannavy.gov.in/"),
+    ("Indian Army Recruitment", "Jobs", "army agniveer recruitment", "https://joinindianarmy.nic.in/"),
+    ("Indian Air Force Recruitment", "Jobs", "air force agniveer recruitment", "https://agnipathvayu.cdac.in/"),
+    ("Public Enterprises Selection Board", "Jobs", "government company jobs psu", "https://pesb.gov.in/"),
+    ("National Health Authority", "Health", "ayushman bharat health authority", "https://nha.gov.in/"),
+    ("CoWIN", "Health", "vaccination certificate vaccine", "https://www.cowin.gov.in/"),
+    ("Food Safety Connect", "Health", "food safety complaint fssai", "https://foscos.fssai.gov.in/"),
+    ("National AIDS Control Organisation", "Health", "health awareness india", "https://naco.gov.in/"),
+    ("National Portal of India Weather", "Weather", "weather forecast india imd", "https://mausam.imd.gov.in/"),
+    ("India Water Resources Information System", "Environment", "water resources river data", "https://indiawris.gov.in/"),
+    ("Central Pollution Control Board", "Environment", "air pollution environment data", "https://cpcb.nic.in/"),
+    ("National Green Tribunal", "Legal", "environment case tribunal", "https://greentribunal.gov.in/"),
+    ("eCourts Case Status", "Legal", "court case status india", "https://services.ecourts.gov.in/"),
+    ("Tele-Law", "Legal", "free legal advice legal aid", "https://tele-law.in/"),
+    ("National Legal Services Authority", "Legal", "legal aid lok adalat", "https://nalsa.gov.in/"),
+    ("Consumer Affairs Department", "Complaints", "consumer rights complaint india", "https://consumeraffairs.nic.in/"),
+    ("Bureau of Indian Standards", "Government", "product standards hallmark", "https://www.bis.gov.in/"),
+    ("Food Corporation of India", "Agriculture", "food grain procurement jobs", "https://fci.gov.in/"),
+    ("Kisan Call Centre", "Agriculture", "farmer helpline agriculture advice", "https://agriwelfare.gov.in/"),
+    ("Agriculture Infrastructure Fund", "Agriculture", "agriculture loan scheme", "https://agriinfra.dac.gov.in/"),
+    ("Soil Health Card", "Agriculture", "soil test card farmer", "https://soilhealth.dac.gov.in/"),
+    ("National Horticulture Board", "Agriculture", "horticulture farming scheme", "https://nhb.gov.in/"),
+    ("e-GRAM SWARAJ", "Government", "gram panchayat budget works", "https://egramswaraj.gov.in/"),
+    ("MGNREGA", "Government", "nrega job card wage status", "https://nrega.nic.in/"),
+    ("PM Awas Yojana Urban", "Government", "housing scheme urban", "https://pmay-urban.gov.in/"),
+    ("PM Awas Yojana Gramin", "Government", "rural housing scheme", "https://pmayg.nic.in/"),
+    ("Jal Jeevan Mission", "Utilities", "drinking water scheme", "https://jaljeevanmission.gov.in/"),
+    ("Swachh Bharat Mission Gramin", "Government", "village sanitation scheme", "https://swachhbharatmission.ddws.gov.in/"),
+    ("National Food Security Portal", "Government", "ration card food security", "https://nfsa.gov.in/"),
+    ("One Nation One Ration Card", "Government", "ration card portability", "https://impds.nic.in/"),
+    ("Bharat BillPay", "Finance", "bill payment official bbps", "https://www.npci.org.in/what-we-do/bharat-billpay/product-overview"),
+    ("NPCI", "Finance", "upi payments banking", "https://www.npci.org.in/"),
+    ("RBI Sachet Portal", "Finance", "financial fraud complaint unregulated deposits", "https://sachet.rbi.org.in/"),
+    ("RBI Complaint Management System", "Finance", "banking complaint ombudsman", "https://cms.rbi.org.in/"),
+    ("Insurance Regulatory and Development Authority", "Finance", "insurance complaint policy", "https://irdai.gov.in/"),
+    ("PFRDA", "Finance", "pension nps regulator", "https://www.pfrda.org.in/"),
+    ("National Pension System", "Finance", "nps pension account", "https://npstrust.org.in/"),
+    ("BSE India", "Finance", "stock exchange market information", "https://www.bseindia.com/"),
+    ("NSE India", "Finance", "stock market information", "https://www.nseindia.com/"),
+    ("Mera Ration App Portal", "Government", "ration distribution food", "https://mera-ration.nic.in/"),
+    ("India Post Payments Bank", "Finance", "ippb banking services", "https://www.ippbonline.com/"),
+        ("Google Images Search", "Image Search", "images photos तस्वीरें", "https://images.google.com/"),
+    ("Bing Images Search", "Image Search", "bing image search photos", "https://www.bing.com/images"),
+    ("DuckDuckGo Images", "Image Search", "private image search", "https://duckduckgo.com/?iax=images&ia=images"),
+    ("Bing Videos Search", "Video Search", "video search clips", "https://www.bing.com/videos"),
+    ("YouTube Search", "Video Search", "youtube videos search", "https://www.youtube.com/"),
+    ("Google News Search", "News", "latest news headlines समाचार", "https://news.google.com/"),
+    ("Reuters News", "News", "world news international", "https://www.reuters.com/"),
+    ("The Hindu", "News", "india news newspaper", "https://www.thehindu.com/"),
+    ("Indian Express", "News", "india news explained", "https://indianexpress.com/"),
+    ("Prasar Bharati News Services", "News", "official news india", "https://prasarbharati.gov.in/"),
+    ("Press Council of India", "News", "media standards complaint", "https://presscouncil.nic.in/"),
+    ("Internet Archive Books", "Knowledge", "public domain books archive", "https://archive.org/"),
+    ("Open Library", "Knowledge", "online library books", "https://openlibrary.org/"),
+    ("Project Gutenberg", "Knowledge", "free ebooks public domain", "https://www.gutenberg.org/"),
+    ("Wikimedia Commons", "Image Search", "free media images license", "https://commons.wikimedia.org/"),
+    ("Unsplash", "Image Search", "photos image library", "https://unsplash.com/"),
+    ("Pexels", "Image Search", "free stock photos videos", "https://www.pexels.com/"),
+    ("Pixabay", "Image Search", "free images illustrations videos", "https://pixabay.com/"),
+    ("Internet Speed Test Ookla", "Tools", "internet speed test", "https://www.speedtest.net/"),
+    ("Have I Been Pwned", "Safety", "email breach check account safety", "https://haveibeenpwned.com/"),
+    ("OWASP", "Safety", "web application security learning", "https://owasp.org/"),
+    ("Mozilla Monitor", "Safety", "email data breach monitoring", "https://monitor.mozilla.org/"),
+    ("Google Safe Browsing", "Safety", "check unsafe website", "https://transparencyreport.google.com/safe-browsing/search"),
 ]
+
 
 def normalize(value):
     value = str(value or "").lower().strip()
@@ -188,11 +283,20 @@ ALIASES = {
     "fitter": "fitter iti ncvt apprentice",
     "pan": "pan card income tax",
     "police": "police recruitment",
-    "news": "news pib bbc india",
+    "news": "news google news pib bbc reuters",
     "ai": "ai artificial intelligence chatgpt gemini",
     "map": "map maps google location",
     "complaint": "complaint grievance sampark consumer",
     "fraud": "fraud cyber crime online safety",
+    "khasra": "khasra jamabandi land record bhunaksha",
+    "खसरा": "khasra jamabandi land record bhunaksha",
+    "jamabandi": "jamabandi khasra land record apna khata",
+    "video": "video youtube videos bing videos",
+    "videos": "video youtube videos bing videos",
+    "image": "image images photos google images wikimedia",
+    "images": "image images photos google images wikimedia",
+    "photo": "image images photos pictures",
+    "cyber": "cyber security cybercrime cert-in sanchar saathi",
 }
 
 
@@ -235,12 +339,8 @@ def build_services():
                     seen.add(url)
                     result.append({
                         "name": name[:120],
-                        "category": str(
-                            item.get("category", "Other")
-                        )[:60],
-                        "keywords": str(
-                            item.get("keywords", "")
-                        )[:500],
+                        "category": str(item.get("category", "Other"))[:60],
+                        "keywords": str(item.get("keywords", ""))[:500],
                         "url": url,
                     })
 
@@ -293,10 +393,7 @@ def search_services(query, limit=50):
         if score > 0:
             ranked.append((score, service))
 
-    ranked.sort(
-        key=lambda item: (-item[0], item[1]["name"].lower())
-    )
-
+    ranked.sort(key=lambda item: (-item[0], item[1]["name"].lower()))
     return [service for _, service in ranked[:limit]]
 
 
@@ -408,9 +505,7 @@ def get_suggestions(query, limit=10):
         if score > 0:
             ranked.append((score, service))
 
-    ranked.sort(
-        key=lambda item: (-item[0], item[1]["name"].lower())
-    )
+    ranked.sort(key=lambda item: (-item[0], item[1]["name"].lower()))
 
     return [
         {
@@ -447,17 +542,11 @@ def fetch_news(limit=15):
                 root = ET.fromstring(response.read())
 
             for item in root.findall(".//item"):
-                title = html.unescape(
-                    item.findtext("title", "")
-                ).strip()
+                title = html.unescape(item.findtext("title", "")).strip()
                 link = item.findtext("link", "").strip()
                 date = item.findtext("pubDate", "").strip()
 
-                if (
-                    title
-                    and link.startswith("https://")
-                    and link not in seen_links
-                ):
+                if title and link.startswith("https://") and link not in seen_links:
                     seen_links.add(link)
                     articles.append({
                         "title": title,
@@ -474,6 +563,7 @@ def fetch_news(limit=15):
 
     return articles
 
+
 @app.route("/")
 def home():
     query = request.args.get("q", "").strip()[:160]
@@ -486,9 +576,7 @@ def home():
         news=[],
         service_count=len(SERVICES),
         services_count=len(SERVICES),
-        categories=sorted({
-            service["category"] for service in SERVICES
-        }),
+        categories=sorted({service["category"] for service in SERVICES}),
         current_year=datetime.now().year,
         owner=OWNER,
         app_name=APP_NAME,
@@ -527,6 +615,44 @@ def api_news():
     })
 
 
+@app.route("/api/media")
+def api_media():
+    """External search links for video, image, and news queries."""
+    query = request.args.get("q", "").strip()[:160]
+    encoded = quote_plus(query)
+
+    return jsonify({
+        "success": True,
+        "query": query,
+        "results": [
+            {"name": "YouTube Videos", "category": "Video", "url": f"https://www.youtube.com/results?search_query={encoded}"},
+            {"name": "Bing Videos", "category": "Video", "url": f"https://www.bing.com/videos/search?q={encoded}"},
+            {"name": "Google Images", "category": "Image", "url": f"https://www.google.com/search?tbm=isch&q={encoded}"},
+            {"name": "Bing Images", "category": "Image", "url": f"https://www.bing.com/images/search?q={encoded}"},
+            {"name": "Google News", "category": "News", "url": f"https://news.google.com/search?q={encoded}"},
+            {"name": "DuckDuckGo Search", "category": "Web", "url": f"https://duckduckgo.com/?q={encoded}"},
+        ],
+    })
+
+
+@app.route("/api/categories")
+def api_categories():
+    counts = {}
+
+    for service in SERVICES:
+        category = service.get("category", "Other")
+        counts[category] = counts.get(category, 0) + 1
+
+    return jsonify({
+        "success": True,
+        "count": len(SERVICES),
+        "categories": [
+            {"name": name, "count": count}
+            for name, count in sorted(counts.items())
+        ],
+    })
+
+
 @app.route("/health")
 def health():
     return jsonify({
@@ -546,7 +672,7 @@ if __name__ == "__main__":
     print("=" * 42)
 
     app.run(
-        host="127.0.0.1",
-        port=5000,
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", "5000")),
         debug=False,
     )
