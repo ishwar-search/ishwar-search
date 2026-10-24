@@ -563,6 +563,106 @@ def fetch_news(limit=15):
 
     return articles
 
+def fetch_youtube_videos(query, limit=10):
+    """Search YouTube videos using the YouTube Data API v3."""
+    api_key = os.environ.get("YOUTUBE_API_KEY", "").strip()
+
+    if not api_key:
+        return {
+            "success": False,
+            "error": "YouTube API key is not configured.",
+            "results": [],
+        }
+
+    query = str(query or "").strip()[:160]
+
+    if not query:
+        return {
+            "success": True,
+            "query": query,
+            "results": [],
+        }
+
+    params = {
+        "part": "snippet",
+        "q": query,
+        "type": "video",
+        "maxResults": max(1, min(int(limit), 10)),
+        "key": api_key,
+    }
+
+    api_url = (
+        "https://www.googleapis.com/youtube/v3/search?"
+        + __import__("urllib.parse", fromlist=["urlencode"]).urlencode(params)
+    )
+
+    try:
+        req = urllib.request.Request(
+            api_url,
+            headers={"User-Agent": "IshwarSearch/1.0"},
+        )
+
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode("utf-8"))
+
+        videos = []
+
+        for item in data.get("items", []):
+            video_id = item.get("id", {}).get("videoId")
+            snippet = item.get("snippet", {})
+
+            if not video_id:
+                continue
+
+            thumbnails = snippet.get("thumbnails", {})
+            thumbnail = (
+                thumbnails.get("high")
+                or thumbnails.get("medium")
+                or thumbnails.get("default")
+                or {}
+            )
+
+            videos.append({
+                "title": snippet.get("title", ""),
+                "channel": snippet.get("channelTitle", ""),
+                "description": snippet.get("description", ""),
+                "thumbnail": thumbnail.get("url", ""),
+                "url": "https://www.youtube.com/watch?v=" + video_id,
+                "published_at": snippet.get("publishedAt", ""),
+            })
+
+        return {
+            "success": True,
+            "query": query,
+            "count": len(videos),
+            "results": videos,
+        }
+
+    except Exception:
+        app.logger.exception("YouTube API request failed")
+        return {
+            "success": False,
+            "error": "YouTube search is temporarily unavailable.",
+            "results": [],
+        }
+
+@app.route("/api/videos")
+def api_videos():
+    query = request.args.get("q", "").strip()[:160]
+
+    if not query:
+        return jsonify({
+            "success": True,
+            "query": "",
+            "count": 0,
+            "results": [],
+        })
+
+    result = fetch_youtube_videos(query)
+
+    status_code = 200 if result.get("success") else 503
+    return jsonify(result), status_code
+
 
 @app.route("/")
 def home():
