@@ -1,79 +1,53 @@
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#081329">
-  <meta name="description" content="Ishwar Search — सरकारी सेवाओं, नौकरियों, शिक्षा और उपयोगी वेबसाइटों के लिए स्मार्ट सर्च प्लेटफॉर्म।">
-  <title>Ishwar Search | Smart Search Platform</title>
+  <meta name="description" content="Ishwar Search — सरकारी सेवाएँ, नौकरी, शिक्षा, समाचार, वीडियो और इमेज खोजें।">
+  <title>Ishwar Search | Smart Search India</title>
 
   <style>
     :root {
       --navy: #081329;
-      --navy-light: #101f3e;
-      --blue: #477bff;
-      --blue-dark: #2858db;
-      --text: #17233d;
-      --muted: #71809b;
+      --navy2: #10264c;
+      --blue: #3867f5;
+      --blue2: #244bd2;
+      --ink: #17233d;
+      --muted: #73809a;
+      --line: #e4eaf4;
+      --bg: #f4f7fc;
       --white: #fff;
-      --border: #e5eaf3;
-      --surface: #f5f7fc;
+      --green: #087f5b;
+      --radius: 18px;
+      --shadow: 0 12px 35px rgba(24, 43, 84, .07);
     }
 
     * { box-sizing: border-box; }
 
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 25px;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
-      font-family: "Segoe UI", Arial, sans-serif;
-      color: var(--text);
-      background: var(--surface);
+      color: var(--ink);
+      background: var(--bg);
+      font-family: "Segoe UI", "Noto Sans Devanagari", Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
-    a { text-decoration: none; }
-
     button, input { font: inherit; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; }
 
     .hero {
       position: relative;
-      isolation: isolate;
       overflow: hidden;
-      padding: 22px 22px 92px;
+      padding: 20px 22px 95px;
       color: white;
       background:
-        radial-gradient(ellipse at 15% 15%, #244a91 0, transparent 38%),
-        radial-gradient(ellipse at 90% 65%, #49327f 0, transparent 34%),
-        linear-gradient(130deg, #071126, #10264c 62%, #111635);
-    }
-
-    .hero::before,
-    .hero::after {
-      content: "";
-      position: absolute;
-      z-index: -1;
-      border: 1px solid #ffffff13;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-
-    .hero::before {
-      width: 470px;
-      height: 470px;
-      left: -260px;
-      bottom: -260px;
-    }
-
-    .hero::after {
-      width: 580px;
-      height: 580px;
-      right: -330px;
-      top: -360px;
+        radial-gradient(ellipse at 10% 10%, #3154a2 0, transparent 36%),
+        radial-gradient(ellipse at 90% 70%, #543b8d 0, transparent 33%),
+        linear-gradient(130deg, #071126, #10264c 62%, #151a3d);
     }
 
     .navbar {
@@ -82,393 +56,475 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      position: relative;
-      z-index: 2;
+      gap: 15px;
     }
 
     .brand {
       display: inline-flex;
       align-items: center;
-      gap: 13px;
+      gap: 12px;
       min-width: 0;
-      color: white;
     }
 
     .brand-icon {
-      display: block;
-      width: 54px;
-      height: 54px;
-      flex-shrink: 0;
+      width: 52px;
+      height: 52px;
       object-fit: contain;
-      border-radius: 14px;
+      border-radius: 13px;
       background: white;
-      padding: 3px;
-      box-shadow: 0 6px 25px #00000030;
+      flex-shrink: 0;
     }
 
     .brand-name {
       display: block;
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -.7px;
-      line-height: 1.25;
+      font-size: 23px;
+      font-weight: 850;
+      letter-spacing: -.5px;
     }
 
     .brand-sub {
       display: block;
-      margin-top: 5px;
-      color: #b8caff;
+      margin-top: 3px;
+      color: #b9c9eb;
       font-size: 10px;
-      letter-spacing: 2px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+    }
+
+    .nav-badge {
+      padding: 9px 13px;
+      border: 1px solid #ffffff30;
+      border-radius: 30px;
+      color: #e0e9ff;
+      font-size: 12px;
+      white-space: nowrap;
     }
 
     .hero-content {
       max-width: 850px;
-      margin: 78px auto 0;
-      position: relative;
-      z-index: 1;
+      margin: 76px auto 0;
       text-align: center;
     }
 
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 13px;
+      border: 1px solid #ffffff27;
+      border-radius: 30px;
+      background: #ffffff0d;
+      color: #dce6ff;
+      font-size: 12px;
+    }
+
     .hero h1 {
-      margin: 0;
-      font-size: clamp(38px, 6vw, 66px);
-      font-weight: 850;
+      margin: 22px 0 15px;
+      font-size: clamp(36px, 6vw, 65px);
+      line-height: 1.18;
       letter-spacing: -2px;
-      line-height: 1.15;
     }
 
     .gradient-text {
-      color: #a7c5ff;
-      background: linear-gradient(90deg, #7ac8ff, #b9aaff, #ffffff);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #a9c3ff;
     }
 
     .hero-description {
       max-width: 650px;
-      margin: 22px auto 0;
-      color: #c4d0e7;
+      margin: 0 auto;
+      color: #c8d4eb;
       font-size: 16px;
       line-height: 1.9;
     }
 
     .search-card {
-      max-width: 740px;
-      margin: 35px auto 0;
+      max-width: 760px;
+      margin: 32px auto 0;
       padding: 8px;
-      border: 1px solid #ffffff35;
+      border: 1px solid #ffffff28;
       border-radius: 19px;
-      background: #ffffff12;
-      box-shadow: 0 25px 70px #00000030;
-      backdrop-filter: blur(15px);
+      background: white;
+      box-shadow: 0 20px 55px #00000024;
     }
 
     .search-form {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 6px;
-      border-radius: 13px;
-      background: white;
     }
 
     .search-symbol {
-      padding-left: 12px;
-      color: #7283a2;
-      font-size: 24px;
+      padding-left: 13px;
+      color: #697995;
+      font-size: 27px;
     }
 
     .search-form input {
-      flex: 1;
       width: 100%;
       min-width: 0;
-      padding: 16px 5px;
+      padding: 17px 8px;
       border: 0;
       outline: 0;
+      color: var(--ink);
       background: transparent;
-      color: var(--text);
-      font-size: 16px;
-    }
-
-    .search-form input::placeholder { color: #8995aa; }
-
-    .search-form:focus-within {
-      outline: 3px solid #8db3ff90;
+      font-size: 15px;
     }
 
     .search-button {
-      flex-shrink: 0;
+      padding: 15px 24px;
       border: 0;
-      border-radius: 10px;
-      padding: 15px 25px;
+      border-radius: 12px;
+      background: var(--blue);
       color: white;
-      background: linear-gradient(135deg, #477fff, #5845e8);
-      font-size: 15px;
       font-weight: 750;
-      cursor: pointer;
-      transition: transform .2s, box-shadow .2s;
+      white-space: nowrap;
+      transition: background .2s, transform .2s;
     }
 
     .search-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 7px 20px #2867ff55;
+      background: var(--blue2);
+      transform: translateY(-1px);
     }
 
     .search-hint {
-      margin: 13px 5px 3px;
-      color: #c3cfe6;
+      margin: 12px 5px 3px;
+      color: #cad6ec;
       font-size: 12px;
-      line-height: 1.7;
+      line-height: 1.8;
     }
 
     .owner-line {
-      margin-top: 28px;
-      color: #b8c8e6;
+      margin-top: 25px;
+      color: #bdcbe4;
       font-size: 11px;
-      letter-spacing: 1.5px;
+      letter-spacing: 1.4px;
     }
 
     .owner-line strong { color: white; }
 
     .main {
       position: relative;
-      z-index: 2;
       max-width: 1180px;
-      margin: -36px auto 0;
-      padding: 0 22px 65px;
+      margin: -35px auto 0;
+      padding: 0 22px 60px;
     }
 
     .stats {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-      margin-bottom: 48px;
+      gap: 14px;
     }
 
     .stat {
-      padding: 23px 14px;
-      text-align: center;
+      padding: 22px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
       background: white;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: 0 12px 35px #12254b0c;
+      text-align: center;
+      box-shadow: var(--shadow);
     }
 
     .stat-number {
-      color: #2859c8;
+      color: var(--blue2);
       font-size: 28px;
       font-weight: 850;
     }
 
     .stat-label {
-      margin-top: 7px;
+      margin-top: 6px;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
     }
 
-    .section { margin-top: 43px; }
+    .section { margin-top: 42px; }
 
     .section-heading {
       display: flex;
       align-items: end;
       justify-content: space-between;
       gap: 15px;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
     }
 
     .section-heading h2 {
       margin: 0;
       font-size: clamp(21px, 3vw, 27px);
-      letter-spacing: -.6px;
+      letter-spacing: -.5px;
     }
 
     .section-heading p {
-      margin: 8px 0 0;
+      margin: 7px 0 0;
       color: var(--muted);
-      font-size: 14px;
+      font-size: 13px;
       line-height: 1.7;
     }
 
     .section-tag {
-      flex-shrink: 0;
-      padding: 7px 12px;
-      border-radius: 30px;
-      background: #e6edff;
-      color: #2858c9;
+      padding: 7px 11px;
+      border-radius: 25px;
+      background: #e8eeff;
+      color: #2854c8;
       font-size: 11px;
       font-weight: 750;
+      white-space: nowrap;
     }
 
-    .category-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 15px;
-    }
-
-    .category-card {
+    /* Search mode tabs */
+    .search-tabs {
       display: flex;
-      align-items: center;
-      gap: 13px;
-      min-width: 0;
-      padding: 19px 15px;
-      border: 1px solid var(--border);
-      border-radius: 17px;
-      background: white;
-      color: var(--text);
-      box-shadow: 0 5px 22px #12254b06;
-      transition: transform .2s, border-color .2s, box-shadow .2s;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 2px 12px;
+      scrollbar-width: thin;
     }
 
-    .category-card:hover {
-      transform: translateY(-4px);
-      border-color: #b4c8ff;
-      box-shadow: 0 14px 30px #1b397b12;
-    }
-
-    .category-icon {
-      display: grid;
-      place-items: center;
+    .tab {
       flex-shrink: 0;
-      width: 47px;
-      height: 47px;
-      border-radius: 14px;
-      font-size: 22px;
-    }
-
-    .c-blue { background: #e8efff; }
-    .c-green { background: #e0f8ed; }
-    .c-purple { background: #f0e8ff; }
-    .c-orange { background: #fff0dd; }
-    .c-pink { background: #ffe9f1; }
-    .c-cyan { background: #e0f7fc; }
-    .c-yellow { background: #fff7d8; }
-    .c-slate { background: #e9eef5; }
-
-    .category-name {
-      display: block;
+      padding: 11px 17px;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: white;
+      color: #43516d;
       font-size: 13px;
-      font-weight: 750;
-      line-height: 1.6;
+      font-weight: 700;
+      transition: all .2s;
     }
 
-    .category-count {
-      display: block;
-      margin-top: 4px;
+    .tab:hover { border-color: #aabfff; }
+
+    .tab.active {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: white;
+      box-shadow: 0 5px 15px #3867f526;
+    }
+
+    .mode-note {
+      margin: 0 0 18px;
       color: var(--muted);
-      font-size: 11px;
-      line-height: 1.6;
+      font-size: 12px;
+      line-height: 1.7;
     }
 
     .results-panel {
-      margin-top: 32px;
-      padding: 25px;
-      border: 1px solid var(--border);
-      border-radius: 20px;
+      margin-top: 14px;
+      padding: 23px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
       background: white;
-      box-shadow: 0 10px 35px #12254b08;
+      box-shadow: var(--shadow);
     }
 
     .results-title {
       margin: 0;
-      font-size: 24px;
+      font-size: 21px;
       overflow-wrap: anywhere;
     }
 
     .results-subtitle {
-      margin: 9px 0 21px;
+      margin: 7px 0 19px;
       color: var(--muted);
       font-size: 13px;
-      line-height: 1.7;
     }
 
     .result-list {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 15px;
+      gap: 13px;
     }
 
     .result-card {
       min-width: 0;
-      padding: 19px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: white;
-      transition: border-color .2s, transform .2s;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: #fff;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
     }
 
     .result-card:hover {
       transform: translateY(-2px);
-      border-color: #adc4ff;
+      border-color: #afc4ff;
+      box-shadow: 0 10px 25px #193a8010;
     }
 
     .result-category {
       display: inline-block;
       padding: 5px 10px;
       border-radius: 30px;
+      background: #eaf0ff;
       color: #2858c9;
-      background: #eaf1ff;
       font-size: 11px;
       font-weight: 750;
     }
 
     .result-card h3 {
-      margin: 13px 0 8px;
-      font-size: 17px;
+      margin: 12px 0 7px;
+      font-size: 16px;
       line-height: 1.6;
     }
 
-    .result-card h3 a { color: #17396f; }
-    .result-card h3 a:hover { color: #2867ff; }
+    .result-card h3 a { color: #18396f; }
 
     .result-url {
       display: block;
-      color: #2870d9;
-      font-size: 12px;
+      color: #3970c7;
+      font-size: 11px;
       line-height: 1.7;
       overflow-wrap: anywhere;
     }
 
     .keywords {
-      margin: 11px 0 0;
+      margin: 9px 0 0;
       color: var(--muted);
       font-size: 12px;
-      line-height: 1.8;
-      overflow-wrap: anywhere;
+      line-height: 1.7;
     }
 
     .open-link {
       display: inline-block;
-      margin-top: 15px;
-      color: #285dcc;
+      margin-top: 13px;
+      color: var(--blue2);
       font-size: 13px;
       font-weight: 750;
     }
 
     .empty-state {
-      padding: 32px 12px;
+      padding: 28px 12px;
       color: var(--muted);
       text-align: center;
       line-height: 1.9;
     }
 
-    .empty-icon { font-size: 38px; }
+    .empty-icon { font-size: 35px; }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 13px;
+    }
+
+    .category-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      padding: 17px 13px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: white;
+      box-shadow: 0 5px 20px #12254b06;
+      transition: transform .2s, border-color .2s;
+    }
+
+    .category-card:hover {
+      transform: translateY(-3px);
+      border-color: #afc4ff;
+    }
+
+    .category-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      background: #edf2ff;
+      font-size: 21px;
+    }
+
+    .category-name {
+      font-size: 13px;
+      font-weight: 750;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .category-count {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .popular-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .popular-link {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+      transition: border-color .2s, transform .2s;
+    }
+
+    .popular-link:hover {
+      transform: translateY(-2px);
+      border-color: #afc4ff;
+    }
+
+    .popular-icon { font-size: 22px; }
+
+    .popular-title {
+      font-size: 13px;
+      font-weight: 750;
+      line-height: 1.5;
+    }
+
+    .popular-sub {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .news-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 13px;
+    }
+
+    .news-card {
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: white;
+    }
+
+    .news-source {
+      color: var(--blue2);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .news-card h3 {
+      margin: 9px 0;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .news-date {
+      color: var(--muted);
+      font-size: 11px;
+    }
 
     .all-categories {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 9px;
     }
 
     .category-chip {
-      padding: 10px 14px;
+      padding: 10px 13px;
       border: 1px solid #dfe7f4;
       border-radius: 30px;
       background: white;
       color: #31517e;
       font-size: 12px;
-      transition: background .2s, border-color .2s;
     }
 
     .category-chip:hover {
@@ -476,9 +532,18 @@
       border-color: #adc5ff;
     }
 
+    .status-message {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .hidden { display: none !important; }
+
     footer {
-      padding: 32px 18px;
-      background: #081329;
+      padding: 30px 18px;
+      background: var(--navy);
       color: #b5c3df;
       text-align: center;
       font-size: 12px;
@@ -490,43 +555,51 @@
       font-size: 15px;
     }
 
-    footer a { color: #b9ccff; }
+    footer .footer-note {
+      max-width: 720px;
+      margin: 10px auto;
+      color: #94a6c9;
+    }
 
     @media (max-width: 900px) {
       .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .result-list { grid-template-columns: 1fr; }
+      .popular-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
-    @media (max-width: 520px) {
-      .hero { padding: 17px 13px 66px; }
-      .brand { gap: 10px; }
-      .brand-icon { width: 45px; height: 45px; }
-      .brand-name { font-size: 20px; }
-      .brand-sub { font-size: 9px; letter-spacing: 1.4px; }
-      .hero-content { margin-top: 60px; }
-      .hero h1 { letter-spacing: -1.2px; }
+    @media (max-width: 600px) {
+      .hero { padding: 16px 13px 67px; }
+      .brand { gap: 9px; }
+      .brand-icon { width: 43px; height: 43px; }
+      .brand-name { font-size: 19px; }
+      .brand-sub { font-size: 8px; letter-spacing: 1.2px; }
+      .nav-badge { padding: 7px 9px; font-size: 10px; }
+      .hero-content { margin-top: 54px; }
+      .hero h1 { letter-spacing: -1px; }
       .hero-description { font-size: 14px; }
-      .search-card { margin-top: 26px; padding: 6px; }
-      .search-form { gap: 4px; padding: 4px; }
+      .search-card { margin-top: 25px; padding: 5px; }
+      .search-form { gap: 3px; }
       .search-symbol { padding-left: 7px; font-size: 20px; }
-      .search-form input { padding: 13px 3px; font-size: 13px; }
-      .search-button { padding: 13px 12px; font-size: 13px; }
-      .main { padding: 0 12px 45px; }
-      .stats { gap: 7px; margin-bottom: 36px; }
-      .stat { padding: 17px 5px; border-radius: 13px; }
+      .search-form input { padding: 13px 3px; font-size: 12px; }
+      .search-button { padding: 13px 11px; font-size: 12px; }
+      .search-hint { font-size: 10px; }
+      .main { padding: 0 12px 42px; }
+      .stats { gap: 7px; }
+      .stat { padding: 15px 5px; border-radius: 13px; }
       .stat-number { font-size: 22px; }
-      .stat-label { font-size: 10px; line-height: 1.5; }
-      .section { margin-top: 34px; }
-      .category-grid { gap: 9px; }
-      .category-card { gap: 8px; padding: 13px 9px; border-radius: 13px; }
-      .category-icon { width: 36px; height: 36px; font-size: 18px; border-radius: 10px; }
-      .category-name { font-size: 12px; }
-      .category-count { font-size: 10px; }
-      .section-heading h2 { font-size: 20px; }
+      .stat-label { font-size: 10px; }
+      .section { margin-top: 33px; }
+      .section-heading { align-items: start; }
       .section-heading p { font-size: 12px; }
-      .section-tag { font-size: 10px; }
+      .section-tag { font-size: 9px; }
+      .result-list, .news-list { grid-template-columns: 1fr; }
       .results-panel { padding: 15px; }
-      .result-card { padding: 15px; }
+      .category-grid { gap: 8px; }
+      .category-card { gap: 8px; padding: 12px 8px; }
+      .category-icon { width: 34px; height: 34px; font-size: 17px; }
+      .category-name { font-size: 11px; }
+      .category-count { font-size: 10px; }
+      .popular-grid { grid-template-columns: 1fr; }
+      .tab { padding: 10px 13px; font-size: 12px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -537,211 +610,549 @@
     }
   </style>
 </head>
-
 <body>
-  <header class="hero">
-    <nav class="navbar">
-      <a class="brand" href="/" aria-label="Ishwar Search Home">
-        <img
-          class="brand-icon"
-          src="{{ url_for('static', filename='logo.png') }}"
-          alt="Ishwar Search Logo"
-          width="54"
-          height="54"
+
+<header class="hero">
+  <nav class="navbar">
+    <a class="brand" href="/" aria-label="Ishwar Search Home">
+      <img
+        class="brand-icon"
+        src="{{ url_for('static', filename='logo.png') }}"
+        alt="Ishwar Search Logo"
+        width="52"
+        height="52"
+      >
+      <span>
+        <span class="brand-name">Ishwar Search</span>
+        <span class="brand-sub">SMART SEARCH · INDIA</span>
+      </span>
+    </a>
+    <span class="nav-badge">🇮🇳 Made for India</span>
+  </nav>
+
+  <div class="hero-content">
+    <div class="eyebrow">✦ स्मार्ट खोज · उपयोगी सेवाएँ</div>
+    <h1>आपकी हर खोज,<br><span class="gradient-text">अब आसान</span></h1>
+    <p class="hero-description">
+      सरकारी सेवाएँ, नौकरी, शिक्षा, समाचार, वीडियो और तस्वीरें —
+      अपनी जरूरत की जानकारी एक ही जगह खोजें।
+    </p>
+
+    <div class="search-card">
+      <form class="search-form" action="/" method="get" id="searchForm">
+        <span class="search-symbol" aria-hidden="true">⌕</span>
+        <input
+          id="searchInput"
+          type="search"
+          name="q"
+          value="{{ query }}"
+          placeholder="Aadhaar, खसरा, Railway Jobs..."
+          maxlength="160"
+          aria-label="Ishwar Search पर खोजें"
+          autocomplete="off"
+          required
         >
-        <span>
-          <span class="brand-name">Ishwar Search</span>
-          <span class="brand-sub">SMART SEARCH · INDIA</span>
-        </span>
-      </a>
-    </nav>
-
-    <div class="hero-content">
-      <h1>आपकी हर खोज,<br><span class="gradient-text">अब आसान</span></h1>
-
-      <p class="hero-description">
-        सरकारी सेवाएँ, नौकरी, शिक्षा, दस्तावेज़ और उपयोगी वेबसाइटें —
-        अपनी जरूरत की जानकारी एक ही जगह खोजें।
+        <button class="search-button" type="submit">खोजें →</button>
+      </form>
+      <p class="search-hint">
+        उदाहरण: आधार · खसरा · सरकारी नौकरी · साइबर सुरक्षा · छात्रवृत्ति
       </p>
+      <div id="suggestions" class="hidden" aria-live="polite"></div>
+    </div>
 
-      <div class="search-card">
-        <form class="search-form" action="/" method="get">
-          <span class="search-symbol" aria-hidden="true">⌕</span>
-          <input
-            type="search"
-            name="q"
-            value="{{ query }}"
-            placeholder="Aadhaar, PAN Card, Railway Jobs..."
-            maxlength="160"
-            aria-label="वेबसाइट खोजें"
-            required
-          >
-          <button class="search-button" type="submit">खोजें →</button>
-        </form>
-        <p class="search-hint">
-          उदाहरण: Aadhaar · सरकारी नौकरी · छात्रवृत्ति · राजस्थान
-        </p>
+    <div class="owner-line">
+      CREATED BY <strong>{{ owner }}</strong>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <section class="stats" aria-label="वेबसाइट जानकारी">
+    <div class="stat">
+      <div class="stat-number">{{ service_count }}</div>
+      <div class="stat-label">उपलब्ध वेबसाइटें</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">{{ categories|length }}</div>
+      <div class="stat-label">सेवा श्रेणियाँ</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">24/7</div>
+      <div class="stat-label">ऑनलाइन खोज</div>
+    </div>
+  </section>
+
+  <section class="section" id="searchModes">
+    <div class="section-heading">
+      <div>
+        <h2>क्या खोज रहे हैं?</h2>
+        <p>अपनी जरूरत के अनुसार खोज का प्रकार चुनें।</p>
       </div>
+      <span class="section-tag">SMART SEARCH</span>
+    </div>
 
-      <div class="owner-line">
-        CREATED BY <strong>{{ owner }}</strong>
+    <div class="search-tabs" role="tablist" aria-label="Search type">
+      <button class="tab active" type="button" data-mode="all">🌐 All</button>
+      <button class="tab" type="button" data-mode="images">🖼️ Images</button>
+      <button class="tab" type="button" data-mode="videos">▶️ Videos</button>
+      <button class="tab" type="button" data-mode="news">📰 News</button>
+      <button class="tab" type="button" data-mode="services">🏛️ Services</button>
+    </div>
+    <p class="mode-note" id="modeNote">
+      सभी उपलब्ध सेवाओं और वेबसाइटों में खोजें।
+    </p>
+    <div id="mediaResults" class="hidden"></div>
+    <div id="mediaStatus" class="status-message" aria-live="polite"></div>
+  </section>
+
+  {% if query %}
+  <section class="results-panel" id="results">
+    <h2 class="results-title">“{{ query }}” के परिणाम</h2>
+    <p class="results-subtitle">
+      {% if results %}
+        {{ results|length }} मिलान वाली वेबसाइटें मिलीं
+      {% else %}
+        कोई मिलान नहीं मिला। दूसरा शब्द लिखकर कोशिश करें।
+      {% endif %}
+    </p>
+
+    {% if results %}
+    <div class="result-list">
+      {% for item in results %}
+      <article class="result-card">
+        <span class="result-category">{{ item.category }}</span>
+        <h3>
+          <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
+            {{ item.name }}
+          </a>
+        </h3>
+        <span class="result-url">{{ item.url }}</span>
+        {% if item.keywords %}
+        <p class="keywords">{{ item.keywords }}</p>
+        {% endif %}
+        <a class="open-link" href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
+          वेबसाइट खोलें ↗
+        </a>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🔎</div>
+      <strong>अभी कोई परिणाम नहीं मिला</strong>
+      <div>दूसरा शब्द लिखें या नीचे दी गई श्रेणियाँ देखें।</div>
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  <section class="section">
+    <div class="section-heading">
+      <div>
+        <h2>लोकप्रिय सेवाएँ</h2>
+        <p>रोजमर्रा में काम आने वाले जरूरी पोर्टल।</p>
       </div>
     </div>
-  </header>
 
-  <main class="main">
-    <section class="stats" aria-label="वेबसाइट जानकारी">
-      <div class="stat">
-        <div class="stat-number">{{ service_count }}</div>
-        <div class="stat-label">उपलब्ध वेबसाइटें</div>
+    <div class="popular-grid">
+      <a class="popular-link" href="https://sso.rajasthan.gov.in/" target="_blank" rel="noopener noreferrer">
+        <span class="popular-icon">🏛️</span>
+        <span><span class="popular-title">Rajasthan SSO</span><span class="popular-sub">राजस्थान की ऑनलाइन सेवाएँ</span></span>
+      </a>
+      <a class="popular-link" href="https://apnakhata.rajasthan.gov.in/" target="_blank" rel="noopener noreferrer">
+        <span class="popular-icon">🌾</span>
+        <span><span class="popular-title">अपना खाता</span><span class="popular-sub">जमाबंदी और भूमि रिकॉर्ड</span></span>
+      </a>
+      <a class="popular-link" href="https://emitra.rajasthan.gov.in/" target="_blank" rel="noopener noreferrer">
+        <span class="popular-icon">🧾</span>
+        <span><span class="popular-title">e-Mitra</span><span class="popular-sub">राजस्थान नागरिक सेवाएँ</span></span>
+      </a>
+      <a class="popular-link" href="https://cybercrime.gov.in/" target="_blank" rel="noopener noreferrer">
+        <span class="popular-icon">🛡️</span>
+        <span><span class="popular-title">Cyber Crime Portal</span><span class="popular-sub">साइबर अपराध की रिपोर्ट</span></span>
+      </a>
+      <a class="popular-link" href="https://www.rrbapply.gov.in/" target="_blank" rel="noopener noreferrer">
+        <span class="popular-icon">🚆</span>
+        <span><span class="popular-title">RRB Apply</span><span class="popular-sub">रेलवे भर्ती पोर्टल</span></span>
+      </a>
+      <a class="popular-link" href="https://www.digilocker.gov.in/" target="_blank" rel="noopener noreferrer">
+        <span class="popular-icon">📂</span>
+        <span><span class="popular-title">DigiLocker</span><span class="popular-sub">डिजिटल दस्तावेज़</span></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="section" id="categorySection">
+    <div class="section-heading">
+      <div>
+        <h2>सेवा श्रेणियाँ</h2>
+        <p>अपनी जरूरत की श्रेणी चुनकर संबंधित सेवाएँ खोजें।</p>
       </div>
-      <div class="stat">
-        <div class="stat-number">{{ categories|length }}</div>
-        <div class="stat-label">सेवा श्रेणियाँ</div>
+      <span class="section-tag">EXPLORE</span>
+    </div>
+
+    <div class="category-grid">
+      {% set category_icons = {
+        'Government':'🏛️',
+        'Rajasthan':'🏰',
+        'Rajasthan Land':'🌾',
+        'Agriculture':'🚜',
+        'Railway':'🚆',
+        'Railway Jobs':'🚆',
+        'ITI Jobs':'🧰',
+        'ITI':'🔧',
+        'Jobs':'💼',
+        'Education':'🎓',
+        'Health':'🏥',
+        'Safety':'🛡️',
+        'Complaints':'📣',
+        'Legal':'⚖️',
+        'Finance':'💳',
+        'Business':'🏢',
+        'News':'📰',
+        'Video':'▶️',
+        'Video Search':'▶️',
+        'Image Search':'🖼️',
+        'Technology':'💻',
+        'AI':'🤖',
+        'Maps':'🗺️',
+        'Transport':'🚌',
+        'Weather':'🌦️',
+        'Design':'🎨',
+        'Tools':'🧰',
+        'Files':'📁',
+        'Environment':'🌱',
+        'Science':'🔬',
+        'Knowledge':'📚',
+        'Utilities':'⚡',
+        'Search':'🔎'
+      } %}
+
+      {% for category in categories %}
+      <a class="category-card" href="/?q={{ category|urlencode }}">
+        <span class="category-icon">{{ category_icons.get(category, '🔗') }}</span>
+        <span>
+          <span class="category-name">{{ category }}</span>
+          <span class="category-count">सेवाएँ देखें →</span>
+        </span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+    <section class="section" id="newsSection">
+    <div class="section-heading">
+      <div>
+        <h2>ताज़ा समाचार</h2>
+        <p>उपलब्ध समाचार फ़ीड से सुर्खियाँ देखें।</p>
       </div>
-      <div class="stat">
-        <div class="stat-number">24/7</div>
-        <div class="stat-label">ऑनलाइन खोज</div>
+      <button class="tab" id="refreshNews" type="button">↻ समाचार अपडेट करें</button>
+    </div>
+
+    <div id="newsList" class="news-list">
+      <div class="empty-state">समाचार लोड करने के लिए कुछ क्षण प्रतीक्षा करें।</div>
+    </div>
+    <p class="status-message" id="newsStatus" aria-live="polite"></p>
+  </section>
+
+  <section class="section">
+    <div class="section-heading">
+      <div>
+        <h2>जिम्मेदारी से इंटरनेट इस्तेमाल करें</h2>
+        <p>सुरक्षा, जानकारी और सही स्रोतों को प्राथमिकता दें।</p>
       </div>
-    </section>
+    </div>
+    <div class="popular-grid">
+      <a class="popular-link" href="https://www.cert-in.org.in/" target="_blank" rel="noopener noreferrer">
+        <span class="popular-icon">🔐</span>
+        <span><span class="popular-title">CERT-In</span><span class="popular-sub">साइबर सुरक्षा सलाह</span></span>
+      </a>
+      <a class="popular-link" href="https://sancharsaathi.gov.in/" target="_blank" rel="noopener noreferrer">
+        <span class="popular-icon">📱</span>
+        <span><span class="popular-title">Sanchar Saathi</span><span class="popular-sub">मोबाइल सुरक्षा सेवाएँ</span></span>
+      </a>
+      <a class="popular-link" href="https://consumerhelpline.gov.in/" target="_blank" rel="noopener noreferrer">
+        <span class="popular-icon">📢</span>
+        <span><span class="popular-title">Consumer Helpline</span><span class="popular-sub">उपभोक्ता शिकायत</span></span>
+      </a>
+    </div>
+  </section>
+</main>
 
-    {% if query %}
-      <section class="results-panel" id="results">
-        <h2 class="results-title">“{{ query }}” के परिणाम</h2>
+<footer>
+  <strong>Ishwar Search</strong>
+  <div>आपकी खोज, आपकी सुविधा।</div>
+  <div class="footer-note">
+    Ishwar Search उपयोगी वेबसाइटों का खोज-प्लेटफ़ॉर्म है।
+    किसी सरकारी सेवा के लिए आवेदन करने से पहले संबंधित आधिकारिक पोर्टल पर जानकारी जाँचें।
+    यह सरकारी वेबसाइट नहीं है।
+  </div>
+  <div>© {{ current_year }} Ishwar Search · Owner: {{ owner }}</div>
+</footer>
 
-        <p class="results-subtitle">
-          {% if results %}
-            {{ results|length }} मिलान वाली वेबसाइटें मिलीं
-          {% else %}
-            कोई मिलान नहीं मिला। दूसरा शब्द लिखकर कोशिश करें।
-          {% endif %}
-        </p>
+<script>
+(() => {
+  "use strict";
 
-        {% if results %}
-          <div class="result-list">
-            {% for item in results %}
-              <article class="result-card">
-                <span class="result-category">{{ item.category }}</span>
-                <h3>
-                  <a href="{{ item.url }}" target="_blank"
-                     rel="noopener noreferrer">{{ item.name }}</a>
-                </h3>
-                <a class="result-url" href="{{ item.url }}"
-                   target="_blank" rel="noopener noreferrer">{{ item.url }}</a>
-                <p class="keywords">खोज शब्द: {{ item.keywords }}</p>
-                <a class="open-link" href="{{ item.url }}"
-                   target="_blank" rel="noopener noreferrer">वेबसाइट खोलें ↗</a>
-              </article>
-            {% endfor %}
-          </div>
-        {% else %}
+  const input = document.getElementById("searchInput");
+  const tabs = document.querySelectorAll(".tab[data-mode]");
+  const modeNote = document.getElementById("modeNote");
+  const mediaResults = document.getElementById("mediaResults");
+  const mediaStatus = document.getElementById("mediaStatus");
+  const suggestions = document.getElementById("suggestions");
+  const newsList = document.getElementById("newsList");
+  const newsStatus = document.getElementById("newsStatus");
+  const refreshNews = document.getElementById("refreshNews");
+
+  let currentMode = "all";
+  let suggestionTimer = null;
+
+  const modeDescriptions = {
+    all: "सभी उपलब्ध सेवाओं और वेबसाइटों में खोजें।",
+    images: "तस्वीरों के लिए Google Images और Bing Images पर खोजें।",
+    videos: "वीडियो के लिए YouTube और Bing Videos पर खोजें।",
+    news: "समाचार वेबसाइटों और उपलब्ध RSS फ़ीड में खोजें।",
+    services: "सरकारी, शिक्षा, नौकरी और दूसरी सेवाओं के पोर्टल खोजें।"
+  };
+
+  const escapeHTML = (value) => String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[ch]);
+
+  function safeURL(value) {
+    try {
+      const url = new URL(value, window.location.origin);
+      if (url.protocol === "https:" || url.origin === window.location.origin) {
+        return url.href;
+      }
+    } catch (_) {}
+    return "#";
+  }
+
+  function setStatus(message) {
+    mediaStatus.textContent = message || "";
+  }
+
+  function renderMediaLinks(items) {
+    if (!items.length) {
+      mediaResults.classList.add("hidden");
+      mediaResults.innerHTML = "";
+      return;
+    }
+
+    mediaResults.classList.remove("hidden");
+    mediaResults.innerHTML = `
+      <div class="result-list">
+        ${items.map(item => `
+          <article class="result-card">
+            <span class="result-category">${escapeHTML(item.category || "Search")}</span>
+            <h3>${escapeHTML(item.name || "खोजें")}</h3>
+            <a class="open-link"
+               href="${escapeHTML(safeURL(item.url))}"
+               target="_blank"
+               rel="noopener noreferrer">
+              खोज खोलें ↗
+            </a>
+          </article>
+        `).join("")}
+      </div>`;
+  }
+
+  async function loadMediaLinks() {
+    const query = input.value.trim();
+
+    if (!query) {
+      renderMediaLinks([]);
+      setStatus("पहले सर्च बॉक्स में अपना विषय लिखें।");
+      return;
+    }
+
+    setStatus("सर्च लिंक तैयार हो रहे हैं…");
+
+    try {
+      const response = await fetch("/api/media?q=" + encodeURIComponent(query));
+      if (!response.ok) throw new Error("Request failed");
+
+      const data = await response.json();
+      if (!data.success || !Array.isArray(data.results)) {
+        throw new Error("Invalid response");
+      }
+
+      const filter = {
+        images: ["Image"],
+        videos: ["Video"],
+        news: ["News"]
+      };
+
+      let items = data.results;
+      if (filter[currentMode]) {
+        items = items.filter(item => filter[currentMode].includes(item.category));
+      }
+
+      renderMediaLinks(items);
+      setStatus(items.length
+        ? "नीचे दिए गए लिंक खोलकर बाहरी वेबसाइट पर खोज सकते हैं।"
+        : "इस प्रकार का लिंक उपलब्ध नहीं मिला।");
+    } catch (_) {
+      renderMediaLinks([]);
+      setStatus("सर्च लिंक लोड नहीं हुए। कृपया फिर कोशिश करें।");
+    }
+  }
+
+  function switchMode(mode) {
+    currentMode = mode;
+
+    tabs.forEach(tab => {
+      const active = tab.dataset.mode === mode;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-selected", active ? "true" : "false");
+    });
+
+    modeNote.textContent = modeDescriptions[mode] || modeDescriptions.all;
+
+    if (mode === "all" || mode === "services") {
+      mediaResults.classList.add("hidden");
+      setStatus("");
+      if (mode === "services" && input.value.trim()) {
+        window.location.href = "/?q=" + encodeURIComponent(input.value.trim());
+      }
+      return;
+    }
+
+    loadMediaLinks();
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => switchMode(tab.dataset.mode));
+  });
+
+  async function loadSuggestions() {
+    const query = input.value.trim();
+
+    if (query.length < 2) {
+      suggestions.classList.add("hidden");
+      suggestions.innerHTML = "";
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/suggestions?q=" + encodeURIComponent(query));
+      if (!response.ok) return;
+
+      const data = await response.json();
+      const items = Array.isArray(data.results) ? data.results.slice(0, 6) : [];
+
+      if (!items.length) {
+        suggestions.classList.add("hidden");
+        suggestions.innerHTML = "";
+        return;
+      }
+
+      suggestions.innerHTML = `
+        <div style="padding:10px 5px 3px;color:#53627e;font-size:12px">
+          सुझाव
+        </div>
+        ${items.map(item => `
+          <a href="/?q=${encodeURIComponent(item.name || query)}"
+             style="display:block;padding:11px 9px;border-top:1px solid #e8edf6;color:#17233d;font-size:13px">
+            🔎 ${escapeHTML(item.name)}
+            <span style="color:#73809a;font-size:11px">
+              · ${escapeHTML(item.category || "")}
+            </span>
+          </a>
+        `).join("")}`;
+
+      suggestions.style.cssText =
+        "margin:8px 3px 3px;background:white;border:1px solid #e4eaf4;border-radius:12px;overflow:hidden;text-align:left";
+      suggestions.classList.remove("hidden");
+    } catch (_) {
+      suggestions.classList.add("hidden");
+    }
+  }
+
+  input.addEventListener("input", () => {
+    clearTimeout(suggestionTimer);
+    suggestionTimer = setTimeout(loadSuggestions, 250);
+  });
+
+  input.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      suggestions.classList.add("hidden");
+    }
+  });
+
+  document.addEventListener("click", event => {
+    if (!suggestions.contains(event.target) && event.target !== input) {
+      suggestions.classList.add("hidden");
+    }
+  });
+
+  async function loadNews() {
+    newsList.innerHTML = '<div class="empty-state">समाचार लोड हो रहे हैं…</div>';
+    newsStatus.textContent = "";
+
+    try {
+      const response = await fetch("/api/news");
+      if (!response.ok) throw new Error("Request failed");
+
+      const data = await response.json();
+      const articles = Array.isArray(data.results) ? data.results : [];
+
+      if (!articles.length) {
+        newsList.innerHTML = `
           <div class="empty-state">
-            <div class="empty-icon">🔎</div>
-            <strong>हमें यह सेवा नहीं मिली</strong>
-            <p>स्पेलिंग बदलकर खोजें या नीचे दी गई श्रेणियों में देखें।</p>
-            <a class="open-link" href="/">होम पर वापस जाएँ ←</a>
-          </div>
-        {% endif %}
-      </section>
-    {% else %}
-      <section class="section">
-        <div class="section-heading">
-          <div>
-            <h2>क्या खोजना चाहते हैं?</h2>
-            <p>लोकप्रिय विषयों से शुरुआत करें।</p>
-          </div>
-          <span class="section-tag">EXPLORE</span>
-        </div>
+            <div class="empty-icon">📰</div>
+            <strong>अभी समाचार उपलब्ध नहीं हैं</strong>
+            <div>RSS फ़ीड अस्थायी रूप से उपलब्ध न हो सकती है।</div>
+            <p><a class="open-link" href="https://news.google.com/" target="_blank" rel="noopener noreferrer">Google News खोलें ↗</a></p>
+          </div>`;
+        return;
+      }
 
-        <div class="category-grid">
-          <a class="category-card" href="/?q=government">
-            <span class="category-icon c-blue">🏛️</span>
-            <span>
-              <span class="category-name">सरकारी सेवाएँ</span>
-              <span class="category-count">योजनाएँ व दस्तावेज़</span>
-            </span>
+      newsList.innerHTML = articles.map(article => `
+        <article class="news-card">
+          <div class="news-source">${escapeHTML(article.source || "News")}</div>
+          <h3>
+            <a href="${escapeHTML(safeURL(article.url))}"
+               target="_blank" rel="noopener noreferrer">
+              ${escapeHTML(article.title)}
+            </a>
+          </h3>
+          <div class="news-date">${escapeHTML(article.date || "")}</div>
+          <a class="open-link"
+             href="${escapeHTML(safeURL(article.url))}"
+             target="_blank" rel="noopener noreferrer">
+            पूरी खबर पढ़ें ↗
           </a>
+        </article>
+      `).join("");
+    } catch (_) {
+      newsList.innerHTML = `
+        <div class="empty-state">
+          समाचार अभी लोड नहीं हो सके।
+          <p><a class="open-link" href="https://news.google.com/" target="_blank" rel="noopener noreferrer">Google News खोलें ↗</a></p>
+        </div>`;
+      newsStatus.textContent = "इंटरनेट या न्यूज़ फ़ीड की समस्या हो सकती है।";
+    }
+  }
 
-          <a class="category-card" href="/?q=jobs">
-            <span class="category-icon c-green">💼</span>
-            <span>
-              <span class="category-name">नौकरी व भर्ती</span>
-              <span class="category-count">सरकारी व अन्य नौकरियाँ</span>
-            </span>
-          </a>
+  if (refreshNews) {
+    refreshNews.addEventListener("click", loadNews);
+  }
 
-          <a class="category-card" href="/?q=education">
-            <span class="category-icon c-purple">🎓</span>
-            <span>
-              <span class="category-name">शिक्षा</span>
-              <span class="category-count">पढ़ाई व छात्रवृत्ति</span>
-            </span>
-          </a>
+  loadNews();
 
-          <a class="category-card" href="/?q=railway">
-            <span class="category-icon c-orange">🚆</span>
-            <span>
-              <span class="category-name">रेलवे</span>
-              <span class="category-count">RRB व रेलवे भर्ती</span>
-            </span>
-          </a>
-
-          <a class="category-card" href="/?q=aadhar">
-            <span class="category-icon c-cyan">🪪</span>
-            <span>
-              <span class="category-name">दस्तावेज़</span>
-              <span class="category-count">आधार व अन्य सेवाएँ</span>
-            </span>
-          </a>
-
-          <a class="category-card" href="/?q=complaint">
-            <span class="category-icon c-pink">🛡️</span>
-            <span>
-              <span class="category-name">शिकायत व सुरक्षा</span>
-              <span class="category-count">शिकायत व साइबर सुरक्षा</span>
-            </span>
-          </a>
-
-          <a class="category-card" href="/?q=news">
-            <span class="category-icon c-yellow">📰</span>
-            <span>
-              <span class="category-name">समाचार</span>
-              <span class="category-count">समाचार वेबसाइटें</span>
-            </span>
-          </a>
-
-          <a class="category-card" href="/?q=learning">
-            <span class="category-icon c-slate">📚</span>
-            <span>
-              <span class="category-name">सीखें व कौशल</span>
-              <span class="category-count">कोर्स व पढ़ाई</span>
-            </span>
-          </a>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-heading">
-          <div>
-            <h2>सभी श्रेणियाँ</h2>
-            <p>अपनी जरूरत के अनुसार श्रेणी चुनें।</p>
-          </div>
-        </div>
-
-        <div class="all-categories">
-          {% for category in categories %}
-            <a class="category-chip"
-               href="/?q={{ category|urlencode }}">{{ category }}</a>
-          {% endfor %}
-        </div>
-      </section>
-    {% endif %}
-  </main>
-
-  <footer>
-    <strong>Ishwar Search</strong><br>
-    उपयोगी वेबसाइटें खोजने का आसान तरीका।<br>
-    © {{ current_year }} {{ owner }}
-  </footer>
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("q")) {
+    const resultSection = document.getElementById("results");
+    if (resultSection) {
+      setTimeout(() => resultSection.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+    }
+  }
+})();
+</script>
 </body>
 </html>
