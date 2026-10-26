@@ -896,6 +896,58 @@ def health():
     })
 
 
+@app.route("/api/weather")
+def api_weather():
+    from flask import request, jsonify
+
+    city = request.args.get("city", "Jaipur").strip()[:80]
+    if not city:
+        return jsonify({"error": "शहर का नाम लिखें"}), 400
+
+    try:
+        query = urllib.parse.urlencode({
+            "name": city,
+            "count": 1,
+            "language": "hi",
+            "format": "json"
+        })
+        geo_url = "https://geocoding-api.open-meteo.com/v1/search?" + query
+
+        req = urllib.request.Request(
+            geo_url, headers={"User-Agent": "IshwarSearch/1.0"}
+        )
+        with urllib.request.urlopen(req, timeout=8) as response:
+            places = json.loads(response.read().decode("utf-8"))
+
+        if not places.get("results"):
+            return jsonify({"error": "शहर नहीं मिला"}), 404
+
+        place = places["results"][0]
+        forecast_query = urllib.parse.urlencode({
+            "latitude": place["latitude"],
+            "longitude": place["longitude"],
+            "current": "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m",
+            "timezone": "auto"
+        })
+        forecast_url = "https://api.open-meteo.com/v1/forecast?" + forecast_query
+
+        req = urllib.request.Request(
+            forecast_url, headers={"User-Agent": "IshwarSearch/1.0"}
+        )
+        with urllib.request.urlopen(req, timeout=8) as response:
+            data = json.loads(response.read().decode("utf-8"))
+
+        return jsonify({
+            "city": place["name"],
+            "country": place.get("country", ""),
+            "current": data["current"],
+            "units": data["current_units"],
+            "source": "Open-Meteo"
+        })
+
+    except Exception:
+        return jsonify({"error": "मौसम डेटा अभी उपलब्ध नहीं है"}), 502
+
 if __name__ == "__main__":
     print("=" * 42)
     print(f"{APP_NAME} is starting")
