@@ -1383,13 +1383,39 @@ searchInput.addEventListener("keydown", event => {
   }
 });
 
+
 /* Initial page state */
 clearResults();
-resultsTitle.textContent = "खोज शुरू कीजिए";
-resultCount.textContent = "आपके परिणाम यहाँ दिखाई देंगे";
-showStatus("नमस्ते! Ishwar Search पर आपका स्वागत है।");
 
-</script>
-</body>
-</html>
+resultsTitle.textContent = "ताज़ा समाचार";
+resultCount.textContent = "खबरें लोड हो रही हैं...";
+showStatus("ताज़ा खबरें लोड हो रही हैं...", true);
+
+async function loadHomeNews() {
+  try {
+    const data = await fetchJSON(API.news);
+    const items = getArray(data);
+
+    if (data && data.success === false) {
+      throw new Error(data.error || "News loading failed");
+    }
+
+    resultsTitle.textContent = "📰 ताज़ा समाचार";
+    resultCount.textContent = items.length + " खबरें";
+
+    renderMediaResults(items, "news");
+
+    if (items.length === 0) {
+      showStatus("अभी खबरें उपलब्ध नहीं हैं। बाद में फिर कोशिश करें।");
+    }
+  } catch (error) {
+    console.error("Home news error:", error);
+    resultsTitle.textContent = "📰 ताज़ा समाचार";
+    resultCount.textContent = "खबरें लोड नहीं हो सकीं";
+    showStatus("खबरें अभी लोड नहीं हो सकीं। पेज रीफ्रेश करके देखें।");
+  }
+}
+
+loadHomeNews();
+
 
