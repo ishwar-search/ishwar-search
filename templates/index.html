@@ -719,11 +719,6 @@
 <script>
 "use strict";
 
-/* =========================================
-   ISHWAR SEARCH - PART 2
-   Search, API connection and suggestions
-========================================= */
-
 const API = {
   all: "/api/search",
   images: "/api/images",
@@ -920,7 +915,9 @@ async function performSearch(query, tab = activeTab) {
     }
 
     const items = getArray(data);
-
+console.log("Ishwar Search tab:", tab);
+console.log("Ishwar Search API response:", data);
+console.log("Ishwar Search results:", getArray(data));
     resultCount.textContent =
       items.length + " परिणाम मिले";
 
