@@ -135,9 +135,7 @@
       letter-spacing: -1.5px;
     }
 
-    .hero h1 span {
-      color: #a9c3ff;
-    }
+    .hero h1 span { color: #a9c3ff; }
 
     .hero-subtitle {
       margin: 0 auto;
@@ -429,7 +427,14 @@
     }
 
     .empty-state h3 { color: var(--ink); }
-    .external-search-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+
+    .external-search-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
     .external-search-links a, .media-links a {
       display: inline-block;
       margin: 5px;
@@ -448,61 +453,30 @@
       overflow-x: auto;
       padding: 4px 1px 13px;
     }
+</style>
+</head>
 
-    .tab {
-      flex-shrink: 0;
+    .tab-button {
       padding: 10px 16px;
       border: 1px solid var(--line);
-      border-radius: 25px;
-      color: #43516d;
+      border-radius: 10px;
+      color: var(--muted);
       background: white;
       font-size: 12px;
       font-weight: 750;
+      white-space: nowrap;
     }
 
-    .tab.active { border-color: var(--blue); color: white; background: var(--blue); }
-
-    .media-search-box {
-      display: flex;
-      gap: 9px;
-    }
-
-    .media-search-box input, .actor-toolbar input {
-      flex: 1;
-      min-width: 0;
-      padding: 13px 14px;
-      border: 1px solid var(--line);
-      border-radius: 11px;
-      outline-color: var(--blue);
-      background: white;
-    }
-
-    .media-search-box button, .outline-button {
-      padding: 12px 17px;
-      border: 1px solid #cdd8ef;
-      border-radius: 11px;
-      color: var(--blue-dark);
-      background: #f7f9ff;
-      font-size: 12px;
-      font-weight: 750;
-    }
-
-    .media-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 13px; }
-
-    .media-buttons button, .actor-filter {
-      padding: 9px 13px;
-      border: 1px solid var(--line);
-      border-radius: 25px;
-      color: #43516d;
-      background: white;
-      font-size: 12px;
-    }
-
-    .media-buttons button:hover, .actor-filter.active {
-      color: white;
+    .tab-button.active {
       border-color: var(--blue);
+      color: white;
       background: var(--blue);
     }
+
+    .media-panel { display: none; }
+    .media-panel.active { display: block; }
+
+    .media-links { margin-top: 12px; }
 
     .news-grid {
       display: grid;
@@ -513,800 +487,1000 @@
     .news-card {
       padding: 17px;
       border: 1px solid var(--line);
-      border-radius: 15px;
+      border-radius: 14px;
       background: white;
     }
 
-    .news-source { color: var(--blue-dark); font-size: 11px; font-weight: 800; }
-    .news-card h3 { margin: 8px 0; font-size: 15px; line-height: 1.7; }
-    .news-date { color: var(--muted); font-size: 11px; }
-    .news-card a { display: inline-block; margin-top: 10px; color: var(--blue-dark); font-size: 12px; font-weight: 750; }
-
-    .actor-toolbar { display: flex; gap: 10px; margin-bottom: 13px; }
-    .actor-filter-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-
-    .actor-grid {
-      display: grid;
-      grid-template-columns: repeat(5,minmax(0,1fr));
-      gap: 13px;
+    .news-card h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
     }
 
-    .actor-card {
-      min-width: 0;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      background: white;
+    .news-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
     }
 
-    .actor-photo {
-      display: grid;
-      place-items: center;
-      min-height: 120px;
-      padding: 12px;
-      color: #3155a3;
-      background: linear-gradient(135deg,#e8efff,#f5eaff);
-      font-size: 36px;
+    .news-card a {
+      display: inline-block;
+      margin-top: 12px;
+      color: var(--blue-dark);
+      font-size: 12px;
+      font-weight: 750;
     }
 
-    .actor-info { padding: 12px; }
-    .actor-info h3 { margin: 0; font-size: 13px; line-height: 1.6; }
-    .actor-info p { margin: 5px 0; color: var(--muted); font-size: 11px; }
-    .actor-links { display: flex; flex-wrap: wrap; gap: 10px; }
-    .actor-links a { color: var(--blue-dark); font-size: 11px; font-weight: 750; }
-
-    .funny-grid {
+    .video-grid {
       display: grid;
       grid-template-columns: repeat(3,minmax(0,1fr));
       gap: 13px;
     }
 
-    .funny-card {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 6px;
-      padding: 20px;
+    .video-card {
+      overflow: hidden;
       border: 1px solid var(--line);
-      border-radius: 15px;
-      color: var(--ink);
+      border-radius: 14px;
       background: white;
-      text-align: left;
     }
 
-    .funny-card:hover { border-color: #afc4ff; box-shadow: var(--shadow); }
-    .funny-emoji { font-size: 30px; }
-    .funny-card strong { font-size: 14px; }
-    .funny-card small { color: var(--muted); font-size: 11px; }
-    .funny-action { margin-top: 5px; color: var(--blue-dark); font-size: 12px; font-weight: 750; }
+    .video-card img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      background: #e9eef8;
+    }
 
-    .owner-section {
+    .video-info { padding: 13px; }
+    .video-info h3 {
+      margin: 0 0 7px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .video-info p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .video-info a {
+      display: inline-block;
+      margin-top: 10px;
+      color: var(--blue-dark);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .toolbar {
       display: flex;
       align-items: center;
-      gap: 22px;
-      padding: 25px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: white;
-      box-shadow: var(--shadow);
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 17px;
     }
 
-    .owner-avatar {
+    .toolbar input {
+      flex: 1;
+      min-width: 170px;
+      padding: 11px 13px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      outline: none;
+      background: white;
+    }
+
+    .toolbar input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px #3867f51a;
+    }
+
+    .secondary-button {
+      padding: 11px 15px;
+      border: 1px solid #dbe3f4;
+      border-radius: 10px;
+      color: #234b9d;
+      background: #eef3ff;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .secondary-button:hover { background: #e0e9ff; }
+
+    .notice {
+      padding: 12px 14px;
+      border: 1px solid #f1dfae;
+      border-radius: 11px;
+      color: #775c13;
+      background: #fff9e8;
+      font-size: 12px;
+    }
+
+    .owner-panel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 28px;
+      border-radius: var(--radius);
+      color: white;
+      background: linear-gradient(120deg,#101e3d,#254a88);
+    }
+
+    .owner-panel h2 { margin: 4px 0; }
+    .owner-panel p { margin: 0; color: #d0ddf7; font-size: 13px; }
+
+    .owner-label {
+      color: #a9c3ff;
+      font-size: 10px;
+      font-weight: 850;
+      letter-spacing: 1.5px;
+    }
+
+    .owner-mark {
       display: grid;
       place-items: center;
-      width: 78px;
-      height: 78px;
-      flex-shrink: 0;
-      border-radius: 22px;
-      color: white;
-      background: linear-gradient(135deg,#3867f5,#7049ce);
-      font-size: 24px;
-      font-weight: 850;
+      width: 66px;
+      height: 66px;
+      border: 1px solid #ffffff35;
+      border-radius: 20px;
+      background: #ffffff12;
+      font-size: 30px;
     }
 
-    .owner-content h2 { margin: 4px 0; }
-    .owner-content p { margin: 6px 0; color: var(--muted); font-size: 13px; }
-    .owner-name strong { color: var(--ink); }
-
-    footer {
-      padding: 30px 18px;
-      color: #b5c3df;
-      background: var(--navy);
+    .footer {
+      padding: 28px 20px;
+      color: #b8c6df;
+      background: #081329;
       text-align: center;
       font-size: 12px;
-      line-height: 2;
     }
 
-    .footer-brand { color: white; font-size: 19px; font-weight: 850; }
-    footer p { margin: 4px 0; }
-    footer small { color: #94a6c9; }
+    .footer strong { color: white; }
+    .footer p { margin: 5px 0; }
 
-    @media (max-width: 900px) {
-      .category-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-      .actor-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
-      .funny-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .loading {
+      padding: 22px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
     }
 
-    @media (max-width: 600px) {
-      .topbar { padding: 10px 13px; gap: 8px; }
-      .brand { gap: 8px; font-size: 17px; }
-      .brand-logo { width: 37px; height: 37px; }
-      .top-links { gap: 10px; font-size: 10px; }
-      .hero { padding: 47px 13px 58px; }
-      .hero h1 { letter-spacing: -1px; }
-      .hero-subtitle { font-size: 13px; }
+    .error-message {
+      padding: 14px;
+      border-radius: 10px;
+      color: #9b2c2c;
+      background: #fff0f0;
+      font-size: 13px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 760px) {
+      .topbar { padding: 10px 15px; }
+      .brand { font-size: 18px; }
+      .top-links { gap: 10px; font-size: 11px; }
+      .hero { padding: 50px 15px 65px; }
+      .hero-subtitle { font-size: 14px; }
+      .main { padding-right: 13px; padding-left: 13px; }
+      .category-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+      .category-card { padding: 13px 9px; gap: 9px; }
+      .category-icon { width: 36px; height: 36px; font-size: 18px; }
+      .category-card strong { font-size: 12px; }
+      .popular-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .results-list, .news-grid { grid-template-columns: 1fr; }
+      .video-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .panel { padding: 15px; }
+      .stats-row { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .section-heading { align-items: start; }
+      .owner-panel { padding: 20px; }
+    }
+
+    @media (max-width: 420px) {
+      .top-links { gap: 8px; }
+      .top-links a:nth-child(n+3) { display: none; }
       .search-form { gap: 3px; padding: 5px; }
-      .search-icon { padding-left: 5px; font-size: 19px; }
-      .search-form input { padding: 12px 3px; font-size: 12px; }
-      .primary-button { padding: 12px 12px; font-size: 12px; }
-      .shortcut { padding: 7px 9px; font-size: 10px; }
-      .stats-row { gap: 6px; }
-      .stat { padding: 12px 3px; }
-      .stat strong { font-size: 13px; }
-      .stat span { font-size: 9px; }
-      .main { padding: 0 12px 40px; }
+      .search-icon { padding-left: 7px; font-size: 20px; }
+      .search-form input { padding: 12px 3px; font-size: 13px; }
+      .primary-button { padding: 12px 13px; font-size: 12px; }
+      .video-grid { grid-template-columns: 1fr; }
       .section { margin-top: 32px; }
-      .section-heading { align-items: flex-start; }
-      .section-heading p { font-size: 11px; }
-      .panel { padding: 14px; }
-      .category-grid { gap: 8px; }
-      .category-card { gap: 8px; padding: 11px 8px; }
-      .category-icon { width: 33px; height: 33px; font-size: 17px; }
-      .category-card strong { font-size: 11px; }
-      .category-card small { font-size: 9px; }
-      .popular-grid, .results-list, .news-grid { grid-template-columns: 1fr; }
-      .popular-card { padding: 12px; }
-      .actor-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
-      .funny-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-      .funny-card { padding: 13px; }
-      .funny-card strong { font-size: 12px; }
-      .funny-card small { font-size: 10px; }
-      .owner-section { align-items: flex-start; gap: 13px; padding: 15px; }
-      .owner-avatar { width: 53px; height: 53px; border-radius: 15px; font-size: 18px; }
-      .owner-content h2 { font-size: 19px; }
-      .owner-content p { font-size: 11px; }
-      .actor-toolbar { flex-direction: column; }
-      .media-search-box { gap: 6px; }
-      .media-search-box button { padding: 10px; }
-    }
-
-    @media (max-width: 360px) {
-      .top-links { gap: 6px; font-size: 9px; }
-      .brand { font-size: 15px; }
-      .category-card { flex-direction: column; align-items: flex-start; }
-      .funny-grid { grid-template-columns: 1fr; }
     }
   </style>
-</head>
 
 <body>
   <header class="topbar">
-    <a class="brand" href="/" aria-label="Ishwar Search Home">
+    <a href="/" class="brand" aria-label="Ishwar Search home">
       <span class="brand-logo">
-        <img src="/static/logo.png" alt="Ishwar Search logo"
-             onerror="this.style.display='none';this.parentElement.textContent='I';">
+        <img src="{{ url_for('static', filename='logo.png') }}"
+             alt="Ishwar Search logo"
+             onerror="this.style.display='none';this.parentElement.textContent='🔎'">
       </span>
       <span>Ishwar <b>Search</b></span>
     </a>
 
-    <nav class="top-links" aria-label="मुख्य मेनू">
-      <a href="#categories">कैटेगरी</a>
-      <a href="#news">खबरें</a>
-      <a href="#tv-actors">TV कलाकार</a>
+    <nav class="top-links">
+      <a href="#categories">श्रेणियाँ</a>
+      <a href="#results">खोज परिणाम</a>
+      <a href="#media">मीडिया</a>
+      <a href="#news">समाचार</a>
     </nav>
   </header>
 
-  <main>
-    <section class="hero">
-      <div class="hero-inner">
-        <div class="hero-badge">
-          <span class="status-dot"></span>
-          Your Indian Search Platform
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">
+        <span class="status-dot"></span>
+        भारत के लिए स्मार्ट सर्च प्लेटफ़ॉर्म
+      </div>
+
+      <h1>Ishwar <span>Search</span></h1>
+      <p class="hero-subtitle">
+        सरकारी सेवाएँ, शिक्षा, नौकरियाँ, उपयोगी वेबसाइटें और मीडिया
+        एक ही जगह खोजें।
+      </p>
+
+      <div class="search-wrap">
+        <form id="searchForm" class="search-form" action="/" method="GET">
+          <span class="search-icon">⌕</span>
+          <input
+            id="searchInput"
+            type="search"
+            name="q"
+            placeholder="क्या खोजना चाहते हैं? जैसे Railway Jobs..."
+            autocomplete="off"
+            aria-label="Ishwar Search में खोजें">
+          <button class="primary-button" type="submit">खोजें →</button>
+        </form>
+        <div id="suggestions" class="suggestions hidden"></div>
+      </div>
+
+      <div class="search-shortcuts">
+        <button class="shortcut" data-search="Rajasthan Government Services">राजस्थान सेवाएँ</button>
+        <button class="shortcut" data-search="Railway Recruitment">रेलवे भर्ती</button>
+        <button class="shortcut" data-search="Scholarship">स्कॉलरशिप</button>
+        <button class="shortcut" data-search="Aadhaar">आधार सेवाएँ</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat"><strong>सरकारी</strong><span>सेवा लिंक</span></div>
+        <div class="stat"><strong>शिक्षा</strong><span>और करियर</span></div>
+        <div class="stat"><strong>मीडिया</strong><span>वीडियो और खबरें</span></div>
+        <div class="stat"><strong>भारत</strong><span>केंद्रित खोज</span></div>
+      </div>
+    </div>
+  </section>
+
+  <main class="main">
+    <section class="section" id="categories">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">EXPLORE</span>
+          <h2>श्रेणियों के अनुसार खोजें</h2>
+          <p>किसी श्रेणी पर क्लिक करके Ishwar Search में खोज शुरू करें।</p>
+        </div>
+      </div>
+
+      <div class="category-grid">
+        <button class="category-card" data-search="Rajasthan Government Services">
+          <span class="category-icon">🏛️</span>
+          <span><strong>सरकारी सेवाएँ</strong><small>पोर्टल और ऑनलाइन सेवाएँ</small></span>
+        </button>
+        <button class="category-card" data-search="Rajasthan Government Jobs Recruitment">
+          <span class="category-icon">💼</span>
+          <span><strong>नौकरियाँ</strong><small>भर्ती और रोजगार</small></span>
+        </button>
+        <button class="category-card" data-search="Scholarship Education">
+          <span class="category-icon">🎓</span>
+          <span><strong>शिक्षा</strong><small>पढ़ाई और छात्रवृत्ति</small></span>
+        </button>
+        <button class="category-card" data-search="Rajasthan News">
+          <span class="category-icon">📰</span>
+          <span><strong>समाचार</strong><small>खबरों से जुड़ी सेवाएँ</small></span>
+        </button>
+        <button class="category-card" data-search="Aadhaar PAN Card Services">
+          <span class="category-icon">🪪</span>
+          <span><strong>पहचान सेवाएँ</strong><small>आधार और PAN</small></span>
+        </button>
+        <button class="category-card" data-search="Cyber Security Online Fraud">
+          <span class="category-icon">🛡️</span>
+          <span><strong>साइबर सुरक्षा</strong><small>धोखाधड़ी से बचाव</small></span>
+        </button>
+        <button class="category-card" data-search="Health Government Services India">
+          <span class="category-icon">🏥</span>
+          <span><strong>स्वास्थ्य</strong><small>स्वास्थ्य सेवाएँ</small></span>
+        </button>
+        <button class="category-card" data-search="Rajasthan Farmer Government Schemes">
+          <span class="category-icon">🌾</span>
+          <span><strong>किसान सेवाएँ</strong><small>योजनाएँ और जानकारी</small></span>
+        </button>
+        <button class="category-card" data-search="Indian Railway Recruitment">
+          <span class="category-icon">🚆</span>
+          <span><strong>रेलवे</strong><small>भर्ती और सेवाएँ</small></span>
+        </button>
+        <button class="category-card" data-search="Rajasthan eMitra Services">
+          <span class="category-icon">💻</span>
+          <span><strong>ई-मित्र</strong><small>ऑनलाइन नागरिक सेवाएँ</small></span>
+        </button>
+        <button class="category-card" data-search="Indian Government Schemes">
+          <span class="category-icon">📋</span>
+          <span><strong>सरकारी योजनाएँ</strong><small>योजना और पात्रता</small></span>
+        </button>
+        <button class="category-card" data-search="Useful Indian Websites">
+          <span class="category-icon">🌐</span>
+          <span><strong>उपयोगी वेबसाइटें</strong><small>जरूरी ऑनलाइन लिंक</small></span>
+        </button>
+      </div>
+    </section>
+
+    <section class="section" id="popular">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">QUICK ACCESS</span>
+          <h2>लोकप्रिय खोज</h2>
+          <p>इन विषयों को तुरंत खोजें।</p>
+        </div>
+      </div>
+      <div class="popular-grid">
+        <button class="popular-card" data-search="Rajasthan Land Records Apna Khata"><span>🗺️</span><strong>राजस्थान भूमि रिकॉर्ड</strong></button>
+        <button class="popular-card" data-search="Rajasthan SSO ID"><span>🔐</span><strong>राजस्थान SSO</strong></button>
+        <button class="popular-card" data-search="PAN Card Official Portal"><span>🪪</span><strong>PAN कार्ड</strong></button>
+        <button class="popular-card" data-search="Indian Railways Recruitment"><span>🚆</span><strong>रेलवे भर्ती</strong></button>
+        <button class="popular-card" data-search="National Scholarship Portal"><span>🎓</span><strong>छात्रवृत्ति</strong></button>
+        <button class="popular-card" data-search="Cyber Crime Reporting Portal India"><span>🛡️</span><strong>साइबर शिकायत</strong></button>
+      </div>
+    </section>
+
+    <section class="section" id="results">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">SEARCH RESULTS</span>
+          <h2>खोज परिणाम</h2>
+          <p id="resultSummary">यहाँ आपकी खोज से संबंधित परिणाम दिखाई देंगे।</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div id="resultsList" class="results-list">
+          <div class="empty-state">
+            <h3>🔎 खोज शुरू करें</h3>
+            <p>ऊपर अपना विषय लिखें या किसी श्रेणी पर क्लिक करें।</p>
+          </div>
+        </div>
+        <div id="resultsStatus" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="section" id="media">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">MEDIA EXPLORER</span>
+          <h2>मीडिया एक्सप्लोरर</h2>
+          <p>वीडियो, तस्वीरें और समाचार खोजें।</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="toolbar">
+          <input id="mediaQuery" type="search" placeholder="वीडियो या विषय का नाम लिखें..." aria-label="मीडिया खोज">
+          <button class="primary-button" id="mediaSearchButton" type="button">खोजें</button>
         </div>
 
-        <h1>Ishwar <span>Search</span></h1>
-        <p class="hero-subtitle">
-          खोजिए आसानी से — सरकारी सेवाएँ, जानकारी, नौकरियाँ, खबरें, वीडियो और तस्वीरें।
-        </p>
-
-        <div class="search-wrap">
-          <form class="search-form" id="searchForm" action="/" method="GET">
-            <span class="search-icon">⌕</span>
-            <input
-              type="search"
-              id="searchInput"
-              name="q"
-              value="{{ query|default('', true) }}"
-              placeholder="यहाँ कुछ भी खोजिए..."
-              autocomplete="off"
-              aria-label="Ishwar Search पर खोजें"
-            >
-            <button type="submit" class="primary-button">खोजें</button>
-          </form>
-          <div id="suggestions" class="suggestions" hidden></div>
+        <div class="tabs" role="tablist">
+          <button class="tab-button active" data-tab="videos" role="tab">▶ वीडियो</button>
+          <button class="tab-button" data-tab="images" role="tab">🖼️ तस्वीरें</button>
+          <button class="tab-button" data-tab="mediaNews" role="tab">📰 समाचार</button>
         </div>
 
-        <div class="search-shortcuts">
-          <button class="shortcut" type="button" data-search="आज की ताजा खबरें">📰 ताजा खबरें</button>
-          <button class="shortcut" type="button" data-search="Taarak Mehta Ka Ooltah Chashmah">📺 तारक मेहता</button>
-          <button class="shortcut" type="button" data-search="Funny photos">😂 Funny Photos</button>
-          <button class="shortcut" type="button" data-search="भारत सरकारी सेवाएँ">🇮🇳 भारत</button>
+        <div id="videos" class="media-panel active">
+          <div id="videoResults" class="video-grid">
+            <div class="news-placeholder">वीडियो खोजने के लिए ऊपर विषय लिखें।</div>
+          </div>
         </div>
 
-        <div class="stats-row">
-          <div class="stat"><strong>Search</strong><span>जानकारी खोजें</span></div>
-          <div class="stat"><strong>Images</strong><span>तस्वीरें देखें</span></div>
-          <div class="stat"><strong>Videos</strong><span>वीडियो खोजें</span></div>
-          <div class="stat"><strong>News</strong><span>खबरें पढ़ें</span></div>
+        <div id="images" class="media-panel">
+          <div class="notice">तस्वीरों की खोज अभी बाहरी Bing Images पर खुलेगी; इसे अभी इन-साइट इमेज सर्च न समझें।</div>
+          <div id="imageLinks" class="media-links"></div>
+        </div>
+
+        <div id="mediaNews" class="media-panel">
+          <div class="notice">यहाँ विषय के अनुसार समाचार खोजने का विकल्प है। बाहरी समाचार लिंक अलग से खुलेगा।</div>
+          <div id="mediaNewsLinks" class="media-links"></div>
         </div>
       </div>
     </section>
 
-    <div class="main">
-      <section class="section" id="categories">
-        <div class="section-heading">
-          <div>
-            <span class="eyebrow">EXPLORE</span>
-            <h2>क्या खोजें आज?</h2>
-            <p>अपनी पसंद की कैटेगरी चुनें।</p>
-          </div>
+    <section class="section" id="news">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">LATEST UPDATES</span>
+          <h2>ताज़ा समाचार</h2>
+          <p>समाचार API से उपलब्ध परिणाम यहाँ दिखेंगे।</p>
         </div>
+        <button class="secondary-button" id="loadNewsButton" type="button">समाचार अपडेट करें ↻</button>
+      </div>
+      <div id="newsStatus" aria-live="polite"></div>
+      <div id="newsResults" class="news-grid">
+        <div class="news-placeholder">समाचार लोड करने के लिए “समाचार अपडेट करें” दबाएँ।</div>
+      </div>
+    </section>
 
-        <div class="category-grid">
-          <button class="category-card" data-search="Latest India News">
-            <span class="category-icon">📰</span><span><strong>ताजा खबरें</strong><small>देश-दुनिया की खबरें</small></span>
-          </button>
-          <button class="category-card" data-search="Taarak Mehta Ka Ooltah Chashmah actors">
-            <span class="category-icon">📺</span><span><strong>टीवी शो</strong><small>पसंदीदा कलाकार</small></span>
-          </button>
-          <button class="category-card" data-search="Funny photos">
-            <span class="category-icon">😂</span><span><strong>Funny Photos</strong><small>मजेदार तस्वीरें</small></span>
-          </button>
-          <button class="category-card" data-search="Educational videos">
-            <span class="category-icon">🎓</span><span><strong>शिक्षा</strong><small>सीखें और जानें</small></span>
-          </button>
-          <button class="category-card" data-search="Technology and AI">
-            <span class="category-icon">🤖</span><span><strong>टेक्नोलॉजी</strong><small>AI और नई तकनीक</small></span>
-          </button>
-          <button class="category-card" data-search="Cricket news">
-            <span class="category-icon">🏏</span><span><strong>क्रिकेट</strong><small>मैच और अपडेट</small></span>
-          </button>
-          <button class="category-card" data-search="Government schemes India">
-            <span class="category-icon">🏛️</span><span><strong>सरकारी योजनाएँ</strong><small>योजनाओं की जानकारी</small></span>
-          </button>
-          <button class="category-card" data-search="Cyber security official India">
-            <span class="category-icon">🛡️</span><span><strong>साइबर सुरक्षा</strong><small>ऑनलाइन सुरक्षा</small></span>
-          </button>
-          <button class="category-card" data-search="Rajasthan Apna Khata Jamabandi">
-            <span class="category-icon">🌾</span><span><strong>जमीन और खसरा</strong><small>राजस्थान भू-अभिलेख</small></span>
-          </button>
-          <button class="category-card" data-search="eMitra Rajasthan official">
-            <span class="category-icon">🧾</span><span><strong>ई-मित्र सेवाएँ</strong><small>राजस्थान ऑनलाइन सेवाएँ</small></span>
-          </button>
-          <button class="category-card" data-search="Railway recruitment official India">
-            <span class="category-icon">🚆</span><span><strong>रेलवे नौकरियाँ</strong><small>भर्ती और नोटिस</small></span>
-          </button>
-          <button class="category-card" data-search="DigiLocker official India">
-            <span class="category-icon">📁</span><span><strong>डिजिटल दस्तावेज</strong><small>ऑनलाइन दस्तावेज सेवाएँ</small></span>
-          </button>
+    <section class="section" id="actors">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">ENTERTAINMENT</span>
+          <h2>मनोरंजन और कलाकार</h2>
+          <p>अपने पसंदीदा शो या कलाकार को खोजें।</p>
         </div>
-      </section>
-
-      <section class="section" id="results-section">
-        <div class="section-heading">
-          <div>
-            <span class="eyebrow">SEARCH RESULTS</span>
-            <h2>{% if query %}“{{ query }}” के परिणाम{% else %}लोकप्रिय खोजें{% endif %}</h2>
-            <p>अपनी खोज से संबंधित वेबसाइटों के लिंक देखें।</p>
-          </div>
+      </div>
+      <div class="panel">
+        <div class="toolbar">
+          <input id="actorQuery" type="search" placeholder="शो या कलाकार का नाम..." aria-label="कलाकार खोजें">
+          <button class="secondary-button" id="actorSearchButton" type="button">खोजें</button>
         </div>
-
-        {% if results %}
-          <div class="results-list">
-            {% for item in results %}
-              <article class="result-card">
-                <span class="result-tag">{{ item.category|default('खोज परिणाम', true) }}</span>
-                <h3>
-                  <a href="{{ item.url|default('#', true) }}"
-                     target="_blank" rel="noopener noreferrer">
-                    {{ item.title|default(item.name|default('खोज परिणाम', true), true) }}
-                  </a>
-                </h3>
-                {% if item.url %}<div class="result-url">{{ item.url }}</div>{% endif %}
-                {% if item.description %}
-                  <p class="result-description">{{ item.description }}</p>
-                {% elif item.snippet %}
-                  <p class="result-description">{{ item.snippet }}</p>
-                {% endif %}
-              </article>
-            {% endfor %}
-          </div>
-        {% elif query %}
-          <div class="panel empty-state">
-            <div style="font-size:32px">🔎</div>
-            <h3>इस खोज का परिणाम हमारी सूची में नहीं मिला।</h3>
-            <p>बाहरी सर्च इंजन पर भी खोजकर देखें।</p>
-            <div class="external-search-links">
-              <a id="googleSearchLink" href="https://www.google.com/" target="_blank" rel="noopener noreferrer">Google पर खोजें ↗</a>
-              <a id="bingSearchLink" href="https://www.bing.com/" target="_blank" rel="noopener noreferrer">Bing पर खोजें ↗</a>
-            </div>
-          </div>
-        {% else %}
-          <div class="popular-grid">
-            <button class="popular-card" data-search="Rajasthan news"><span>📰</span><strong>राजस्थान समाचार</strong></button>
-            <button class="popular-card" data-search="Government jobs India"><span>💼</span><strong>सरकारी नौकरियाँ</strong></button>
-            <button class="popular-card" data-search="AI technology"><span>🤖</span><strong>AI Technology</strong></button>
-            <button class="popular-card" data-search="Online fraud awareness"><span>🛡️</span><strong>ऑनलाइन फ्रॉड से बचाव</strong></button>
-            <button class="popular-card" data-search="Cricket latest news"><span>🏏</span><strong>क्रिकेट समाचार</strong></button>
-            <button class="popular-card" data-search="Rajasthan Khasra Jamabandi"><span>🌾</span><strong>खसरा और जमाबंदी</strong></button>
-          </div>
-        {% endif %}
-      </section>
-
-      <section class="section" id="quick-media">
-        <div class="section-heading">
-          <div>
-            <span class="eyebrow">MEDIA EXPLORER</span>
-            <h2>तस्वीरें और वीडियो खोजें</h2>
-            <p>विषय लिखें और अपनी पसंद का प्लेटफॉर्म खोलें।</p>
-          </div>
+        <div id="actorResults" class="popular-grid">
+          <button class="popular-card" data-actor="Taarak Mehta Ka Ooltah Chashmah"><span>📺</span><strong>Taarak Mehta Ka Ooltah Chashmah</strong></button>
+          <button class="popular-card" data-actor="Taarak Mehta cast"><span>🎭</span><strong>शो के कलाकार</strong></button>
+          <button class="popular-card" data-actor="Taarak Mehta latest episodes"><span>▶️</span><strong>नए एपिसोड</strong></button>
         </div>
+      </div>
+    </section>
 
-        <div class="panel">
-          <div class="media-search-box">
-            <input type="search" id="mediaInput" placeholder="जैसे: राजस्थान की ताजा खबरें">
-            <button type="button" id="mediaSearchButton">खोजें</button>
-          </div>
-          <div class="media-buttons">
-            <button type="button" data-media="images">🖼️ तस्वीरें</button>
-            <button type="button" data-media="videos">▶️ वीडियो</button>
-            <button type="button" data-media="news">📰 खबरें</button>
-          </div>
-          <div id="mediaLinks" class="media-links" aria-live="polite"></div>
+    <section class="section" id="owner">
+      <div class="owner-panel">
+        <div>
+          <span class="owner-label">FOUNDER & CREATOR</span>
+          <h2>Ishwar Ghanchi</h2>
+          <p>Ishwar Search — उपयोगी जानकारी और सेवाओं तक आसान पहुँच का प्रयास।</p>
         </div>
-      </section>
+        <div class="owner-mark">🔎</div>
+      </div>
+    </section>
 
-      <section class="section" id="news">
-        <div class="section-heading">
-          <div>
-            <span class="eyebrow">NEWS DESK</span>
-            <h2>खबरें और अपडेट</h2>
-            <p>खबर की तारीख और मूल स्रोत अवश्य जाँचें।</p>
-          </div>
-          <button type="button" class="outline-button" id="loadNewsButton">खबरें लोड करें</button>
-        </div>
-
-        <div class="news-grid" id="newsGrid" aria-live="polite">
-          <div class="panel news-placeholder">
-            <div style="font-size:30px">📰</div>
-            <p>खबरें देखने के लिए “खबरें लोड करें” दबाएँ।</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="tv-actors">
-        <div class="section-heading">
-          <div>
-            <span class="eyebrow">TV ENTERTAINMENT</span>
-            <h2>तारक मेहता के कलाकार 📺</h2>
-            <p>कलाकारों की तस्वीरें, वीडियो और जानकारी खोजें।</p>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="actor-toolbar">
-            <input type="search" id="actorSearchInput" placeholder="कलाकार का नाम खोजें...">
-            <button type="button" class="outline-button" id="actorSearchButton">खोजें</button>
-          </div>
-          <div class="actor-filter-row">
-            <button type="button" class="actor-filter active" data-actor-filter="all">सभी कलाकार</button>
-            <button type="button" class="actor-filter" data-actor-filter="gokuldham">गोकुलधाम</button>
-            <button type="button" class="actor-filter" data-actor-filter="family">परिवार</button>
-            <button type="button" class="actor-filter" data-actor-filter="other">अन्य</button>
-          </div>
-          <div class="actor-grid" id="actorGrid"></div>
-          <p class="result-description">नोट: कलाकारों की तस्वीरें बाहरी इमेज-सर्च से खुलेंगी।</p>
-        </div>
-      </section>
-
-      <section class="section" id="funny-photos">
-        <div class="section-heading">
-          <div>
-            <span class="eyebrow">FUN ZONE</span>
-            <h2>Funny Photos 😂</h2>
-            <p>मजेदार तस्वीरें और मीम्स खोजें।</p>
-          </div>
-        </div>
-
-        <div class="funny-grid">
-          <button class="funny-card" data-funny-search="Taarak Mehta funny moments">
-            <span class="funny-emoji">🤣</span><strong>TMKOC Funny Moments</strong>
-            <small>तारक मेहता के मजेदार पल</small><span class="funny-action">तस्वीरें देखें ↗</span>
-          </button>
-          <button class="funny-card" data-funny-search="Jethalal funny expressions">
-            <span class="funny-emoji">😆</span><strong>जेठालाल के एक्सप्रेशन</strong>
-            <small>Funny expressions</small><span class="funny-action">तस्वीरें देखें ↗</span>
-          </button>
-          <button class="funny-card" data-funny-search="Indian comedy memes">
-            <span class="funny-emoji">😂</span><strong>Comedy Memes</strong>
-            <small>भारतीय कॉमेडी मीम्स</small><span class="funny-action">तस्वीरें देखें ↗</span>
-          </button>
-          <button class="funny-card" data-funny-search="Funny animal photos">
-            <span class="funny-emoji">🐒</span><strong>Funny Animals</strong>
-            <small>जानवरों की मजेदार तस्वीरें</small><span class="funny-action">तस्वीरें देखें ↗</span>
-          </button>
-          <button class="funny-card" data-funny-search="Funny reaction images">
-            <span class="funny-emoji">😜</span><strong>Reaction Photos</strong>
-            <small>मजेदार रिएक्शन</small><span class="funny-action">तस्वीरें देखें ↗</span>
-          </button>
-          <button class="funny-card" data-funny-search="Indian village funny memes">
-            <span class="funny-emoji">😄</span><strong>Village Memes</strong>
-            <small>गाँव के मजेदार मीम्स</small><span class="funny-action">तस्वीरें देखें ↗</span>
-          </button>
-        </div>
-      </section>
-
-      <section class="section owner-section" id="about">
-        <div class="owner-avatar">IG</div>
-        <div class="owner-content">
-          <span class="eyebrow">ABOUT ISHWAR SEARCH</span>
-          <h2>Ishwar Search</h2>
-          <p>एक शुरुआती भारतीय सर्च प्लेटफॉर्म, जिसका उद्देश्य लोगों को उपयोगी वेबसाइटों, जानकारी, खबरों, तस्वीरों और वीडियो तक पहुँचने में मदद करना है।</p>
-          <p class="owner-name">Founder / Owner: <strong>{{ owner|default('Ishwar Ghanchi', true) }}</strong></p>
-        </div>
-      </section>
-    </div>
   </main>
 
-  <footer>
-    <a class="footer-brand" href="/">Ishwar Search</a>
-    <p>जानकारी खोजें • सीखें • जागरूक रहें</p>
-    <small>© {{ current_year|default(2026, true) }} Ishwar Search. All rights reserved.</small>
+  <footer class="footer">
+    <p><strong>Ishwar Search</strong> — स्मार्ट खोज, आसान पहुँच।</p>
+    <p>Owner: Ishwar Ghanchi</p>
+    <p>© <span id="currentYear"></span> Ishwar Search. All rights reserved.</p>
+    <p>कुछ मीडिया खोज परिणाम बाहरी सेवाओं पर खुल सकते हैं।</p>
   </footer>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const searchInput = document.getElementById("searchInput");
-      const suggestionsBox = document.getElementById("suggestions");
-      const mediaInput = document.getElementById("mediaInput");
-      const mediaLinks = document.getElementById("mediaLinks");
-      const newsGrid = document.getElementById("newsGrid");
-      const loadNewsButton = document.getElementById("loadNewsButton");
-      const actorGrid = document.getElementById("actorGrid");
-      const actorSearchInput = document.getElementById("actorSearchInput");
+    "use strict";
 
-      function openSearch(query, type = "google") {
-        const q = String(query || "").trim();
-        if (!q) return;
+    const $ = (selector) => document.querySelector(selector);
 
-        const urls = {
-          google: "https://www.google.com/search?q=",
-          images: "https://www.google.com/search?tbm=isch&q=",
-          videos: "https://www.youtube.com/results?search_query=",
-          news: "https://www.google.com/search?tbm=nws&q=",
-          bing: "https://www.bing.com/search?q="
-        };
+    const searchForm = $("#searchForm");
+    const searchInput = $("#searchInput");
+    const resultsList = $("#resultsList");
+    const resultSummary = $("#resultSummary");
+    const resultsStatus = $("#resultsStatus");
+    const suggestions = $("#suggestions");
 
-        window.open(urls[type] + encodeURIComponent(q), "_blank", "noopener,noreferrer");
+    $("#currentYear").textContent = new Date().getFullYear();
+
+    // HTML में सुरक्षित रूप से टेक्स्ट दिखाने के लिए
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    function safeURL(value) {
+      try {
+        const url = new URL(String(value || ""), window.location.origin);
+        if (url.protocol === "https:" || url.protocol === "http:") {
+          return url.href;
+        }
+      } catch (_) {}
+      return "";
+    }
+
+    function showStatus(message, isError = false) {
+      resultsStatus.innerHTML = "";
+      const box = document.createElement("div");
+      box.className = isError ? "error-message" : "loading";
+      box.textContent = message;
+      resultsStatus.appendChild(box);
+    }
+
+    function getItemTitle(item) {
+      return item.title || item.name || item.label || "बिना शीर्षक";
+    }
+
+    function getItemURL(item) {
+      return safeURL(
+        item.url || item.link || item.href || item.website || item.web_url
+      );
+    }
+
+    function getItemDescription(item) {
+      return item.description || item.snippet || item.summary || "";
+    }
+
+    function renderResults(items, query) {
+      resultsList.innerHTML = "";
+
+      const validItems = (Array.isArray(items) ? items : [])
+        .filter(item => item && typeof item === "object")
+        .filter(item => getItemURL(item));
+
+      resultSummary.textContent =
+        `"${query}" के लिए ${validItems.length} परिणाम मिले।`;
+
+      if (!validItems.length) {
+        resultsList.innerHTML = `
+          <div class="empty-state">
+            <h3>अभी कोई परिणाम नहीं मिला</h3>
+            <p>दूसरे शब्दों से खोजें या वर्तनी जाँचें।</p>
+            <p>यदि बार-बार शून्य परिणाम मिलें, तो app.py की सेवा सूची जाँचनी होगी।</p>
+          </div>`;
+        return;
       }
 
-      document.querySelectorAll("[data-search]").forEach(function (button) {
-        button.addEventListener("click", function () {
-          const query = button.getAttribute("data-search");
-          if (searchInput) searchInput.value = query;
-          openSearch(query);
-        });
+      validItems.forEach(item => {
+        const title = getItemTitle(item);
+        const url = getItemURL(item);
+        const description = getItemDescription(item);
+        const category = item.category || item.type || "खोज परिणाम";
+
+        const card = document.createElement("article");
+        card.className = "result-card";
+
+        const tag = document.createElement("span");
+        tag.className = "result-tag";
+        tag.textContent = category;
+
+        const heading = document.createElement("h3");
+        const link = document.createElement("a");
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = title;
+        heading.appendChild(link);
+
+        const urlText = document.createElement("div");
+        urlText.className = "result-url";
+        urlText.textContent = new URL(url).hostname;
+
+        const descriptionText = document.createElement("p");
+        descriptionText.className = "result-description";
+        descriptionText.textContent = description;
+
+        card.append(tag, heading, urlText);
+        if (description) card.appendChild(descriptionText);
+        resultsList.appendChild(card);
       });
+    }
 
-      const googleLink = document.getElementById("googleSearchLink");
-      const bingLink = document.getElementById("bingSearchLink");
-
-      function updateExternalLinks() {
-        const q = searchInput ? searchInput.value.trim() : "";
-        if (googleLink) googleLink.href = "https://www.google.com/search?q=" + encodeURIComponent(q);
-        if (bingLink) bingLink.href = "https://www.bing.com/search?q=" + encodeURIComponent(q);
+    async function performSearch(query) {
+      query = String(query || "").trim();
+      if (!query) {
+        searchInput.focus();
+        return;
       }
 
-      if (searchInput) {
-        searchInput.addEventListener("input", updateExternalLinks);
-        updateExternalLinks();
-      }
+      searchInput.value = query;
+      suggestions.classList.add("hidden");
+      $("#results").scrollIntoView({ behavior: "smooth" });
 
-      let suggestionTimer;
+      resultsList.innerHTML =
+        '<div class="loading">Ishwar Search खोज रहा है…</div>';
+      resultSummary.textContent = "परिणाम लोड हो रहे हैं…";
+      showStatus("कृपया प्रतीक्षा करें।");
 
-      if (searchInput && suggestionsBox) {
-        searchInput.addEventListener("input", function () {
-          clearTimeout(suggestionTimer);
-          const q = searchInput.value.trim();
+      try {
+        const response = await fetch(
+          "/api/search?q=" + encodeURIComponent(query),
+          { headers: { "Accept": "application/json" } }
+        );
 
-          if (q.length < 2) {
-            suggestionsBox.hidden = true;
-            suggestionsBox.replaceChildren();
-            return;
-          }
-
-          suggestionTimer = setTimeout(async function () {
-            try {
-              const response = await fetch("/api/suggestions?q=" + encodeURIComponent(q));
-              if (!response.ok) throw new Error("Suggestion request failed");
-
-              const data = await response.json();
-              const items = Array.isArray(data)
-                ? data
-                : (data.results || data.suggestions || []);
-
-              suggestionsBox.replaceChildren();
-
-              items.slice(0, 6).forEach(function (item) {
-                const name = typeof item === "string"
-                  ? item
-                  : (item.name || item.title || "");
-
-                if (!name) return;
-
-                const button = document.createElement("button");
-                button.type = "button";
-                button.className = "suggestion-item";
-                button.textContent = "🔎 " + name;
-                button.addEventListener("click", function () {
-                  searchInput.value = name;
-                  suggestionsBox.hidden = true;
-                  openSearch(name);
-                });
-                suggestionsBox.appendChild(button);
-              });
-
-              suggestionsBox.hidden = suggestionsBox.children.length === 0;
-            } catch (error) {
-              suggestionsBox.hidden = true;
-            }
-          }, 250);
-        });
-
-        document.addEventListener("click", function (event) {
-          if (!suggestionsBox.contains(event.target) && event.target !== searchInput) {
-            suggestionsBox.hidden = true;
-          }
-        });
-      }
-
-      function showMediaLinks(query, type) {
-        const q = String(query || "").trim();
-        if (!q || !mediaLinks) {
-          if (mediaInput) mediaInput.focus();
-          return;
+        if (!response.ok) {
+          throw new Error("Search API ने HTTP " + response.status + " दिया।");
         }
 
-        const encoded = encodeURIComponent(q);
-        let links = [];
+        const data = await response.json();
 
-        if (type === "images") {
-          links = [
-            ["Google Images", "https://www.google.com/search?tbm=isch&q=" + encoded],
-            ["Bing Images", "https://www.bing.com/images/search?q=" + encoded]
-          ];
-        } else if (type === "videos") {
-          links = [
-            ["YouTube Videos", "https://www.youtube.com/results?search_query=" + encoded],
-            ["Bing Videos", "https://www.bing.com/videos/search?q=" + encoded]
-          ];
+        if (data.success === false) {
+          throw new Error(data.error || data.message || "खोज पूरी नहीं हुई।");
+        }
+
+        let items = [];
+        if (Array.isArray(data)) {
+          items = data;
         } else {
-          links = [
-            ["Google News", "https://www.google.com/search?tbm=nws&q=" + encoded],
-            ["Bing News", "https://www.bing.com/news/search?q=" + encoded]
-          ];
+          items =
+            data.results ||
+            data.items ||
+            data.data ||
+            data.links ||
+            [];
         }
 
-        mediaLinks.replaceChildren();
+        showStatus("");
+        renderResults(items, query);
+      } catch (error) {
+        resultsList.innerHTML = `
+          <div class="empty-state">
+            <h3>खोज पूरी नहीं हो सकी</h3>
+            <p>इंटरनेट कनेक्शन या सर्वर की स्थिति जाँचकर फिर प्रयास करें।</p>
+          </div>`;
+        resultSummary.textContent = "खोज में समस्या आई।";
+        showStatus(error.message || "अज्ञात त्रुटि", true);
+      }
+    }
 
-        links.forEach(function (item) {
-          const a = document.createElement("a");
-          a.href = item[1];
-          a.target = "_blank";
-          a.rel = "noopener noreferrer";
-          a.textContent = item[0] + " ↗";
-          mediaLinks.appendChild(a);
-        });
+    searchForm.addEventListener("submit", event => {
+      event.preventDefault();
+      performSearch(searchInput.value);
+    });
+
+    // सभी श्रेणी और शॉर्टकट बटन Ishwar Search में ही खोजेंगे
+    document.querySelectorAll("[data-search]").forEach(button => {
+      button.addEventListener("click", () => {
+        performSearch(button.dataset.search);
+      });
+    });
+
+    // सुझाव API: /api/suggestions?q=...
+    let suggestionRequest = 0;
+
+    searchInput.addEventListener("input", async () => {
+      const query = searchInput.value.trim();
+      const requestId = ++suggestionRequest;
+
+      if (query.length < 2) {
+        suggestions.classList.add("hidden");
+        suggestions.innerHTML = "";
+        return;
       }
 
-      document.getElementById("mediaSearchButton").addEventListener("click", function () {
-        showMediaLinks(mediaInput.value, "images");
-      });
+      try {
+        const response = await fetch(
+          "/api/suggestions?q=" + encodeURIComponent(query)
+        );
+        if (!response.ok) return;
 
-      mediaInput.addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          showMediaLinks(mediaInput.value, "images");
-        }
-      });
+        const data = await response.json();
+        if (requestId !== suggestionRequest) return;
 
-      document.querySelectorAll("[data-media]").forEach(function (button) {
-        button.addEventListener("click", function () {
-          showMediaLinks(mediaInput.value, button.getAttribute("data-media"));
-        });
-      });
+        const list = Array.isArray(data)
+          ? data
+          : (data.suggestions || data.results || []);
 
-      if (loadNewsButton && newsGrid) {
-        loadNewsButton.addEventListener("click", async function () {
-          loadNewsButton.disabled = true;
-          loadNewsButton.textContent = "लोड हो रहा है...";
+        suggestions.innerHTML = "";
 
-          try {
-            const response = await fetch("/api/news");
-            if (!response.ok) throw new Error("News request failed");
+        list.slice(0, 6).forEach(item => {
+          const value = typeof item === "string"
+            ? item
+            : (item.query || item.title || item.text || item.name || "");
 
-            const data = await response.json();
-            const items = Array.isArray(data) ? data : (data.results || data.news || []);
-            newsGrid.replaceChildren();
+          if (!value) return;
 
-            if (!items.length) {
-              const message = document.createElement("div");
-              message.className = "panel news-placeholder";
-              message.textContent = "अभी कोई खबर उपलब्ध नहीं है।";
-              newsGrid.appendChild(message);
-              return;
-            }
-
-            items.slice(0, 12).forEach(function (item) {
-              const card = document.createElement("article");
-              card.className = "news-card";
-
-              const source = document.createElement("div");
-              source.className = "news-source";
-              source.textContent = item.source || "समाचार स्रोत";
-
-              const title = document.createElement("h3");
-              title.textContent = item.title || "खबर पढ़ें";
-
-              card.appendChild(source);
-              card.appendChild(title);
-
-              if (item.date) {
-                const date = document.createElement("div");
-                date.className = "news-date";
-                date.textContent = item.date;
-                card.appendChild(date);
-              }
-
-              if (item.url) {
-                try {
-                  const url = new URL(item.url, window.location.origin);
-                  if (url.protocol === "https:" || url.protocol === "http:") {
-                    const link = document.createElement("a");
-                    link.href = url.href;
-                    link.target = "_blank";
-                    link.rel = "noopener noreferrer";
-                    link.textContent = "पूरी खबर पढ़ें ↗";
-                    card.appendChild(link);
-                  }
-                } catch (error) {}
-              }
-
-              newsGrid.appendChild(card);
-            });
-          } catch (error) {
-            newsGrid.replaceChildren();
-            const message = document.createElement("div");
-            message.className = "panel news-placeholder";
-            message.textContent = "खबरें अभी लोड नहीं हो सकीं। कृपया कुछ देर बाद कोशिश करें।";
-            newsGrid.appendChild(message);
-          } finally {
-            loadNewsButton.disabled = false;
-            loadNewsButton.textContent = "खबरें लोड करें";
-          }
-        });
-      }
-
-      const actors = [
-        {name:"Dilip Joshi — Jethalal",group:"gokuldham"},
-        {name:"Amit Bhatt — Champaklal",group:"family"},
-        {name:"Disha Vakani — Daya",group:"family"},
-        {name:"Shailesh Lodha — Taarak Mehta",group:"gokuldham"},
-        {name:"Munmun Dutta — Babita",group:"gokuldham"},
-        {name:"Mandar Chandwadkar — Bhide",group:"gokuldham"},
-        {name:"Sonalika Joshi — Madhavi",group:"family"},
-        {name:"Kush Shah — Goli",group:"gokuldham"},
-        {name:"Samay Shah — Gogi",group:"gokuldham"},
-        {name:"Tanuj Mahashabde — Iyer",group:"gokuldham"},
-        {name:"Tanmay Vekaria — Bagha",group:"other"},
-        {name:"Jennifer Mistry — Roshan",group:"family"},
-        {name:"Ambika Ranjankar — Komal",group:"family"},
-        {name:"Nirmal Soni — Dr Hathi",group:"gokuldham"},
-        {name:"Shyam Pathak — Popatlal",group:"gokuldham"},
-        {name:"Azhar Shaikh — Pinku",group:"gokuldham"},
-        {name:"Palak Sidhwani — Sonu",group:"family"},
-        {name:"Gurcharan Singh — Sodhi",group:"gokuldham"}
-      ];
-
-      let activeActorFilter = "all";
-
-      function renderActors() {
-        if (!actorGrid) return;
-
-        const term = actorSearchInput.value.toLowerCase().trim();
-        const filtered = actors.filter(function (actor) {
-          return (activeActorFilter === "all" || actor.group === activeActorFilter)
-            && actor.name.toLowerCase().includes(term);
-        });
-
-        actorGrid.replaceChildren();
-
-        if (!filtered.length) {
-          const message = document.createElement("p");
-          message.textContent = "कोई कलाकार नहीं मिला। दूसरा नाम खोजें।";
-          actorGrid.appendChild(message);
-          return;
-        }
-
-        filtered.forEach(function (actor) {
-          const card = document.createElement("article");
-          card.className = "actor-card";
-
-          const photo = document.createElement("a");
-          photo.className = "actor-photo";
-          photo.href = "https://www.google.com/search?tbm=isch&q=" +
-            encodeURIComponent(actor.name + " Taarak Mehta");
-          photo.target = "_blank";
-          photo.rel = "noopener noreferrer";
-          photo.textContent = "📸";
-          photo.setAttribute("aria-label", actor.name + " की तस्वीरें");
-
-          const info = document.createElement("div");
-          info.className = "actor-info";
-
-          const title = document.createElement("h3");
-          title.textContent = actor.name;
-
-          const desc = document.createElement("p");
-          desc.textContent = "तस्वीरें और जानकारी";
-
-          const links = document.createElement("div");
-          links.className = "actor-links";
-
-          [["Photos","https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(actor.name)],
-           ["Videos","https://www.youtube.com/results?search_query=" + encodeURIComponent(actor.name + " TMKOC")]]
-          .forEach(function (item) {
-            const a = document.createElement("a");
-            a.href = item[1];
-            a.target = "_blank";
-            a.rel = "noopener noreferrer";
-            a.textContent = item[0] + " ↗";
-            links.appendChild(a);
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "suggestion-item";
+          button.textContent = value;
+          button.addEventListener("click", () => {
+            searchInput.value = value;
+            suggestions.classList.add("hidden");
+            performSearch(value);
           });
 
-          info.append(title, desc, links);
-          card.append(photo, info);
-          actorGrid.appendChild(card);
+          suggestions.appendChild(button);
         });
+
+        suggestions.classList.toggle(
+          "hidden",
+          suggestions.children.length === 0
+        );
+      } catch (_) {
+        suggestions.classList.add("hidden");
       }
+    });
 
-      renderActors();
+    document.addEventListener("click", event => {
+      if (!event.target.closest(".search-wrap")) {
+        suggestions.classList.add("hidden");
+      }
+    });
 
-      document.getElementById("actorSearchButton").addEventListener("click", renderActors);
-      actorSearchInput.addEventListener("input", renderActors);
-      actorSearchInput.addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          renderActors();
-        }
-      });
-
-      document.querySelectorAll("[data-actor-filter]").forEach(function (button) {
-        button.addEventListener("click", function () {
-          activeActorFilter = button.getAttribute("data-actor-filter");
-          document.querySelectorAll("[data-actor-filter]").forEach(function (item) {
-            item.classList.toggle("active", item === button);
-          });
-          renderActors();
+    // मीडिया टैब बदलना
+    document.querySelectorAll("[data-tab]").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-tab]").forEach(tab => {
+          tab.classList.toggle("active", tab === button);
         });
-      });
 
-      document.querySelectorAll("[data-funny-search]").forEach(function (button) {
-        button.addEventListener("click", function () {
-          openSearch(button.getAttribute("data-funny-search"), "images");
+        document.querySelectorAll(".media-panel").forEach(panel => {
+          panel.classList.toggle("active", panel.id === button.dataset.tab);
         });
       });
     });
+
+    function makeExternalLink(url, label) {
+      const link = document.createElement("a");
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = label;
+      return link;
+    }
+
+    function showMediaLinks(query) {
+      const encoded = encodeURIComponent(query);
+
+      $("#imageLinks").innerHTML = "";
+      $("#imageLinks").appendChild(
+        makeExternalLink(
+          "https://www.bing.com/images/search?q=" + encoded,
+          "Bing Images पर तस्वीरें देखें ↗"
+        )
+      );
+
+      $("#mediaNewsLinks").innerHTML = "";
+      $("#mediaNewsLinks").appendChild(
+        makeExternalLink(
+          "https://news.google.com/search?q=" + encoded,
+          "Google News पर खबरें देखें ↗"
+        )
+      );
+    }
+
+    // वीडियो /api/videos?q=... से लाना
+    async function loadVideos(query) {
+      const container = $("#videoResults");
+      container.innerHTML =
+        '<div class="loading">वीडियो खोजे जा रहे हैं…</div>';
+
+      try {
+        const response = await fetch(
+          "/api/videos?q=" + encodeURIComponent(query)
+        );
+
+        if (!response.ok) {
+          throw new Error("वीडियो सेवा उपलब्ध नहीं है।");
+        }
+
+        const data = await response.json();
+        const items = data.results || data.videos || [];
+
+        container.innerHTML = "";
+
+        if (data.success === false) {
+          throw new Error(data.error || "वीडियो लोड नहीं हुए।");
+        }
+
+        if (!items.length) {
+          container.innerHTML =
+            '<div class="news-placeholder">इस विषय पर वीडियो नहीं मिले।</div>';
+          return;
+        }
+
+        items.forEach(item => {
+          const url = safeURL(item.url);
+          if (!url) return;
+
+          const card = document.createElement("article");
+          card.className = "video-card";
+
+          const thumbnailURL = safeURL(item.thumbnail);
+          if (thumbnailURL) {
+            const image = document.createElement("img");
+            image.src = thumbnailURL;
+            image.alt = item.title || "वीडियो थंबनेल";
+            image.loading = "lazy";
+            image.onerror = () => {
+              image.style.display = "none";
+            };
+            card.appendChild(image);
+          }
+
+          const info = document.createElement("div");
+          info.className = "video-info";
+
+          const heading = document.createElement("h3");
+          heading.textContent = item.title || "वीडियो";
+
+          const channel = document.createElement("p");
+          channel.textContent = item.channel || "YouTube";
+
+          const link = document.createElement("a");
+          link.href = url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "वीडियो देखें ↗";
+
+          info.append(heading, channel, link);
+          card.appendChild(info);
+          container.appendChild(card);
+        });
+
+        if (!container.children.length) {
+          container.textContent = "मान्य वीडियो परिणाम नहीं मिले।";
+        }
+      } catch (error) {
+        container.innerHTML = "";
+        const message = document.createElement("div");
+        message.className = "error-message";
+        message.textContent =
+          error.message || "वीडियो लोड करते समय समस्या आई।";
+        container.appendChild(message);
+      }
+    }
+
+    $("#mediaSearchButton").addEventListener("click", () => {
+      const query = $("#mediaQuery").value.trim();
+
+      if (!query) {
+        $("#mediaQuery").focus();
+        return;
+      }
+
+      loadVideos(query);
+      showMediaLinks(query);
+    });
+
+    $("#mediaQuery").addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        $("#mediaSearchButton").click();
+      }
+    });
+
+    // समाचार /api/news से लोड करना
+    async function loadNews() {
+      const container = $("#newsResults");
+      const status = $("#newsStatus");
+      const button = $("#loadNewsButton");
+
+      button.disabled = true;
+      button.textContent = "लोड हो रहा है…";
+      status.textContent = "";
+      container.innerHTML =
+        '<div class="loading">समाचार लोड हो रहे हैं…</div>';
+
+      try {
+        const response = await fetch("/api/news");
+        if (!response.ok) {
+          throw new Error("समाचार सेवा ने HTTP " + response.status + " दिया।");
+        }
+
+        const data = await response.json();
+        if (data.success === false) {
+          throw new Error(data.error || "समाचार लोड नहीं हुए।");
+        }
+
+        const items = Array.isArray(data)
+          ? data
+          : (data.results || data.news || data.articles || []);
+
+        container.innerHTML = "";
+
+        if (!items.length) {
+          container.innerHTML =
+            '<div class="news-placeholder">अभी कोई समाचार उपलब्ध नहीं है। बाद में फिर प्रयास करें।</div>';
+          return;
+        }
+
+        items.forEach(item => {
+          const url = getItemURL(item);
+          const card = document.createElement("article");
+          card.className = "news-card";
+
+          const heading = document.createElement("h3");
+          heading.textContent = getItemTitle(item);
+          card.appendChild(heading);
+
+          const description = document.createElement("p");
+          description.textContent = getItemDescription(item);
+          card.appendChild(description);
+
+          if (url) {
+            const link = document.createElement("a");
+            link.href = url;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = "पूरी खबर पढ़ें ↗";
+            card.appendChild(link);
+          }
+
+          container.appendChild(card);
+        });
+      } catch (error) {
+        container.innerHTML = "";
+        const message = document.createElement("div");
+        message.className = "error-message";
+        message.textContent =
+          error.message || "समाचार लोड करते समय समस्या आई।";
+        container.appendChild(message);
+      } finally {
+        button.disabled = false;
+        button.textContent = "समाचार अपडेट करें ↻";
+      }
+    }
+
+    $("#loadNewsButton").addEventListener("click", loadNews);
+
+    // कलाकार और मनोरंजन की खोज
+    function searchActor(query) {
+      query = String(query || "").trim();
+      if (!query) {
+        $("#actorQuery").focus();
+        return;
+      }
+
+      const container = $("#actorResults");
+      container.innerHTML = "";
+
+      const searches = [
+        {
+          title: "वीडियो",
+          url: "https://www.youtube.com/results?search_query=" +
+            encodeURIComponent(query)
+        },
+        {
+          title: "तस्वीरें",
+          url: "https://www.bing.com/images/search?q=" +
+            encodeURIComponent(query)
+        },
+        {
+          title: "वेब जानकारी",
+          url: "https://www.bing.com/search?q=" +
+            encodeURIComponent(query)
+        }
+      ];
+
+      searches.forEach(item => {
+        const card = document.createElement("a");
+        card.className = "popular-card";
+        card.href = item.url;
+        card.target = "_blank";
+        card.rel = "noopener noreferrer";
+
+        const icon = document.createElement("span");
+        icon.textContent = item.title === "वीडियो"
+          ? "▶️"
+          : item.title === "तस्वीरें" ? "🖼️" : "🌐";
+
+        const title = document.createElement("strong");
+        title.textContent = query + " — " + item.title;
+
+        card.append(icon, title);
+        container.appendChild(card);
+      });
+    }
+
+    $("#actorSearchButton").addEventListener("click", () => {
+      searchActor($("#actorQuery").value);
+    });
+
+    $("#actorQuery").addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        searchActor($("#actorQuery").value);
+      }
+    });
+
+    document.querySelectorAll("[data-actor]").forEach(button => {
+      button.addEventListener("click", () => {
+        searchActor(button.dataset.actor);
+      });
+    });
+
+    // URL में ?q=railway होने पर खोज अपने आप चलाएँ
+    const initialQuery =
+      new URLSearchParams(window.location.search).get("q");
+
+    if (initialQuery) {
+      searchInput.value = initialQuery;
+      performSearch(initialQuery);
+    }
   </script>
 </body>
 </html>
