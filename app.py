@@ -527,10 +527,71 @@ RSS_FEEDS = [
 ]
 
 
+
+RSS_FEEDS = [
+    (
+        "Google News India",
+        "https://news.google.com/rss?hl=hi&gl=IN&ceid=IN:hi",
+    ),
+    ("PIB India", "https://pib.gov.in/RssMain.aspx"),
+    ("BBC Hindi", "https://feeds.bbci.co.uk/hindi/rss.xml"),
+]
+
+
 def fetch_news(limit=15):
+    """Fetch GNews articles first, then use RSS feeds as backup."""
     articles = []
     seen_links = set()
+    api_key = os.environ.get("GNEWS_API_KEY", "").strip()
 
+    # 1. Try GNews API
+    if api_key:
+        api_url = (
+            "https://gnews.io/api/v4/top-headlines"
+            "?lang=hi&country=in&max=10&apikey="
+            + quote_plus(api_key)
+        )
+
+        try:
+            req = urllib.request.Request(
+                api_url,
+                headers={"User-Agent": "IshwarSearch/1.0"},
+            )
+
+            with urllib.request.urlopen(req, timeout=8) as response:
+                data = json.loads(response.read().decode("utf-8"))
+
+            for item in data.get("articles", []):
+                title = html.unescape(
+                    str(item.get("title") or "")
+                ).strip()
+                link = str(item.get("url") or "").strip()
+                source_data = item.get("source") or {}
+                source = str(source_data.get("name") or "GNews")
+                date = str(item.get("publishedAt") or "")
+
+                if (
+                    title
+                    and link.startswith("https://")
+                    and link not in seen_links
+                ):
+                    seen_links.add(link)
+                    articles.append({
+                        "title": title,
+                        "url": link,
+                        "source": source,
+                        "date": date,
+                    })
+
+                if len(articles) >= limit:
+                    return articles[:limit]
+
+        except Exception:
+            app.logger.warning(
+                "GNews unavailable; trying RSS backup."
+            )
+
+    # 2. RSS backup
     for source, url in RSS_FEEDS:
         try:
             req = urllib.request.Request(
@@ -542,11 +603,17 @@ def fetch_news(limit=15):
                 root = ET.fromstring(response.read())
 
             for item in root.findall(".//item"):
-                title = html.unescape(item.findtext("title", "")).strip()
+                title = html.unescape(
+                    item.findtext("title", "")
+                ).strip()
                 link = item.findtext("link", "").strip()
                 date = item.findtext("pubDate", "").strip()
 
-                if title and link.startswith("https://") and link not in seen_links:
+                if (
+                    title
+                    and link.startswith("https://")
+                    and link not in seen_links
+                ):
                     seen_links.add(link)
                     articles.append({
                         "title": title,
@@ -556,12 +623,13 @@ def fetch_news(limit=15):
                     })
 
                 if len(articles) >= limit:
-                    return articles
+                    return articles[:limit]
 
         except Exception:
             app.logger.info("News feed unavailable: %s", source)
 
-    return articles
+    return articles[:limit]
+
 
 def fetch_youtube_videos(query, limit=10):
     """Search YouTube videos using the YouTube Data API v3."""
