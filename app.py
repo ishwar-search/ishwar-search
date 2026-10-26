@@ -663,6 +663,71 @@ def api_videos():
     status_code = 200 if result.get("success") else 503
     return jsonify(result), status_code
 
+@app.route("/api/images")
+def api_images():
+    """Search openly licensed images through Openverse."""
+    query = request.args.get("q", "").strip()[:160]
+
+    if not query:
+        return jsonify({
+            "success": True,
+            "query": "",
+            "count": 0,
+            "results": [],
+        })
+
+    api_url = (
+        "https://api.openverse.org/v1/images/"
+        f"?q={quote_plus(query)}&page_size=20&mature=false"
+    )
+
+    try:
+        req = urllib.request.Request(
+            api_url,
+            headers={"User-Agent": "IshwarSearch/1.0"},
+        )
+
+        with urllib.request.urlopen(req, timeout=12) as response:
+            data = json.loads(response.read().decode("utf-8"))
+
+        results = []
+
+        for item in data.get("results", []):
+            image_url = item.get("thumbnail") or item.get("url") or ""
+            source_url = item.get("foreign_landing_url") or ""
+
+            if not image_url.startswith("https://"):
+                continue
+
+            if not source_url.startswith("https://"):
+                source_url = item.get("detail_url") or ""
+
+            results.append({
+                "title": item.get("title") or "Untitled image",
+                "image": image_url,
+                "thumbnail": image_url,
+                "url": source_url,
+                "creator": item.get("creator") or "Unknown creator",
+                "license": item.get("license") or "Check license",
+                "license_url": item.get("license_url") or "",
+                "source": item.get("source") or "Openverse",
+            })
+
+        return jsonify({
+            "success": True,
+            "query": query,
+            "count": len(results),
+            "results": results,
+        })
+
+    except Exception:
+        app.logger.exception("Openverse image search failed")
+        return jsonify({
+            "success": False,
+            "error": "Image search is temporarily unavailable.",
+            "results": [],
+        }), 503
+
 
 @app.route("/")
 def home():
