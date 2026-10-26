@@ -1,0 +1,169 @@
+
+:root {
+  --bg: #f4f7fb;
+  --card: #ffffff;
+  --text: #172033;
+  --muted: #667085;
+  --accent: #315efb;
+  --border: #dfe5ef;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body.dark {
+  --bg: #101522;
+  --card: #1a2233;
+  --text: #f3f6ff;
+  --muted: #b1bbce;
+  --border: #344056;
+  --accent: #7c9cff;
+}
+
+header, main, footer {
+  width: min(1100px, 94%);
+  margin: auto;
+}
+
+header {
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-area img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+h1, h2, h3 {
+  margin-top: 0;
+}
+
+p {
+  line-height: 1.6;
+}
+
+.search-area {
+  text-align: center;
+  padding: 38px 0;
+}
+
+.search-form {
+  display: flex;
+  gap: 10px;
+  max-width: 720px;
+  margin: 22px auto;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+}
+
+button, .button {
+  border: 0;
+  border-radius: 12px;
+  padding: 13px 18px;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: none;
+}
+
+button:hover, .button:hover {
+  opacity: 0.88;
+}
+
+button:focus-visible, a:focus-visible,
+input:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  margin: 20px 0 32px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  overflow-wrap: anywhere;
+}
+
+.card a {
+  color: var(--accent);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.chips button {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+section {
+  margin: 28px 0;
+}
+
+footer {
+  padding: 28px 0;
+  color: var(--muted);
+  text-align: center;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  header {
+    align-items: flex-start;
+  }
+
+  .search-form {
+    flex-direction: column;
+  }
+
+  .search-area {
+    padding: 22px 0;
+  }
+}
