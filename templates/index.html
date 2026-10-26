@@ -1,34 +1,25 @@
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#101827">
-
   <title>Ishwar Search - Smart Search Engine</title>
-  <meta name="description" content="Ishwar Search - Hindi aur English mein websites, images, videos aur news khojiye.">
+  <meta name="description" content="Ishwar Search par Hindi aur English mein websites, images, videos aur news khojiye.">
 
   <style>
     :root {
       --bg: #f4f7fb;
-      --surface: #ffffff;
+      --surface: #fff;
       --text: #172033;
       --muted: #667085;
       --primary: #2563eb;
-      --primary-dark: #1d4ed8;
       --border: #e3e8f0;
       --header: #101827;
       --radius: 18px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -38,28 +29,20 @@
       font-family: Arial, "Noto Sans Devanagari", sans-serif;
     }
 
-    button, input {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    a {
-      color: inherit;
-    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
 
     .top-header {
       background: var(--header);
-      color: #fff;
+      color: white;
       padding: 18px 20px;
       box-shadow: 0 4px 18px #10182720;
     }
 
     .header-inner {
       max-width: 1180px;
-      margin: 0 auto;
+      margin: auto;
       display: flex;
       align-items: center;
       gap: 14px;
@@ -70,7 +53,7 @@
       height: 58px;
       border-radius: 14px;
       object-fit: contain;
-      background: #fff;
+      background: white;
       padding: 4px;
       flex-shrink: 0;
     }
@@ -79,7 +62,7 @@
       margin: 0;
       font-size: clamp(23px, 4vw, 32px);
       font-weight: 800;
-      letter-spacing: -0.6px;
+      letter-spacing: -.6px;
     }
 
     .brand-subtitle {
@@ -89,7 +72,7 @@
     }
 
     .owner-line {
-      margin-top: 5px;
+      margin: 5px 0 0;
       color: #93c5fd;
       font-size: 13px;
     }
@@ -100,18 +83,17 @@
       border: 1px solid #475569;
       border-radius: 999px;
       font-size: 12px;
-      color: #e2e8f0;
       white-space: nowrap;
     }
 
     .page-container {
       width: min(100% - 32px, 1050px);
-      margin: 0 auto;
+      margin: auto;
     }
 
     .hero {
       text-align: center;
-      padding: 52px 0 24px;
+      padding: 48px 0 24px;
     }
 
     .hero-tag {
@@ -128,26 +110,20 @@
     .hero h2 {
       margin: 0;
       font-size: clamp(27px, 5vw, 43px);
-      line-height: 1.2;
-      letter-spacing: -1px;
+      line-height: 1.25;
     }
 
-    .hero h2 span {
-      color: var(--primary);
-    }
+    .hero h2 span { color: var(--primary); }
 
     .hero-description {
       max-width: 620px;
-      margin: 14px auto 0;
+      margin: 14px auto 22px;
       color: var(--muted);
       line-height: 1.8;
       font-size: 15px;
     }
 
-    .search-panel {
-      max-width: 800px;
-      margin: 0 auto;
-    }
+    .search-panel { max-width: 800px; margin: auto; }
 
     .search-form {
       display: flex;
@@ -177,10 +153,6 @@
       font-size: 16px;
     }
 
-    #searchInput::placeholder {
-      color: #98a2b3;
-    }
-
     .search-button {
       border: none;
       border-radius: 13px;
@@ -188,19 +160,14 @@
       color: white;
       padding: 14px 23px;
       font-weight: 700;
-      transition: background 0.2s, transform 0.2s;
       flex-shrink: 0;
     }
 
-    .search-button:hover {
-      background: var(--primary-dark);
-      transform: translateY(-1px);
-    }
+    .search-button:hover { background: #1d4ed8; }
 
     .search-button:disabled {
-      opacity: 0.65;
+      opacity: .65;
       cursor: wait;
-      transform: none;
     }
 
     .suggestions {
@@ -214,9 +181,7 @@
       box-shadow: 0 8px 20px #1720330d;
     }
 
-    .suggestions.show {
-      display: block;
-    }
+    .suggestions.show { display: block; }
 
     .suggestion-item {
       display: block;
@@ -229,9 +194,7 @@
       color: var(--text);
     }
 
-    .suggestion-item:hover {
-      background: #eff6ff;
-    }
+    .suggestion-item:hover { background: #eff6ff; }
 
     .quick-searches {
       display: flex;
@@ -257,7 +220,7 @@
     }
 
     .results-section {
-      padding: 30px 0 55px;
+      padding: 28px 0 55px;
       min-height: 240px;
     }
 
@@ -270,15 +233,9 @@
       margin-bottom: 16px;
     }
 
-    .results-heading h3 {
-      margin: 0;
-      font-size: 20px;
-    }
+    .results-heading h3 { margin: 0; font-size: 20px; }
 
-    #resultCount {
-      color: var(--muted);
-      font-size: 13px;
-    }
+    #resultCount { color: var(--muted); font-size: 13px; }
 
     .tabs {
       display: flex;
@@ -286,7 +243,6 @@
       overflow-x: auto;
       padding: 5px 2px 12px;
       margin-bottom: 12px;
-      scrollbar-width: thin;
     }
 
     .tab-button {
@@ -300,9 +256,7 @@
       font-weight: 600;
     }
 
-    .tab-button:hover {
-      background: #e8eef8;
-    }
+    .tab-button:hover { background: #e8eef8; }
 
     .tab-button.active {
       background: #dbeafe;
@@ -321,9 +275,9 @@
       line-height: 1.7;
     }
 
-    .status-message[hidden] {
-      display: none;
-    }
+    .status-message[hidden],
+    .results-list[hidden],
+    .media-grid[hidden] { display: none; }
 
     .results-list {
       display: grid;
@@ -331,22 +285,12 @@
       gap: 14px;
     }
 
-    .results-list[hidden] {
-      display: none;
-    }
-
     .result-card {
       min-width: 0;
       padding: 20px;
-      background: var(--surface);
+      background: white;
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      transition: box-shadow 0.2s, border-color 0.2s;
-    }
-
-    .result-card:hover {
-      border-color: #bfdbfe;
-      box-shadow: 0 8px 25px #1720330b;
     }
 
     .result-card h4 {
@@ -357,13 +301,8 @@
       overflow-wrap: anywhere;
     }
 
-    .result-card h4 a {
-      text-decoration: none;
-    }
-
-    .result-card h4 a:hover {
-      text-decoration: underline;
-    }
+    .result-card h4 a { text-decoration: none; }
+    .result-card h4 a:hover { text-decoration: underline; }
 
     .result-url {
       display: block;
@@ -410,9 +349,7 @@
       border-radius: 15px;
     }
 
-    .media-card a {
-      text-decoration: none;
-    }
+    .media-card a { text-decoration: none; }
 
     .media-image {
       display: block;
@@ -422,9 +359,7 @@
       background: #e2e8f0;
     }
 
-    .media-card-content {
-      padding: 12px;
-    }
+    .media-card-content { padding: 12px; }
 
     .media-card-title {
       margin: 0;
@@ -463,130 +398,45 @@
       line-height: 1.8;
     }
 
-    .footer-brand {
-      color: white;
-      font-weight: 800;
-      letter-spacing: 1px;
-    }
+    .footer-brand { color: white; font-weight: 800; }
+    .footer-owner { color: #93c5fd; }
 
-    .footer-owner {
-      color: #93c5fd;
-    }
-
-    .loading-dots {
-      display: inline-block;
-      animation: pulse 1s infinite alternate;
-    }
+    .loading-dots { animation: pulse 1s infinite alternate; }
 
     @keyframes pulse {
-      from { opacity: 0.4; }
+      from { opacity: .4; }
       to { opacity: 1; }
     }
 
     @media (max-width: 650px) {
-      .top-header {
-        padding: 15px 14px;
-      }
-
-      .header-inner {
-        gap: 10px;
-      }
-
-      .brand-logo {
-        width: 48px;
-        height: 48px;
-      }
-
-      .brand-name {
-        font-size: 23px;
-      }
-
-      .brand-subtitle,
-      .owner-line {
-        font-size: 11px;
-      }
-
-      .header-badge {
-        display: none;
-      }
-
-      .page-container {
-        width: calc(100% - 24px);
-      }
-
-      .hero {
-        padding-top: 36px;
-      }
-
-      .hero-description {
-        font-size: 14px;
-      }
-
-      .search-form {
-        gap: 5px;
-        padding: 6px;
-        border-radius: 15px;
-      }
-
-      .search-icon {
-        padding-left: 5px;
-        font-size: 19px;
-      }
-
-      #searchInput {
-        font-size: 14px;
-        padding: 12px 2px;
-      }
-
-      .search-button {
-        padding: 12px 13px;
-        border-radius: 11px;
-        font-size: 13px;
-      }
-
-      .quick-chip {
-        font-size: 12px;
-        padding: 8px 11px;
-      }
-
-      .results-section {
-        padding-top: 20px;
-      }
-
-      .result-card {
-        padding: 16px;
-      }
-
-      .media-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-      }
-
-      .media-card-content {
-        padding: 9px;
-      }
-
-      .media-card-title {
-        font-size: 13px;
-      }
+      .top-header { padding: 15px 14px; }
+      .header-inner { gap: 10px; }
+      .brand-logo { width: 48px; height: 48px; }
+      .brand-name { font-size: 23px; }
+      .brand-subtitle, .owner-line { font-size: 11px; }
+      .header-badge { display: none; }
+      .page-container { width: calc(100% - 24px); }
+      .hero { padding-top: 35px; }
+      .hero-description { font-size: 14px; }
+      .search-form { gap: 5px; padding: 6px; border-radius: 15px; }
+      .search-icon { padding-left: 5px; font-size: 19px; }
+      #searchInput { font-size: 14px; padding: 12px 2px; }
+      .search-button { padding: 12px 13px; border-radius: 11px; font-size: 13px; }
+      .quick-chip { font-size: 12px; padding: 8px 11px; }
+      .results-section { padding-top: 20px; }
+      .result-card { padding: 16px; }
+      .media-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .media-card-content { padding: 9px; }
+      .media-card-title { font-size: 13px; }
     }
 
     @media (max-width: 360px) {
-      .brand-name {
-        font-size: 20px;
-      }
-
-      .media-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .media-image {
-        aspect-ratio: 16 / 9;
-      }
+      .brand-name { font-size: 20px; }
+      .media-grid { grid-template-columns: 1fr; }
+      .media-image { aspect-ratio: 16 / 9; }
     }
   </style>
 </head>
-
 <body>
   <header class="top-header">
     <div class="header-inner">
@@ -595,21 +445,17 @@
         src="{{ url_for('static', filename='logo.png') }}"
         alt="Ishwar Search Logo"
       >
-
       <div class="brand-info">
         <h1 class="brand-name">Ishwar Search</h1>
         <p class="brand-subtitle">आपकी खोज, एक नई शुरुआत</p>
         <p class="owner-line">Owner: Ishwar Ghanchi</p>
       </div>
-
       <div class="header-badge">Hindi + English</div>
     </div>
   </header>
-
-  <main class="page-container">
+    <main class="page-container">
     <section class="hero">
       <div class="hero-tag">WELCOME TO ISHWAR SEARCH</div>
-
       <h2>दुनिया को <span>खोजिए</span> आसानी से</h2>
 
       <p class="hero-description">
@@ -620,7 +466,6 @@
       <div class="search-panel">
         <form class="search-form" id="searchForm" role="search">
           <span class="search-icon" aria-hidden="true">⌕</span>
-
           <input
             id="searchInput"
             name="q"
@@ -631,7 +476,6 @@
             maxlength="160"
             required
           >
-
           <button class="search-button" id="searchButton" type="submit">
             खोजें
           </button>
@@ -645,777 +489,586 @@
         ></div>
 
         <div class="quick-searches">
-          <button class="quick-chip" type="button" data-query="Rajasthan jobs">
-            सरकारी नौकरी
-          </button>
-          <button class="quick-chip" type="button" data-query="Railway recruitment">
-            Railway
-          </button>
-          <button class="quick-chip" type="button" data-query="Scholarship">
-            Scholarship
-          </button>
-          <button class="quick-chip" type="button" data-query="Rajasthan news">
-            ताज़ा समाचार
-          </button>
-          <button class="quick-chip" type="button" data-query="Aadhaar">
-            Aadhaar
-          </button>
+          <button class="quick-chip" type="button" data-query="Rajasthan jobs">सरकारी नौकरी</button>
+          <button class="quick-chip" type="button" data-query="Railway recruitment">Railway</button>
+          <button class="quick-chip" type="button" data-query="Scholarship">Scholarship</button>
+          <button class="quick-chip" type="button" data-query="Rajasthan news">ताज़ा समाचार</button>
+          <button class="quick-chip" type="button" data-query="Aadhaar">Aadhaar</button>
         </div>
       </div>
     </section>
 
     <section class="results-section" aria-label="Search results">
       <div class="results-heading">
-        <h3 id="resultsTitle">खोज शुरू कीजिए</h3>
-        <span id="resultCount">आपके परिणाम यहाँ दिखाई देंगे</span>
+        <h3 id="resultsTitle">📰 ताज़ा समाचार</h3>
+        <span id="resultCount">खबरें लोड हो रही हैं...</span>
       </div>
 
       <nav class="tabs" aria-label="Search categories">
-        <button
-          class="tab-button active"
-          type="button"
-          data-tab="all"
-          aria-pressed="true"
-        >सभी</button>
-
-        <button
-          class="tab-button"
-          type="button"
-          data-tab="images"
-          aria-pressed="false"
-        >तस्वीरें</button>
-
-        <button
-          class="tab-button"
-          type="button"
-          data-tab="videos"
-          aria-pressed="false"
-        >वीडियो</button>
-
-        <button
-          class="tab-button"
-          type="button"
-          data-tab="news"
-          aria-pressed="false"
-        >समाचार</button>
+        <button class="tab-button active" type="button" data-tab="all" aria-pressed="true">सभी</button>
+        <button class="tab-button" type="button" data-tab="images" aria-pressed="false">तस्वीरें</button>
+        <button class="tab-button" type="button" data-tab="videos" aria-pressed="false">वीडियो</button>
+        <button class="tab-button" type="button" data-tab="news" aria-pressed="false">समाचार</button>
       </nav>
 
-      <div
-        class="status-message"
-        id="statusMessage"
-        role="status"
-        aria-live="polite"
-      >
-        नमस्ते! ऊपर अपना सवाल लिखकर खोजें।
+      <div class="status-message" id="statusMessage" role="status" aria-live="polite">
+        ताज़ा खबरें लोड हो रही हैं...
       </div>
 
       <div class="results-list" id="resultsList" hidden></div>
-
       <div class="media-grid" id="mediaGrid" hidden></div>
     </section>
   </main>
 
+  <footer class="site-footer">
+    <div class="footer-brand">ISHWAR SEARCH</div>
+    <div>आपकी खोज, एक नई शुरुआत</div>
+    <div class="footer-owner">Owner: Ishwar Ghanchi</div>
+  </footer>
 
-<script>
-"use strict";
+  <script>
+    "use strict";
 
-const API = {
-  all: "/api/search",
-  images: "/api/images",
-  videos: "/api/videos",
-  news: "/api/news",
-  suggestions: "/api/suggestions"
-};
+    const API = {
+      all: "/api/search",
+      images: "/api/images",
+      videos: "/api/videos",
+      news: "/api/news",
+      suggestions: "/api/suggestions"
+    };
 
-const searchForm = document.getElementById("searchForm");
-const searchInput = document.getElementById("searchInput");
-const searchButton = document.getElementById("searchButton");
-const suggestionsBox = document.getElementById("suggestions");
-const statusMessage = document.getElementById("statusMessage");
-const resultsList = document.getElementById("resultsList");
-const mediaGrid = document.getElementById("mediaGrid");
-const resultsTitle = document.getElementById("resultsTitle");
-const resultCount = document.getElementById("resultCount");
-const tabButtons = document.querySelectorAll(".tab-button");
+    const searchForm = document.getElementById("searchForm");
+    const searchInput = document.getElementById("searchInput");
+    const searchButton = document.getElementById("searchButton");
+    const suggestionsBox = document.getElementById("suggestions");
+    const statusMessage = document.getElementById("statusMessage");
+    const resultsList = document.getElementById("resultsList");
+    const mediaGrid = document.getElementById("mediaGrid");
+    const resultsTitle = document.getElementById("resultsTitle");
+    const resultCount = document.getElementById("resultCount");
+    const tabButtons = document.querySelectorAll(".tab-button");
 
-let activeTab = "all";
-let currentQuery = "";
-let searchRequestNumber = 0;
-let suggestionTimer = null;
+    let activeTab = "all";
+    let currentQuery = "";
+    let searchRequestNumber = 0;
+    let suggestionTimer = null;
 
-/* API response ko safely read karna */
-async function fetchJSON(url) {
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Accept": "application/json"
-    }
-  });
+    async function fetchJSON(url) {
+      const response = await fetch(url, {
+        headers: { "Accept": "application/json" }
+      });
 
-  if (!response.ok) {
-    throw new Error("HTTP " + response.status);
-  }
-
-  return await response.json();
-}
-
-/* Safe URL: sirf HTTP aur HTTPS links */
-function safeUrl(value) {
-  if (typeof value !== "string" || !value.trim()) {
-    return "";
-  }
-
-  try {
-    const parsed = new URL(value, window.location.origin);
-
-    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-      return "";
-    }
-
-    return parsed.href;
-  } catch {
-    return "";
-  }
-}
-
-/* HTML ko text ki tarah dikhana */
-function makeText(value, fallback = "") {
-  if (value === null || value === undefined) {
-    return fallback;
-  }
-
-  return String(value);
-}
-
-/* API results ko alag-alag response formats se lena */
-function getArray(data) {
-  if (Array.isArray(data)) {
-    return data;
-  }
-
-  if (!data || typeof data !== "object") {
-    return [];
-  }
-
-  const possibleArrays = [
-    data.results,
-    data.items,
-    data.services,
-    data.news,
-    data.videos,
-    data.images,
-    data.suggestions
-  ];
-
-  for (const item of possibleArrays) {
-    if (Array.isArray(item)) {
-      return item;
-    }
-  }
-
-  return [];
-}
-
-/* Search status */
-function showStatus(message, loading = false) {
-  statusMessage.hidden = false;
-  statusMessage.replaceChildren();
-
-  const span = document.createElement("span");
-  span.textContent = message;
-
-  if (loading) {
-    span.className = "loading-dots";
-  }
-
-  statusMessage.appendChild(span);
-}
-
-/* Results ke purane cards clear karna */
-function clearResults() {
-  resultsList.replaceChildren();
-  mediaGrid.replaceChildren();
-
-  resultsList.hidden = true;
-  mediaGrid.hidden = true;
-}
-
-/* Active tab ka design update karna */
-function setActiveTab(tab) {
-  activeTab = tab;
-
-  tabButtons.forEach(button => {
-    const selected = button.dataset.tab === tab;
-
-    button.classList.toggle("active", selected);
-    button.setAttribute("aria-pressed", String(selected));
-  });
-}
-
-/* Tab ke hisab se heading */
-function updateHeading(query, tab) {
-  const headings = {
-    all: "खोज परिणाम",
-    images: "तस्वीरों के परिणाम",
-    videos: "वीडियो के परिणाम",
-    news: "ताज़ा समाचार"
-  };
-
-  resultsTitle.textContent =
-    (headings[tab] || "खोज परिणाम") +
-    (query ? ': "' + query + '"' : "");
-
-  resultCount.textContent = "परिणाम लोड हो रहे हैं...";
-}
-
-/* Search API URL banana */
-function buildSearchUrl(tab, query) {
-  const endpoint = API[tab] || API.all;
-
-  return endpoint + "?q=" + encodeURIComponent(query);
-}
-
-/* Main search */
-async function performSearch(query, tab = activeTab) {
-  query = String(query || "").trim().slice(0, 160);
-
-  if (!query) {
-    searchInput.focus();
-    showStatus("पहले कुछ लिखकर खोजें।");
-    return;
-  }
-
-  const requestNumber = ++searchRequestNumber;
-
-  currentQuery = query;
-  searchInput.value = query;
-
-  setActiveTab(tab);
-  suggestionsBox.classList.remove("show");
-  suggestionsBox.replaceChildren();
-
-  clearResults();
-  updateHeading(query, tab);
-  showStatus("खोज जारी है, कृपया प्रतीक्षा करें...", true);
-
-  searchButton.disabled = true;
-  searchButton.textContent = "खोज रहे हैं...";
-
-  try {
-    const url = buildSearchUrl(tab, query);
-    const data = await fetchJSON(url);
-
-    /* Purani request ke results ko ignore karna */
-    if (requestNumber !== searchRequestNumber) {
-      return;
-    }
-
-    if (data && data.success === false) {
-      throw new Error(data.error || "Search failed");
-    }
-
-    const items = getArray(data);
-console.log("Ishwar Search tab:", tab);
-console.log("Ishwar Search API response:", data);
-console.log("Ishwar Search results:", getArray(data));
-    resultCount.textContent =
-      items.length + " परिणाम मिले";
-
-    if (tab === "images" || tab === "videos") {
-      renderMediaResults(items, tab);
-    } else if (tab === "news") {
-      renderMediaResults(items, "news");
-    } else {
-      renderWebResults(items);
-    }
-
-  } catch (error) {
-    if (requestNumber !== searchRequestNumber) {
-      return;
-    }
-
-    console.error("Ishwar Search error:", error);
-
-    clearResults();
-    resultCount.textContent = "खोज पूरी नहीं हो सकी";
-
-    showStatus(
-      "अभी परिणाम नहीं मिल रहे हैं। इंटरनेट कनेक्शन जाँचें और दोबारा कोशिश करें।"
-    );
-
-  } finally {
-    if (requestNumber === searchRequestNumber) {
-      searchButton.disabled = false;
-      searchButton.textContent = "खोजें";
-    }
-  }
-}
-
-/* Search form submit */
-searchForm.addEventListener("submit", event => {
-  event.preventDefault();
-  performSearch(searchInput.value, activeTab);
-});
-
-/* Category tabs */
-tabButtons.forEach(button => {
-  button.addEventListener("click", () => {
-    const selectedTab = button.dataset.tab;
-
-    setActiveTab(selectedTab);
-
-    if (currentQuery) {
-      performSearch(currentQuery, selectedTab);
-    } else {
-      clearResults();
-      updateHeading("", selectedTab);
-      showStatus("पहले ऊपर कुछ खोजें, फिर इस श्रेणी के परिणाम देखें।");
-      resultCount.textContent = "अभी कोई खोज नहीं हुई";
-    }
-  });
-});
-
-/* Quick search buttons */
-document.querySelectorAll(".quick-chip").forEach(button => {
-  button.addEventListener("click", () => {
-    const query = button.dataset.query || button.textContent;
-    performSearch(query, "all");
-  });
-});
-
-/* Suggestions API se suggestions lana */
-async function loadSuggestions(query) {
-  query = String(query || "").trim();
-
-  if (query.length < 2) {
-    suggestionsBox.classList.remove("show");
-    suggestionsBox.replaceChildren();
-    return;
-  }
-
-  try {
-    const url =
-      API.suggestions + "?q=" + encodeURIComponent(query);
-
-    const data = await fetchJSON(url);
-    const items = getArray(data).slice(0, 8);
-
-    /* User ne tab tak input badal diya ho to purane suggestions na dikhayein */
-    if (searchInput.value.trim() !== query) {
-      return;
-    }
-
-    suggestionsBox.replaceChildren();
-
-    items.forEach(item => {
-      let label = "";
-
-      if (typeof item === "string") {
-        label = item;
-      } else if (item && typeof item === "object") {
-        label =
-          item.title ||
-          item.query ||
-          item.name ||
-          item.text ||
-          "";
+      if (!response.ok) {
+        throw new Error("HTTP " + response.status);
       }
 
-      label = String(label).trim();
+      return response.json();
+    }
 
-      if (!label) {
+    function safeUrl(value) {
+      if (typeof value !== "string" || !value.trim()) return "";
+
+      try {
+        const parsed = new URL(value, window.location.origin);
+
+        if (!["https:", "http:"].includes(parsed.protocol)) return "";
+
+        return parsed.href;
+      } catch {
+        return "";
+      }
+    }
+
+    function makeText(value, fallback = "") {
+      return value === null || value === undefined
+        ? fallback
+        : String(value);
+    }
+
+    function getArray(data) {
+      if (Array.isArray(data)) return data;
+      if (!data || typeof data !== "object") return [];
+
+      for (const key of [
+        "results", "items", "services", "news",
+        "videos", "images", "suggestions"
+      ]) {
+        if (Array.isArray(data[key])) return data[key];
+      }
+
+      return [];
+    }
+
+    function showStatus(message, loading = false) {
+      statusMessage.hidden = false;
+      statusMessage.replaceChildren();
+
+      const span = document.createElement("span");
+      span.textContent = message;
+
+      if (loading) span.className = "loading-dots";
+
+      statusMessage.appendChild(span);
+    }
+
+    function clearResults() {
+      resultsList.replaceChildren();
+      mediaGrid.replaceChildren();
+      resultsList.hidden = true;
+      mediaGrid.hidden = true;
+    }
+
+    function setActiveTab(tab) {
+      activeTab = tab;
+
+      tabButtons.forEach(button => {
+        const selected = button.dataset.tab === tab;
+        button.classList.toggle("active", selected);
+        button.setAttribute("aria-pressed", String(selected));
+      });
+    }
+
+    function updateHeading(query, tab) {
+      const headings = {
+        all: "खोज परिणाम",
+        images: "तस्वीरों के परिणाम",
+        videos: "वीडियो के परिणाम",
+        news: "📰 ताज़ा समाचार"
+      };
+
+      resultsTitle.textContent =
+        (headings[tab] || "खोज परिणाम") +
+        (query ? ': "' + query + '"' : "");
+
+      resultCount.textContent = "परिणाम लोड हो रहे हैं...";
+    }
+
+    function buildSearchUrl(tab, query) {
+      const endpoint = API[tab] || API.all;
+      const url = new URL(endpoint, window.location.origin);
+      url.searchParams.set("q", query);
+      return url.pathname + url.search;
+    }
+        async function performSearch(query, tab = activeTab) {
+      query = String(query || "").trim().slice(0, 160);
+
+      if (!query) {
+        searchInput.focus();
+        showStatus("पहले कुछ लिखकर खोजें।");
         return;
       }
 
-      const option = document.createElement("button");
-      option.type = "button";
-      option.className = "suggestion-item";
-      option.setAttribute("role", "option");
-      option.textContent = "⌕  " + label;
+      const requestNumber = ++searchRequestNumber;
 
-      option.addEventListener("click", () => {
-        performSearch(label, activeTab);
-      });
+      currentQuery = query;
+      searchInput.value = query;
+      setActiveTab(tab);
+      suggestionsBox.classList.remove("show");
+      suggestionsBox.replaceChildren();
 
-      suggestionsBox.appendChild(option);
+      clearResults();
+      updateHeading(query, tab);
+      showStatus("खोज जारी है, कृपया प्रतीक्षा करें...", true);
+
+      searchButton.disabled = true;
+      searchButton.textContent = "खोज रहे हैं...";
+
+      try {
+        const data = await fetchJSON(buildSearchUrl(tab, query));
+
+        if (requestNumber !== searchRequestNumber) return;
+        if (data && data.success === false) {
+          throw new Error(data.error || "Search failed");
+        }
+
+        const items = getArray(data);
+        resultCount.textContent = items.length + " परिणाम मिले";
+
+        if (tab === "images" || tab === "videos" || tab === "news") {
+          renderMediaResults(items, tab);
+        } else {
+          renderWebResults(items);
+        }
+      } catch (error) {
+        if (requestNumber !== searchRequestNumber) return;
+
+        console.error("Ishwar Search error:", error);
+        clearResults();
+        resultCount.textContent = "खोज पूरी नहीं हो सकी";
+        showStatus("परिणाम नहीं मिल सके। इंटरनेट जाँचें और दोबारा कोशिश करें।");
+      } finally {
+        if (requestNumber === searchRequestNumber) {
+          searchButton.disabled = false;
+          searchButton.textContent = "खोजें";
+        }
+      }
+    }
+
+    searchForm.addEventListener("submit", event => {
+      event.preventDefault();
+      performSearch(searchInput.value, activeTab);
     });
 
-    suggestionsBox.classList.toggle(
-      "show",
-      suggestionsBox.childElementCount > 0
-    );
-
-  } catch (error) {
-    /* Suggestions fail hone par main search chalta rahega */
-    console.warn("Suggestions unavailable:", error);
-    suggestionsBox.classList.remove("show");
-  }
-}
-
-/* Typing ke waqt suggestions ko thoda delay dena */
-searchInput.addEventListener("input", () => {
-  clearTimeout(suggestionTimer);
-
-  const query = searchInput.value.trim();
-
-  suggestionTimer = setTimeout(() => {
-    loadSuggestions(query);
-  }, 300);
-});
-
-/* Input ke bahar click karne par suggestions band */
-document.addEventListener("click", event => {
-  if (
-    !searchForm.contains(event.target) &&
-    !suggestionsBox.contains(event.target)
-  ) {
-    suggestionsBox.classList.remove("show");
-  }
-});
-
-/* Enter se search aur Escape se suggestions band */
-searchInput.addEventListener("keydown", event => {
-  if (event.key === "Escape") {
-    suggestionsBox.classList.remove("show");
-  }
-});
-
-/* =========================================
-   ISHWAR SEARCH - PART 3
-   Results rendering and final functions
-========================================= */
-
-/* All tab: website aur service results */
-function renderWebResults(items) {
-  clearResults();
-
-  const validItems = items.filter(item =>
-    item && typeof item === "object"
-  );
-
-  if (validItems.length === 0) {
-    showStatus(
-      "कोई परिणाम नहीं मिला। दूसरा शब्द लिखकर खोजें।"
-    );
-    return;
-  }
-
-  validItems.forEach(item => {
-    const title = makeText(
-      item.title || item.name || item.label,
-      "बिना शीर्षक का परिणाम"
-    );
-
-    const url = safeUrl(
-      item.url || item.link || item.href || item.website
-    );
-
-    const description = makeText(
-      item.description ||
-      item.snippet ||
-      item.summary ||
-      item.text,
-      "इस परिणाम के बारे में अतिरिक्त जानकारी उपलब्ध नहीं है।"
-    );
-
-    const source = makeText(
-      item.source || item.category || item.type,
-      ""
-    );
-
-    const card = document.createElement("article");
-    card.className = "result-card";
-
-    const heading = document.createElement("h4");
-
-    if (url) {
-      const link = document.createElement("a");
-      link.href = url;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = title;
-      heading.appendChild(link);
-    } else {
-      heading.textContent = title;
-    }
-
-    card.appendChild(heading);
-
-    if (url) {
-      const urlText = document.createElement("span");
-      urlText.className = "result-url";
-      urlText.textContent = url;
-      card.appendChild(urlText);
-    }
-
-    const descriptionText = document.createElement("p");
-    descriptionText.className = "result-description";
-    descriptionText.textContent = description;
-    card.appendChild(descriptionText);
-
-    if (source) {
-      const meta = document.createElement("div");
-      meta.className = "result-meta";
-
-      const badge = document.createElement("span");
-      badge.textContent = source;
-
-      meta.appendChild(badge);
-      card.appendChild(meta);
-    }
-
-    resultsList.appendChild(card);
-  });
-
-  resultsList.hidden = false;
-  statusMessage.hidden = true;
-}
-
-/* Images, videos aur news results */
-function renderMediaResults(items, type) {
-  clearResults();
-
-  const emptyMessages = {
-    images: "तस्वीरें नहीं मिलीं। दूसरा शब्द खोजकर देखें।",
-    videos: "वीडियो नहीं मिले। बाद में फिर कोशिश करें।",
-    news: "समाचार नहीं मिले। बाद में फिर कोशिश करें।"
-  };
-
-  const validItems = items.filter(item =>
-    item && typeof item === "object"
-  );
-
-  if (validItems.length === 0) {
-    showStatus(
-      emptyMessages[type] || "कोई परिणाम नहीं मिला।"
-    );
-    return;
-  }
-
-  validItems.forEach(item => {
-    const title = makeText(
-      item.title || item.name || item.label,
-      type === "images" ? "तस्वीर" :
-      type === "videos" ? "वीडियो" : "समाचार"
-    );
-
-    const url = safeUrl(
-      item.url ||
-      item.link ||
-      item.webpage_url ||
-      item.foreign_landing_url
-    );
-
-    const imageUrl = safeUrl(
-      item.thumbnail ||
-      item.thumbnail_url ||
-      item.image ||
-      item.image_url
-    );
-
-    const card = document.createElement("article");
-    card.className = "media-card";
-
-    /* Image preview */
-    if (type === "images" && imageUrl) {
-      const image = document.createElement("img");
-      image.className = "media-image";
-      image.src = imageUrl;
-      image.alt = title;
-      image.loading = "lazy";
-      image.referrerPolicy = "no-referrer";
-
-      image.addEventListener("error", () => {
-        image.hidden = true;
+    document.querySelectorAll(".quick-chip").forEach(button => {
+      button.addEventListener("click", () => {
+        performSearch(button.dataset.query || button.textContent, "all");
       });
+    });
 
-      if (url) {
-        const imageLink = document.createElement("a");
-        imageLink.href = url;
-        imageLink.target = "_blank";
-        imageLink.rel = "noopener noreferrer";
-        imageLink.setAttribute(
-          "aria-label",
-          "तस्वीर का स्रोत खोलें: " + title
+    tabButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const tab = button.dataset.tab;
+        setActiveTab(tab);
+
+        if (currentQuery) {
+          performSearch(currentQuery, tab);
+        } else if (tab === "news") {
+          loadHomeNews();
+        } else {
+          clearResults();
+          updateHeading("", tab);
+          resultCount.textContent = "अभी कोई खोज नहीं हुई";
+          showStatus("ऊपर कुछ खोजें, फिर इस श्रेणी के परिणाम देखें।");
+        }
+      });
+    });
+
+    async function loadSuggestions(query) {
+      query = String(query || "").trim();
+
+      if (query.length < 2) {
+        suggestionsBox.classList.remove("show");
+        suggestionsBox.replaceChildren();
+        return;
+      }
+
+      try {
+        const url = API.suggestions + "?q=" + encodeURIComponent(query);
+        const data = await fetchJSON(url);
+        const items = getArray(data).slice(0, 8);
+
+        if (searchInput.value.trim() !== query) return;
+
+        suggestionsBox.replaceChildren();
+
+        items.forEach(item => {
+          const label = typeof item === "string"
+            ? item
+            : item && (item.title || item.query || item.name || item.text);
+
+          if (!label) return;
+
+          const option = document.createElement("button");
+          option.type = "button";
+          option.className = "suggestion-item";
+          option.setAttribute("role", "option");
+          option.textContent = "⌕  " + String(label);
+
+          option.addEventListener("click", () => {
+            performSearch(String(label), activeTab);
+          });
+
+          suggestionsBox.appendChild(option);
+        });
+
+        suggestionsBox.classList.toggle(
+          "show",
+          suggestionsBox.childElementCount > 0
         );
-
-        imageLink.appendChild(image);
-        card.appendChild(imageLink);
-      } else {
-        card.appendChild(image);
+      } catch (error) {
+        console.warn("Suggestions unavailable:", error);
+        suggestionsBox.classList.remove("show");
       }
     }
 
-    /* Video thumbnail, if supplied by API */
-    if (type === "videos" && imageUrl) {
-      const image = document.createElement("img");
-      image.className = "media-image";
-      image.src = imageUrl;
-      image.alt = title;
-      image.loading = "lazy";
-      image.referrerPolicy = "no-referrer";
+    searchInput.addEventListener("input", () => {
+      clearTimeout(suggestionTimer);
+      const query = searchInput.value.trim();
 
-      image.addEventListener("error", () => {
-        image.hidden = true;
-      });
+      suggestionTimer = setTimeout(() => {
+        loadSuggestions(query);
+      }, 300);
+    });
 
-      if (url) {
-        const imageLink = document.createElement("a");
-        imageLink.href = url;
-        imageLink.target = "_blank";
-        imageLink.rel = "noopener noreferrer";
-        imageLink.appendChild(image);
-        card.appendChild(imageLink);
-      } else {
-        card.appendChild(image);
+    searchInput.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        suggestionsBox.classList.remove("show");
       }
-    }
+    });
 
-    const content = document.createElement("div");
-    content.className = "media-card-content";
+    document.addEventListener("click", event => {
+      if (!searchForm.contains(event.target)) {
+        suggestionsBox.classList.remove("show");
+      }
+    });
 
-    const heading = document.createElement("h4");
-    heading.className = "media-card-title";
+    function renderWebResults(items) {
+      clearResults();
 
-    if (url) {
-      const titleLink = document.createElement("a");
-      titleLink.href = url;
-      titleLink.target = "_blank";
-      titleLink.rel = "noopener noreferrer";
-      titleLink.textContent = title;
-      heading.appendChild(titleLink);
-    } else {
-      heading.textContent = title;
-    }
-
-    content.appendChild(heading);
-
-    const description = makeText(
-      item.description || item.snippet || item.summary,
-      ""
-    );
-
-    if (description) {
-      const desc = document.createElement("p");
-      desc.className = "media-card-detail";
-      desc.textContent = description;
-      content.appendChild(desc);
-    }
-
-    /* Image creator and license details */
-    if (type === "images") {
-      const creator = makeText(
-        item.creator,
-        "Unknown creator"
+      const validItems = items.filter(item =>
+        item && typeof item === "object"
       );
 
-      const creatorLine = document.createElement("p");
-      creatorLine.className = "media-card-detail";
-      creatorLine.textContent = "Creator: " + creator;
-      content.appendChild(creatorLine);
-
-      const license = makeText(
-        item.license,
-        "Check license"
-      );
-
-      const licenseLine = document.createElement("p");
-      licenseLine.className = "media-card-detail";
-      licenseLine.textContent = "License: ";
-
-      const licenseUrl = safeUrl(item.license_url);
-
-      if (licenseUrl) {
-        const licenseLink = document.createElement("a");
-        licenseLink.href = licenseUrl;
-        licenseLink.target = "_blank";
-        licenseLink.rel = "noopener noreferrer";
-        licenseLink.textContent = license;
-        licenseLine.appendChild(licenseLink);
-      } else {
-        licenseLine.appendChild(
-          document.createTextNode(license)
-        );
+      if (!validItems.length) {
+        showStatus("कोई परिणाम नहीं मिला। दूसरा शब्द लिखकर खोजें।");
+        return;
       }
 
-      content.appendChild(licenseLine);
+      validItems.forEach(item => {
+        const title = makeText(
+          item.title || item.name || item.label,
+          "बिना शीर्षक का परिणाम"
+        );
+
+        const url = safeUrl(
+          item.url || item.link || item.href || item.website
+        );
+
+        const description = makeText(
+          item.description || item.snippet || item.summary || item.text,
+          "अतिरिक्त जानकारी उपलब्ध नहीं है।"
+        );
+
+        const source = makeText(
+          item.source || item.category || item.type,
+          ""
+        );
+
+        const card = document.createElement("article");
+        card.className = "result-card";
+
+        const heading = document.createElement("h4");
+
+        if (url) {
+          const link = document.createElement("a");
+          link.href = url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = title;
+          heading.appendChild(link);
+        } else {
+          heading.textContent = title;
+        }
+
+        card.appendChild(heading);
+
+        if (url) {
+          const urlText = document.createElement("span");
+          urlText.className = "result-url";
+          urlText.textContent = url;
+          card.appendChild(urlText);
+        }
+
+        const desc = document.createElement("p");
+        desc.className = "result-description";
+        desc.textContent = description;
+        card.appendChild(desc);
+
+        if (source) {
+          const meta = document.createElement("div");
+          meta.className = "result-meta";
+          const badge = document.createElement("span");
+          badge.textContent = source;
+          meta.appendChild(badge);
+          card.appendChild(meta);
+        }
+
+        resultsList.appendChild(card);
+      });
+
+      resultsList.hidden = false;
+      statusMessage.hidden = true;
     }
 
-    const source = makeText(
-      item.source || item.publisher || item.channel,
-      ""
-    );
+    function renderMediaResults(items, type) {
+      clearResults();
 
-    if (source) {
-      const sourceLine = document.createElement("p");
-      sourceLine.className = "media-card-detail";
-      sourceLine.textContent = "Source: " + source;
-      content.appendChild(sourceLine);
+      const messages = {
+        images: "तस्वीरें नहीं मिलीं। दूसरा शब्द खोजकर देखें।",
+        videos: "वीडियो नहीं मिले। बाद में फिर कोशिश करें।",
+        news: "समाचार नहीं मिले। बाद में फिर कोशिश करें।"
+      };
+
+      const validItems = items.filter(item =>
+        item && typeof item === "object"
+      );
+
+      if (!validItems.length) {
+        showStatus(messages[type] || "कोई परिणाम नहीं मिला।");
+        return;
+      }
+
+      validItems.forEach(item => {
+        const title = makeText(
+          item.title || item.name || item.label || item.headline,
+          type === "images" ? "तस्वीर" :
+          type === "videos" ? "वीडियो" : "समाचार"
+        );
+
+        const url = safeUrl(
+          item.url || item.link || item.webpage_url ||
+          item.foreign_landing_url || item.article_url
+        );
+
+        const imageUrl = safeUrl(
+          item.thumbnail || item.thumbnail_url ||
+          item.image || item.image_url
+        );
+
+        const card = document.createElement("article");
+        card.className = "media-card";
+
+        if ((type === "images" || type === "videos") && imageUrl) {
+          const image = document.createElement("img");
+          image.className = "media-image";
+          image.src = imageUrl;
+          image.alt = title;
+          image.loading = "lazy";
+          image.referrerPolicy = "no-referrer";
+          image.addEventListener("error", () => {
+            image.hidden = true;
+          });
+
+          if (url) {
+            const imageLink = document.createElement("a");
+            imageLink.href = url;
+            imageLink.target = "_blank";
+            imageLink.rel = "noopener noreferrer";
+            imageLink.appendChild(image);
+            card.appendChild(imageLink);
+          } else {
+            card.appendChild(image);
+          }
+        }
+
+        const content = document.createElement("div");
+        content.className = "media-card-content";
+
+        const heading = document.createElement("h4");
+        heading.className = "media-card-title";
+
+        if (url) {
+          const link = document.createElement("a");
+          link.href = url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = title;
+          heading.appendChild(link);
+        } else {
+          heading.textContent = title;
+        }
+
+        content.appendChild(heading);
+
+        const description = makeText(
+          item.description || item.snippet || item.summary,
+          ""
+        );
+
+        if (description) {
+          const desc = document.createElement("p");
+          desc.className = "media-card-detail";
+          desc.textContent = description;
+          content.appendChild(desc);
+        }
+
+        if (type === "images") {
+          const creator = document.createElement("p");
+          creator.className = "media-card-detail";
+          creator.textContent = "Creator: " +
+            makeText(item.creator, "Unknown creator");
+          content.appendChild(creator);
+
+          const licenseLine = document.createElement("p");
+          licenseLine.className = "media-card-detail";
+          licenseLine.appendChild(document.createTextNode("License: "));
+
+          const license = makeText(item.license, "Check license");
+          const licenseUrl = safeUrl(item.license_url);
+
+          if (licenseUrl) {
+            const licenseLink = document.createElement("a");
+            licenseLink.href = licenseUrl;
+            licenseLink.target = "_blank";
+            licenseLink.rel = "noopener noreferrer";
+            licenseLink.textContent = license;
+            licenseLine.appendChild(licenseLink);
+          } else {
+            licenseLine.appendChild(document.createTextNode(license));
+          }
+
+          content.appendChild(licenseLine);
+        }
+
+        const source = makeText(
+          item.source || item.publisher || item.channel,
+          ""
+        );
+
+        if (source) {
+          const sourceLine = document.createElement("p");
+          sourceLine.className = "media-card-detail";
+          sourceLine.textContent = "Source: " + source;
+          content.appendChild(sourceLine);
+        }
+
+        if (url) {
+          const openLink = document.createElement("a");
+          openLink.className = "media-open-link";
+          openLink.href = url;
+          openLink.target = "_blank";
+          openLink.rel = "noopener noreferrer";
+          openLink.textContent =
+            type === "images" ? "तस्वीर का स्रोत खोलें ↗" :
+            type === "videos" ? "वीडियो देखें ↗" :
+            "पूरा समाचार पढ़ें ↗";
+          content.appendChild(openLink);
+        }
+
+        card.appendChild(content);
+        mediaGrid.appendChild(card);
+      });
+
+      mediaGrid.hidden = false;
+      statusMessage.hidden = true;
     }
 
-    if (url) {
-      const openLink = document.createElement("a");
-      openLink.className = "media-open-link";
-      openLink.href = url;
-      openLink.target = "_blank";
-      openLink.rel = "noopener noreferrer";
+    async function loadHomeNews() {
+      const requestNumber = ++searchRequestNumber;
 
-      openLink.textContent =
-        type === "images" ? "तस्वीर का स्रोत खोलें ↗" :
-        type === "videos" ? "वीडियो देखें ↗" :
-        "पूरा समाचार पढ़ें ↗";
+      clearResults();
+      resultsTitle.textContent = "📰 ताज़ा समाचार";
+      resultCount.textContent = "खबरें लोड हो रही हैं...";
+      showStatus("ताज़ा खबरें लोड हो रही हैं...", true);
 
-      content.appendChild(openLink);
+      try {
+        const data = await fetchJSON(API.news);
+
+        if (requestNumber !== searchRequestNumber) return;
+
+        if (data && data.success === false) {
+          throw new Error(data.error || "News loading failed");
+        }
+
+        const items = getArray(data);
+        resultCount.textContent = items.length + " खबरें";
+
+        renderMediaResults(items, "news");
+
+        if (!items.length) {
+          showStatus("अभी खबरें उपलब्ध नहीं हैं। बाद में फिर कोशिश करें।");
+        }
+      } catch (error) {
+        if (requestNumber !== searchRequestNumber) return;
+
+        console.error("Home news error:", error);
+        resultCount.textContent = "खबरें लोड नहीं हो सकीं";
+        showStatus("खबरें अभी लोड नहीं हो सकीं। पेज रीफ्रेश करके देखें।");
+      }
     }
 
-    card.appendChild(content);
-    mediaGrid.appendChild(card);
-  });
-
-  mediaGrid.hidden = false;
-  statusMessage.hidden = true;
-}
-
-/* Enter key ke saath quick search bhi kaam kare */
-searchInput.addEventListener("keydown", event => {
-  if (event.key === "Enter") {
-    suggestionsBox.classList.remove("show");
-  }
-});
-
-
-/* Initial page state */
-clearResults();
-
-resultsTitle.textContent = "ताज़ा समाचार";
-resultCount.textContent = "खबरें लोड हो रही हैं...";
-showStatus("ताज़ा खबरें लोड हो रही हैं...", true);
-
-async function loadHomeNews() {
-  try {
-    const data = await fetchJSON(API.news);
-    const items = getArray(data);
-
-    if (data && data.success === false) {
-      throw new Error(data.error || "News loading failed");
-    }
-
-    resultsTitle.textContent = "📰 ताज़ा समाचार";
-    resultCount.textContent = items.length + " खबरें";
-
-    renderMediaResults(items, "news");
-
-    if (items.length === 0) {
-      showStatus("अभी खबरें उपलब्ध नहीं हैं। बाद में फिर कोशिश करें।");
-    }
-  } catch (error) {
-    console.error("Home news error:", error);
-    resultsTitle.textContent = "📰 ताज़ा समाचार";
-    resultCount.textContent = "खबरें लोड नहीं हो सकीं";
-    showStatus("खबरें अभी लोड नहीं हो सकीं। पेज रीफ्रेश करके देखें।");
-  }
-}
-
-loadHomeNews();
-
-
+    /* Homepage par news automatically load karein */
+    loadHomeNews();
+  </script>
+</body>
+</html>
