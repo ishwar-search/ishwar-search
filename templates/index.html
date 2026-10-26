@@ -5,811 +5,375 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="Ishwar Search — इंटरनेट सेवाओं, वेबसाइटों, वीडियो और समाचार को आसानी से खोजें।">
-  <title>ISHWAR SEARCH — Smart Search</title>
+  <meta name="description" content="Ishwar Search — उपयोगी वेबसाइटों, वीडियो और समाचार को खोजने का आसान तरीका।">
+  <title>ISHWAR SEARCH | Smart Search</title>
+
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
 
   <style>
-    :root {
-      --bg: #ffffff;
-      --surface: #f7f9fc;
-      --text: #101828;
-      --muted: #667085;
-      --blue: #2563eb;
-      --blue-dark: #1748c7;
-      --border: #e6eaf0;
-      --radius: 20px;
-      --shadow: 0 12px 36px rgba(16, 24, 40, .07);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Inter, -apple-system, BlinkMacSystemFont,
-        "Segoe UI", Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    button, input {
-      font: inherit;
-    }
-
-    button, a {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    button:focus-visible,
-    a:focus-visible,
-    input:focus-visible {
-      outline: 3px solid #93b4ff;
-      outline-offset: 3px;
-    }
-
-    .page-shell {
-      width: min(1180px, 92%);
-      margin: 0 auto;
-    }
-
-    .topbar {
-      min-height: 86px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .brand-logo {
-      width: 46px;
-      height: 46px;
-      display: grid;
-      place-items: center;
-      flex: 0 0 46px;
-      overflow: hidden;
-      border-radius: 14px;
-      background: #fff;
-    }
-
-    .brand-logo img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    .brand-copy {
+    /* Home screen: only branding and search */
+    .home-screen {
+      min-height: calc(100vh - 150px);
       display: flex;
       flex-direction: column;
-      gap: 3px;
-    }
-
-    .brand-name {
-      font-size: 17px;
-      font-weight: 850;
-      letter-spacing: 1.2px;
-    }
-
-    .brand-owner {
-      color: var(--muted);
-      font-size: 11px;
-      letter-spacing: .2px;
-    }
-
-    .menu-button {
-      width: 44px;
-      height: 44px;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: #fff;
-      color: var(--text);
-      font-size: 23px;
-      cursor: pointer;
-    }
-
-    .menu-panel {
-      display: none;
-      position: absolute;
-      z-index: 10;
-      right: 4%;
-      top: 74px;
-      width: min(270px, 90vw);
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      background: #fff;
-      box-shadow: var(--shadow);
-    }
-
-    .menu-panel.open {
-      display: grid;
-      gap: 4px;
-    }
-
-    .menu-panel a,
-    .menu-panel button {
-      padding: 12px;
-      border: 0;
-      border-radius: 10px;
-      background: transparent;
-      color: var(--text);
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .menu-panel a:hover,
-    .menu-panel button:hover {
-      background: var(--surface);
-    }
-
-    .hero {
-      min-height: 580px;
-      padding: 105px 0 75px;
-      display: flex;
       align-items: center;
-      flex-direction: column;
+      justify-content: center;
+      padding: 50px 0 100px;
       text-align: center;
     }
 
-    .hero-label {
+    .home-screen .hero-label {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 13px;
+      padding: 8px 14px;
       border: 1px solid #dbe7ff;
       border-radius: 999px;
       background: #f3f7ff;
-      color: var(--blue-dark);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .3px;
+      color: #1748c7;
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: 1px;
     }
 
-    .hero h1 {
-      margin: 25px 0 12px;
-      font-size: clamp(37px, 6vw, 66px);
+    .home-screen h1 {
+      margin: 24px 0 12px;
+      font-size: clamp(40px, 7vw, 70px);
       line-height: 1.08;
-      letter-spacing: -2.8px;
       font-weight: 850;
+      letter-spacing: -2.5px;
     }
 
-    .hero h1 span {
-      color: var(--blue);
+    .home-screen h1 span {
+      color: #2563eb;
     }
 
-    .hero-description {
-      max-width: 550px;
+    .home-description {
+      max-width: 520px;
       margin: 0 auto;
-      color: var(--muted);
-      font-size: 16px;
+      color: #667085;
+      font-size: 15px;
       line-height: 1.8;
     }
 
-    .search-wrap {
-      width: min(760px, 100%);
-      margin-top: 38px;
+    .main-search-wrap {
       position: relative;
+      width: min(740px, 100%);
+      margin-top: 35px;
     }
 
-    .search-form {
+    .main-search-form {
       display: flex;
       align-items: center;
       gap: 10px;
-      width: 100%;
-      padding: 8px;
+      padding: 8px 8px 8px 18px;
       border: 1px solid #dce3ee;
       border-radius: 22px;
       background: #fff;
-      box-shadow: 0 12px 35px rgba(37, 99, 235, .09);
+      box-shadow: 0 12px 38px rgba(37, 99, 235, .10);
       transition: border-color .2s, box-shadow .2s;
     }
 
-    .search-form:focus-within {
+    .main-search-form:focus-within {
       border-color: #91b4ff;
-      box-shadow: 0 12px 40px rgba(37, 99, 235, .15);
+      box-shadow: 0 12px 40px rgba(37, 99, 235, .16);
     }
 
-    .search-icon {
-      padding-left: 12px;
-      color: var(--muted);
-      font-size: 22px;
+    .main-search-icon {
+      color: #667085;
+      font-size: 24px;
+      flex-shrink: 0;
     }
 
-    .search-form input {
+    .main-search-form input {
+      flex: 1;
       width: 100%;
       min-width: 0;
-      height: 48px;
+      height: 46px;
+      padding: 0 4px;
       border: 0;
-      outline: 0;
+      outline: none;
       background: transparent;
-      color: var(--text);
+      color: #101828;
       font-size: 16px;
     }
 
-    .search-form input:focus-visible {
+    .main-search-form input:focus-visible {
       outline: none;
     }
 
-    .search-form input::placeholder {
-      color: #98a2b3;
-    }
-
-    .search-submit {
-      min-height: 48px;
-      padding: 0 24px;
+    .main-search-form button {
+      min-height: 46px;
+      padding: 0 23px;
       flex-shrink: 0;
       border: 0;
       border-radius: 15px;
-      background: var(--blue);
+      background: #2563eb;
       color: #fff;
       font-weight: 700;
       cursor: pointer;
-      transition: background .2s, transform .2s;
     }
 
-    .search-submit:hover {
-      background: var(--blue-dark);
-      transform: translateY(-1px);
+    .main-search-form button:hover {
+      background: #1748c7;
     }
 
-    .suggestions {
+    .search-suggestions {
       position: absolute;
-      z-index: 8;
+      z-index: 20;
       top: calc(100% + 8px);
       left: 0;
       right: 0;
       display: none;
       padding: 8px;
-      border: 1px solid var(--border);
+      border: 1px solid #e5eaf2;
       border-radius: 16px;
       background: #fff;
-      box-shadow: var(--shadow);
+      box-shadow: 0 12px 30px rgba(16, 24, 40, .09);
       text-align: left;
     }
 
-    .suggestions.show {
+    .search-suggestions.show {
       display: block;
     }
 
-    .suggestion-item {
-      width: 100%;
+    .search-suggestions button {
       display: block;
+      width: 100%;
       padding: 12px;
       border: 0;
       border-radius: 10px;
       background: transparent;
-      color: var(--text);
+      color: #101828;
       text-align: left;
       cursor: pointer;
     }
 
-    .suggestion-item:hover {
-      background: var(--surface);
+    .search-suggestions button:hover {
+      background: #f0f5ff;
     }
 
-    .hero-note {
-      margin-top: 20px;
+    .home-note {
+      margin-top: 19px;
       color: #98a2b3;
       font-size: 12px;
+      letter-spacing: .3px;
     }
 
-    .section {
-      padding: 35px 0;
+    /* Search tabs only appear after a search */
+    .search-results-area {
+      width: 100%;
+      padding: 10px 0 50px;
     }
 
-    .section-heading {
-      margin: 0 0 8px;
-      font-size: clamp(23px, 3vw, 32px);
-      letter-spacing: -.8px;
-    }
-
-    .section-description {
-      margin: 0 0 24px;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-
-    .hidden {
+    .search-results-area[hidden],
+    .home-screen[hidden] {
       display: none !important;
     }
 
-    /* Search results */
-    .results-section {
-      padding: 24px 0 40px;
-      min-height: 80px;
-    }
-
-    .results-heading {
+    .search-navigation {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 18px;
+      gap: 28px;
+      overflow-x: auto;
+      border-bottom: 1px solid #e5eaf2;
+      margin-bottom: 25px;
+      scrollbar-width: none;
     }
 
-    .results-heading h2 {
-      margin: 0;
+    .search-navigation::-webkit-scrollbar {
+      display: none;
+    }
+
+    .search-navigation button {
+      flex-shrink: 0;
+      padding: 13px 2px;
+      border: 0;
+      border-bottom: 3px solid transparent;
+      background: transparent;
+      color: #667085;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .search-navigation button.active {
+      border-bottom-color: #2563eb;
+      color: #2563eb;
+      font-weight: 750;
+    }
+
+    .search-result-heading {
+      margin: 0 0 18px;
       font-size: 23px;
-      letter-spacing: -.5px;
     }
 
-    .results-count {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .results-list {
+    .search-result-list {
       display: grid;
-      gap: 12px;
+      gap: 14px;
     }
 
-    .result-card {
-      padding: 20px;
-      border: 1px solid var(--border);
+    .search-result-card {
+      padding: 19px;
+      overflow-wrap: anywhere;
+      border: 1px solid #e5eaf2;
       border-radius: 17px;
       background: #fff;
-      transition: border-color .2s, transform .2s, box-shadow .2s;
     }
 
-    .result-card:hover {
-      border-color: #c5d7ff;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(16, 24, 40, .05);
-    }
-
-    .result-card h3 {
+    .search-result-card h3 {
       margin: 0 0 8px;
-      color: var(--blue-dark);
+      color: #1748c7;
       font-size: 18px;
-      overflow-wrap: anywhere;
     }
 
-    .result-card p {
+    .search-result-card p {
       margin: 8px 0;
-      color: var(--muted);
+      color: #667085;
       font-size: 14px;
-      line-height: 1.7;
-      overflow-wrap: anywhere;
+      line-height: 1.75;
     }
 
-    .result-url {
-      color: #16805d;
+    .search-result-card .result-url {
+      color: #13805c;
       font-size: 12px;
       overflow-wrap: anywhere;
     }
 
-    .result-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 14px;
+    .search-result-card a {
+      color: #2563eb;
     }
 
-    .small-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 9px 13px;
-      border: 1px solid var(--border);
-      border-radius: 11px;
-      background: #fff;
-      color: var(--text);
-      font-size: 13px;
-      font-weight: 650;
-      cursor: pointer;
-    }
-
-    .small-button.primary {
-      border-color: var(--blue);
-      background: var(--blue);
-      color: #fff;
-    }
-
-    .empty-state {
-      padding: 35px 20px;
-      border: 1px dashed #d7deea;
-      border-radius: 18px;
-      color: var(--muted);
-      text-align: center;
-      line-height: 1.8;
-    }
-
-    .loading {
-      padding: 24px;
-      color: var(--muted);
+    .search-status {
+      padding: 24px 10px;
+      color: #667085;
       text-align: center;
     }
 
-    /* Feature cards */
-    .feature-grid {
+    .media-results-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
     }
 
-    .feature-card {
-      min-height: 155px;
-      padding: 23px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: #fff;
-      transition: transform .2s, box-shadow .2s, border-color .2s;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-3px);
-      border-color: #cbdcff;
-      box-shadow: var(--shadow);
-    }
-
-    .feature-icon {
-      width: 43px;
-      height: 43px;
-      display: grid;
-      place-items: center;
-      margin-bottom: 17px;
-      border-radius: 14px;
-      background: #edf3ff;
-      color: var(--blue);
-      font-size: 21px;
-    }
-
-    .feature-card h3 {
-      margin: 0 0 8px;
-      font-size: 16px;
-    }
-
-    .feature-card p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
-    }
-
-    /* Video and news */
-    .media-tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-
-    .tab-button {
-      padding: 10px 16px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: #fff;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .tab-button.active {
-      border-color: var(--blue);
-      background: var(--blue);
-      color: #fff;
-    }
-
-    .media-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 17px;
-    }
-
-    .media-card {
+    .media-result-card {
+      min-width: 0;
       overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: 17px;
+      border: 1px solid #e5eaf2;
+      border-radius: 16px;
       background: #fff;
-      transition: transform .2s, box-shadow .2s;
     }
 
-    .media-card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow);
-    }
-
-    .media-thumb {
+    .media-result-card img {
+      display: block;
       width: 100%;
       aspect-ratio: 16 / 9;
-      display: block;
       object-fit: cover;
-      background: #eef2f8;
+      background: #f0f3f8;
     }
 
-    .media-content {
-      padding: 15px;
+    .media-result-card .media-info {
+      padding: 14px;
     }
 
-    .media-content h3 {
+    .media-result-card h3 {
       margin: 0 0 8px;
       font-size: 15px;
       line-height: 1.55;
-      overflow-wrap: anywhere;
     }
 
-    .media-content p {
-      margin: 0;
-      color: var(--muted);
+    .media-result-card p {
+      color: #667085;
       font-size: 12px;
-      line-height: 1.6;
     }
 
-    .media-content a {
-      display: inline-block;
-      margin-top: 12px;
-      color: var(--blue);
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .media-search-form {
-      display: flex;
-      gap: 10px;
-      margin: 0 0 20px;
-    }
-
-    .media-search-form input {
-      width: 100%;
-      min-width: 0;
-      padding: 13px 15px;
-      border: 1px solid var(--border);
-      border-radius: 13px;
-      background: #fff;
-      color: var(--text);
-    }
-
-    .media-search-form button {
-      padding: 0 18px;
-      border: 0;
-      border-radius: 13px;
-      background: var(--blue);
-      color: #fff;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* Quick links */
-    .quick-links {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .quick-link {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-      padding: 15px;
-      border: 1px solid var(--border);
-      border-radius: 15px;
-      background: #fff;
-      font-size: 13px;
+    .media-result-card a {
+      color: #2563eb;
       font-weight: 650;
-      overflow-wrap: anywhere;
-      transition: border-color .2s, background .2s;
-    }
-
-    .quick-link:hover {
-      border-color: #b9ceff;
-      background: #f8faff;
-    }
-
-    .quick-link span:first-child {
-      font-size: 21px;
-    }
-
-    /* Owner and footer */
-    .owner-panel {
-      margin: 45px 0 25px;
-      padding: 32px;
-      border: 1px solid #dbe7ff;
-      border-radius: 24px;
-      background: linear-gradient(135deg, #f4f8ff, #fff);
-      text-align: center;
-    }
-
-    .owner-panel .owner-label {
-      margin: 0 0 10px;
-      color: var(--blue);
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .owner-panel h2 {
-      margin: 0;
-      font-size: 27px;
-      letter-spacing: -.8px;
-    }
-
-    .owner-panel p {
-      margin: 10px 0 0;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.7;
     }
 
     .site-footer {
-      padding: 28px 0 35px;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
+      padding: 22px 0;
+      border-top: 1px solid #e5eaf2;
+      color: #667085;
       text-align: center;
       font-size: 12px;
-      line-height: 1.9;
     }
 
-    .footer-brand {
-      margin-bottom: 7px;
-      color: var(--text);
-      font-size: 14px;
-      font-weight: 850;
+    .site-footer strong {
+      color: #101828;
       letter-spacing: 2px;
     }
 
-    .site-footer p {
-      margin: 5px 0;
-    }
-
-    .site-footer a {
-      color: var(--blue);
-    }
-
-    /* Responsive layout */
-    @media (max-width: 760px) {
-      .hero {
-        min-height: auto;
-        padding: 78px 0 65px;
+    @media (max-width: 600px) {
+      .home-screen {
+        min-height: calc(100svh - 125px);
+        padding: 40px 0 65px;
       }
 
-      .hero h1 {
+      .home-screen h1 {
+        font-size: 42px;
         letter-spacing: -1.8px;
       }
 
-      .feature-grid,
-      .media-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .quick-links {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .section {
-        padding: 25px 0;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .page-shell {
-        width: 91%;
-      }
-
-      .topbar {
-        min-height: 72px;
-      }
-
-      .brand-logo {
-        width: 40px;
-        height: 40px;
-        flex-basis: 40px;
-      }
-
-      .brand-name {
+      .home-description {
         font-size: 14px;
       }
 
-      .hero {
-        padding: 68px 0 50px;
+      .main-search-wrap {
+        margin-top: 27px;
       }
 
-      .hero h1 {
-        font-size: 39px;
-      }
-
-      .hero-description {
-        font-size: 14px;
-      }
-
-      .search-wrap {
-        margin-top: 28px;
-      }
-
-      .search-form {
-        gap: 5px;
-        padding: 6px;
+      .main-search-form {
+        gap: 6px;
+        padding: 6px 6px 6px 12px;
         border-radius: 17px;
       }
 
-      .search-form input {
+      .main-search-form input {
         font-size: 14px;
       }
 
-      .search-submit {
-        min-height: 44px;
-        padding: 0 14px;
+      .main-search-form button {
+        min-height: 43px;
+        padding: 0 13px;
         font-size: 13px;
       }
 
-      .feature-grid,
-      .media-grid {
-        grid-template-columns: 1fr;
+      .search-navigation {
+        gap: 22px;
       }
 
-      .owner-panel {
-        padding: 25px 17px;
+      .media-results-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
       }
 
-      .owner-panel h2 {
-        font-size: 23px;
-      }
-
-      .media-search-form {
-        gap: 7px;
-      }
-
-      .media-search-form button {
-        padding: 0 12px;
+      .search-result-card {
+        padding: 15px;
       }
     }
-</style>
+  </style>
 </head>
 
 <body>
-  <header class="topbar page-shell">
+  <header class="page-shell topbar">
     <a class="brand" href="/" aria-label="Ishwar Search home">
       <span class="brand-logo">
         <img
           src="{{ url_for('static', filename='logo.png') }}"
-          alt="Ishwar Search logo"
-          onerror="this.style.display='none';this.parentElement.textContent='I'">
+          alt="Ishwar Search logo">
       </span>
+
       <span class="brand-copy">
         <span class="brand-name">ISHWAR SEARCH</span>
-        <span class="brand-owner">An easier way to explore</span>
+        <span class="brand-owner">Created by Ishwar Ghanchi</span>
       </span>
     </a>
-
-    <button class="menu-button" id="menuToggle"
-      type="button" aria-label="Open menu" aria-expanded="false">
-      ☰
-    </button>
-
-    <nav class="menu-panel" id="menuPanel" aria-label="Main menu">
-      <a href="#searchResults">Search Results</a>
-      <a href="#features">Explore Services</a>
-      <a href="#videos">Videos</a>
-      <a href="#news">News</a>
-      <a href="#about">About the Founder</a>
-    </nav>
   </header>
 
   <main class="page-shell">
-    <section class="hero" id="home">
+    <section class="home-screen" id="homeScreen">
       <div class="hero-label">
         <span aria-hidden="true">✦</span>
         SMART SEARCH EXPERIENCE
@@ -817,14 +381,15 @@
 
       <h1>Search smarter.<br><span>Explore more.</span></h1>
 
-      <p class="hero-description">
-        वेबसाइट, ऑनलाइन सेवाएँ, वीडियो और समाचार —
-        अपनी ज़रूरत की चीज़ें एक ही जगह से खोजें।
+      <p class="home-description">
+        वेबसाइट, ऑनलाइन जानकारी, वीडियो और समाचार
+        खोजें — एक ही जगह से।
       </p>
 
-      <div class="search-wrap">
-        <form class="search-form" id="searchForm" role="search">
-          <span class="search-icon" aria-hidden="true">⌕</span>
+      <div class="main-search-wrap">
+        <form class="main-search-form" id="searchForm" role="search">
+          <span class="main-search-icon" aria-hidden="true">⌕</span>
+
           <input
             id="searchInput"
             name="q"
@@ -832,135 +397,303 @@
             placeholder="यहाँ कुछ भी खोजें..."
             autocomplete="off"
             aria-label="Search Ishwar Search">
-          <button class="search-submit" type="submit">खोजें ↗</button>
+
+          <button type="submit">खोजें ↗</button>
         </form>
-        <div class="suggestions" id="suggestions"
-          role="listbox" aria-label="Search suggestions"></div>
+
+        <div
+          class="search-suggestions"
+          id="suggestions"
+          role="listbox"
+          aria-label="Search suggestions"></div>
       </div>
 
-      <p class="hero-note">Simple · Fast · Easy to use</p>
+      <p class="home-note">Simple · Smart · Easy to use</p>
     </section>
 
-    <section class="results-section hidden" id="searchResults"
-      aria-live="polite">
-      <div class="results-heading">
-        <h2 id="resultsTitle">खोज परिणाम</h2>
-        <span class="results-count" id="resultsCount"></span>
-      </div>
-      <div class="results-list" id="resultsList"></div>
-    </section>
+<!-- PART 2/3: SEARCH RESULTS + FOOTER -->
 
-    <section class="section" id="features">
-      <h2 class="section-heading">Explore more</h2>
-      <p class="section-description">
-        अपनी ज़रूरत के अनुसार अलग-अलग सेवाओं और जानकारी तक पहुँचें।
-      </p>
+<style>
+  /* Search karne ke baad compact Google-style layout */
+  .home-screen.searching {
+    min-height: auto;
+    padding-top: 24px;
+    padding-bottom: 0;
+  }
 
-      <div class="feature-grid">
-        <a class="feature-card" href="#searchResults"
-          data-search="Rajasthan government services">
-          <div class="feature-icon">⌕</div>
-          <h3>Smart Search</h3>
-          <p>वेबसाइटों और उपयोगी ऑनलाइन सेवाओं को खोजें।</p>
-        </a>
+  .home-screen.searching .hero-label,
+  .home-screen.searching .home-description,
+  .home-screen.searching .home-note {
+    display: none;
+  }
 
-        <a class="feature-card" href="#videos" data-open-videos>
-          <div class="feature-icon">▷</div>
-          <h3>Video Explorer</h3>
-          <p>अपनी पसंद के वीडियो और सीखने की सामग्री खोजें।</p>
-        </a>
+  .home-screen.searching h1 {
+    display: none;
+  }
 
-        <a class="feature-card" href="#news" data-open-news>
-          <div class="feature-icon">▤</div>
-          <h3>News Explorer</h3>
-          <p>समाचार से जुड़ी जानकारी और अपडेट देखें।</p>
-        </a>
-      </div>
-    </section>
+  .home-screen.searching .main-search-wrap {
+    margin-top: 0;
+    margin-bottom: 18px;
+  }
 
-    <section class="section" id="quickLinks">
-      <h2 class="section-heading">Popular searches</h2>
-      <p class="section-description">
-        शुरुआत करने के लिए कोई विषय चुनें।
-      </p>
+  .home-screen.searching .brand-logo {
+    width: 48px;
+    height: 48px;
+  }
 
-      <div class="quick-links">
-        <a class="quick-link" href="#searchResults"
-          data-search="Rajasthan government jobs">
-          <span>💼</span><span>Government Jobs</span>
-        </a>
-        <a class="quick-link" href="#searchResults"
-          data-search="Railway recruitment">
-          <span>🚆</span><span>Railway Jobs</span>
-        </a>
-        <a class="quick-link" href="#searchResults"
-          data-search="Scholarship India">
-          <span>🎓</span><span>Scholarships</span>
-        </a>
-        <a class="quick-link" href="#searchResults"
-          data-search="Aadhaar official website">
-          <span>🪪</span><span>Aadhaar Services</span>
-        </a>
-      </div>
-    </section>
+  .home-screen.searching .brand-title {
+    font-size: 25px;
+  }
 
-    <section class="section" id="videos">
-      <h2 class="section-heading">Video Explorer</h2>
-      <p class="section-description">
-        YouTube पर उपलब्ध वीडियो खोजें।
-      </p>
+  .search-navigation {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #e5eaf2;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+  }
 
-      <form class="media-search-form" id="videoSearchForm">
-        <input id="videoSearchInput" type="search"
-          placeholder="वीडियो का विषय लिखें..."
-          aria-label="Search videos">
-        <button type="submit">खोजें</button>
-      </form>
+  .search-navigation button {
+    border: 0;
+    background: transparent;
+    color: #5d687b;
+    padding: 11px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+  }
 
-      <div class="media-grid" id="videoGrid">
-        <div class="empty-state">
-          वीडियो देखने के लिए ऊपर अपना विषय लिखकर खोजें।
-        </div>
-      </div>
-    </section>
+  .search-navigation button:hover {
+    background: #edf4ff;
+    color: #1769e0;
+  }
 
-    <section class="section" id="news">
-      <h2 class="section-heading">News Explorer</h2>
-      <p class="section-description">
-        समाचार खोजने के लिए विषय लिखें।
-      </p>
+  .search-navigation button.active {
+    background: #eaf2ff;
+    color: #1769e0;
+  }
 
-      <form class="media-search-form" id="newsSearchForm">
-        <input id="newsSearchInput" type="search"
-          placeholder="जैसे: Rajasthan news..."
-          aria-label="Search news">
-        <button type="submit">खोजें</button>
-      </form>
+  .search-status {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0 0 18px;
+  }
 
-      <div class="media-grid" id="newsGrid">
-        <div class="empty-state">
-          समाचार खोजने के लिए ऊपर अपना विषय लिखें।
-        </div>
-      </div>
-    </section>
+  .search-result-list {
+    display: grid;
+    gap: 18px;
+    max-width: 850px;
+  }
 
-    <section class="owner-panel" id="about">
-      <p class="owner-label">Created by</p>
-      <h2>Ishwar Ghanchi</h2>
-      <p>
-        Ishwar Search — एक स्वतंत्र खोज परियोजना,
-        जिसे उपयोगी ऑनलाइन जानकारी तक पहुँच आसान बनाने के उद्देश्य से बनाया गया है।
-      </p>
-    </section>
-  </main>
+  .search-result-card {
+    padding: 20px;
+    border: 1px solid #e7edf5;
+    border-radius: 16px;
+    background: #fff;
+    transition: border-color .2s, box-shadow .2s;
+  }
 
-  <footer class="site-footer page-shell">
-    <div class="footer-brand">ISHWAR GHANCHI</div>
-    <p>ISHWAR SEARCH — Smart Search Experience</p>
-    <p>© <span id="currentYear"></span> Ishwar Ghanchi</p>
-    <p>कुछ परिणाम बाहरी वेबसाइटों पर खुल सकते हैं।</p>
-  </footer>
+  .search-result-card:hover {
+    border-color: #bfd5ff;
+    box-shadow: 0 8px 24px rgba(34, 87, 160, .07);
+  }
 
+  .search-result-card a {
+    color: #1769e0;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .search-result-card a:hover {
+    text-decoration: underline;
+  }
+
+  .search-result-card h3 {
+    font-size: 19px;
+    font-weight: 650;
+    line-height: 1.45;
+    margin: 8px 0;
+  }
+
+  .search-result-card p {
+    color: #526176;
+    font-size: 14px;
+    line-height: 1.75;
+    margin: 0;
+  }
+
+  .result-url {
+    color: #64748b;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+
+  .media-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 18px;
+  }
+
+  .media-result-card {
+    border: 1px solid #e7edf5;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .media-result-card a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .media-result-card img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+    background: #edf2f8;
+  }
+
+  .media-result-card h3 {
+    font-size: 15px;
+    line-height: 1.5;
+    padding: 12px;
+    margin: 0;
+  }
+
+  .image-search-note {
+    max-width: 850px;
+    padding: 22px;
+    border: 1px solid #e7edf5;
+    border-radius: 16px;
+    background: #fff;
+    line-height: 1.7;
+  }
+
+  .image-search-note a {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 16px;
+    background: #1769e0;
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+  }
+
+  .site-footer {
+    border-top: 1px solid #e7edf5;
+    margin-top: 55px;
+    padding: 24px 16px;
+    text-align: center;
+    color: #64748b;
+    font-size: 12px;
+    letter-spacing: 2px;
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .search-navigation {
+      gap: 2px;
+    }
+
+    .search-navigation button {
+      padding: 10px 11px;
+      font-size: 13px;
+    }
+
+    .search-result-card {
+      padding: 15px;
+    }
+
+    .search-result-card h3 {
+      font-size: 17px;
+    }
+
+    .media-results-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .media-result-card h3 {
+      font-size: 13px;
+      padding: 10px;
+    }
+  }
+</style>
+
+<!-- Search results: hidden until the user searches -->
+<section
+  class="search-results-area"
+  id="searchResults"
+  hidden
+  aria-live="polite"
+>
+  <nav class="search-navigation" aria-label="Search categories">
+    <button type="button" class="active" data-search-tab="all">
+      All
+    </button>
+
+    <button type="button" data-search-tab="images">
+      Images
+    </button>
+
+    <button type="button" data-search-tab="videos">
+      Videos
+    </button>
+
+    <button type="button" data-search-tab="news">
+      News
+    </button>
+  </nav>
+
+  <h2 class="search-result-heading" id="resultsTitle">
+    खोज परिणाम
+  </h2>
+
+  <p class="search-status" id="resultsStatus" role="status">
+    खोज शुरू करने के लिए लिखें।
+  </p>
+
+  <div class="search-result-list" id="resultsList"></div>
+
+  <div
+    class="media-results-grid"
+    id="mediaResults"
+    hidden
+  ></div>
+
+  <div
+    class="image-search-note"
+    id="imageSearchNote"
+    hidden
+  >
+    <strong>Images खोजें</strong>
+    <p>
+      तस्वीरों के परिणाम देखने के लिए नीचे दिए गए बटन से
+      बाहरी इमेज सर्च खोलें।
+    </p>
+    <a
+      id="imageSearchLink"
+      href="https://www.bing.com/images/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      तस्वीरें देखें ↗
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  ISHWAR GHANCHI
+</footer>
+
+  
 <script>
 (() => {
   "use strict";
@@ -969,29 +702,61 @@
 
   const searchForm = $("#searchForm");
   const searchInput = $("#searchInput");
-  const suggestions = $("#suggestions");
-  const resultsSection = $("#searchResults");
+  const homeScreen = $("#homeScreen");
+  const searchResults = $("#searchResults");
   const resultsTitle = $("#resultsTitle");
-  const resultsCount = $("#resultsCount");
+  const resultsStatus = $("#resultsStatus");
   const resultsList = $("#resultsList");
+  const mediaResults = $("#mediaResults");
+  const imageSearchNote = $("#imageSearchNote");
+  const imageSearchLink = $("#imageSearchLink");
+  const suggestionsBox = $("#suggestions");
 
-  const videoForm = $("#videoSearchForm");
-  const videoInput = $("#videoSearchInput");
-  const videoGrid = $("#videoGrid");
+  if (
+    !searchForm ||
+    !searchInput ||
+    !homeScreen ||
+    !searchResults ||
+    !resultsStatus ||
+    !resultsList
+  ) {
+    console.error("Ishwar Search: required HTML elements are missing.");
+    return;
+  }
 
-  const newsForm = $("#newsSearchForm");
-  const newsInput = $("#newsSearchInput");
-  const newsGrid = $("#newsGrid");
+  let currentQuery = "";
+  let currentTab = "all";
+  let suggestionTimer = null;
+  let requestNumber = 0;
 
-  const menuToggle = $("#menuToggle");
-  const menuPanel = $("#menuPanel");
+  const API = {
+    all: "/api/search",
+    videos: "/api/videos",
+    news: "/api/news",
+    suggestions: "/api/suggestions"
+  };
 
-  $("#currentYear").textContent = new Date().getFullYear();
+  function makeUrl(path, query) {
+    return path + "?q=" + encodeURIComponent(query);
+  }
 
-  let suggestionTimer;
-  let activeRequest = 0;
+  function safeUrl(value) {
+    if (typeof value !== "string" || !value.trim()) return "";
 
-  function escapeHTML(value) {
+    try {
+      const url = new URL(value, window.location.origin);
+
+      if (url.protocol !== "http:" && url.protocol !== "https:") {
+        return "";
+      }
+
+      return url.href;
+    } catch {
+      return "";
+    }
+  }
+
+  function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>"']/g, (char) => ({
       "&": "&amp;",
       "<": "&lt;",
@@ -1001,389 +766,372 @@
     })[char]);
   }
 
-  function safeURL(value) {
-    try {
-      const url = new URL(String(value || ""), window.location.origin);
-      if (url.protocol === "https:" || url.protocol === "http:") {
-        return url.href;
-      }
-    } catch (_) {}
-    return "";
-  }
-
-  function getFirst(item, keys, fallback = "") {
-    for (const key of keys) {
-      if (item && item[key] !== undefined && item[key] !== null) {
-        return item[key];
-      }
-    }
-    return fallback;
-  }
-
-  async function getJSON(url) {
-    const response = await fetch(url, {
-      headers: { "Accept": "application/json" }
-    });
-
-    if (!response.ok) {
-      throw new Error("Server response: " + response.status);
-    }
-
-    return response.json();
-  }
-
-  function normalizeResults(data) {
+  function getArray(data) {
     if (Array.isArray(data)) return data;
 
-    for (const key of ["results", "items", "data", "links"]) {
-      if (Array.isArray(data?.[key])) return data[key];
+    if (!data || typeof data !== "object") return [];
+
+    for (const key of [
+      "results",
+      "items",
+      "data",
+      "links",
+      "videos",
+      "news",
+      "articles",
+      "suggestions"
+    ]) {
+      if (Array.isArray(data[key])) return data[key];
     }
 
     return [];
   }
 
-  function renderResults(items) {
+  function getTitle(item) {
+    if (typeof item === "string") return item;
+
+    return item?.title ||
+      item?.name ||
+      item?.heading ||
+      item?.headline ||
+      item?.text ||
+      item?.query ||
+      "बिना शीर्षक का परिणाम";
+  }
+
+  function getDescription(item) {
+    if (typeof item === "string") return "";
+
+    return item?.description ||
+      item?.snippet ||
+      item?.summary ||
+      item?.content ||
+      item?.text ||
+      "";
+  }
+
+  function getLink(item) {
+    if (typeof item === "string") return "";
+
+    return safeUrl(
+      item?.url ||
+      item?.link ||
+      item?.href ||
+      item?.web_url ||
+      item?.video_url ||
+      item?.watch_url ||
+      ""
+    );
+  }
+
+  function getImage(item) {
+    if (!item || typeof item !== "object") return "";
+
+    return safeUrl(
+      item.thumbnail ||
+      item.thumbnail_url ||
+      item.image ||
+      item.image_url ||
+      item.thumbnailUrl ||
+      item.snippet?.thumbnails?.medium?.url ||
+      item.snippet?.thumbnails?.default?.url ||
+      ""
+    );
+  }
+
+  function showStatus(message) {
+    resultsStatus.textContent = message;
+    resultsStatus.hidden = false;
+  }
+
+  function clearResults() {
+    resultsList.replaceChildren();
+    mediaResults.replaceChildren();
+    mediaResults.hidden = true;
+    imageSearchNote.hidden = true;
+    resultsList.hidden = false;
+  }
+
+  function renderWebResults(items) {
+    clearResults();
+
     if (!items.length) {
-      resultsList.innerHTML = `
-        <div class="empty-state">
-          <strong>कोई परिणाम नहीं मिला।</strong><br>
-          दूसरा शब्द लिखकर खोजें या वर्तनी जाँचें।
-        </div>`;
-      resultsCount.textContent = "0 results";
+      showStatus("इस खोज के लिए कोई परिणाम नहीं मिला। दूसरा शब्द लिखकर देखें।");
       return;
     }
 
-    resultsCount.textContent = `${items.length} results`;
+    const fragment = document.createDocumentFragment();
 
-    resultsList.innerHTML = items.map((item) => {
-      const title = getFirst(
-        item, ["title", "name", "heading"], "Untitled result"
-      );
-      const description = getFirst(
-        item, ["description", "snippet", "summary"], ""
-      );
-      const rawURL = getFirst(
-        item, ["url", "link", "href"], ""
-      );
-      const url = safeURL(rawURL);
+    items.forEach((item) => {
+      const title = getTitle(item);
+      const description = getDescription(item);
+      const link = getLink(item);
+      const host = document.createElement("article");
 
-      return `
-        <article class="result-card">
-          <h3>${escapeHTML(title)}</h3>
-          ${url ? `<div class="result-url">${escapeHTML(url)}</div>` : ""}
-          <p>${escapeHTML(description)}</p>
-          ${url ? `
-            <div class="result-actions">
-              <a class="small-button primary"
-                 href="${escapeHTML(url)}"
-                 target="_blank"
-                 rel="noopener noreferrer">Open website ↗</a>
-            </div>` : ""}
-        </article>`;
-    }).join("");
+      host.className = "search-result-card";
+
+      const safeTitle = escapeHtml(title);
+      const safeDescription = escapeHtml(description);
+
+      if (link) {
+        let hostname = "";
+
+        try {
+          hostname = new URL(link).hostname;
+        } catch {}
+
+        host.innerHTML = `
+          <div class="result-url">${escapeHtml(hostname)}</div>
+          <h3><a href="${escapeHtml(link)}"
+             target="_blank" rel="noopener noreferrer">${safeTitle}</a></h3>
+          <p>${safeDescription}</p>
+        `;
+      } else {
+        host.innerHTML = `
+          <h3>${safeTitle}</h3>
+          <p>${safeDescription}</p>
+        `;
+      }
+
+      fragment.appendChild(host);
+    });
+
+    resultsList.appendChild(fragment);
+    showStatus("कुल " + items.length + " परिणाम");
   }
 
-  async function performSearch(query) {
-    const q = String(query || "").trim();
-    if (!q) {
+  function renderMediaResults(items, type) {
+    clearResults();
+
+    const usableItems = items.filter((item) => {
+      if (type === "videos") return Boolean(getLink(item));
+      return Boolean(getImage(item) || getLink(item));
+    });
+
+    if (!usableItems.length) {
+      showStatus(
+        type === "videos"
+          ? "अभी वीडियो परिणाम नहीं मिले। API का उत्तर और सर्वर लॉग जाँचें।"
+          : "अभी समाचार परिणाम नहीं मिले। दूसरा शब्द खोजकर देखें।"
+      );
+      return;
+    }
+
+    mediaResults.hidden = false;
+    resultsList.hidden = true;
+
+    const fragment = document.createDocumentFragment();
+
+    usableItems.forEach((item) => {
+      const title = getTitle(item);
+      const description = getDescription(item);
+      const link = getLink(item);
+      const thumbnail = getImage(item);
+      const card = document.createElement("article");
+
+      card.className = "media-result-card";
+
+      const safeTitle = escapeHtml(title);
+
+      if (link) {
+        const anchor = document.createElement("a");
+        anchor.href = link;
+        anchor.target = "_blank";
+        anchor.rel = "noopener noreferrer";
+
+        if (thumbnail) {
+          const img = document.createElement("img");
+          img.src = thumbnail;
+          img.alt = title;
+          img.loading = "lazy";
+          img.onerror = () => img.remove();
+          anchor.appendChild(img);
+        }
+
+        const heading = document.createElement("h3");
+        heading.textContent = title;
+        anchor.appendChild(heading);
+
+        if (description) {
+          const detail = document.createElement("p");
+          detail.textContent = description;
+          detail.style.padding = "0 12px 12px";
+          anchor.appendChild(detail);
+        }
+
+        card.appendChild(anchor);
+      } else {
+        if (thumbnail) {
+          const img = document.createElement("img");
+          img.src = thumbnail;
+          img.alt = title;
+          img.loading = "lazy";
+          img.onerror = () => img.remove();
+          card.appendChild(img);
+        }
+
+        const heading = document.createElement("h3");
+        heading.textContent = title;
+        card.appendChild(heading);
+      }
+
+      fragment.appendChild(card);
+    });
+
+    mediaResults.appendChild(fragment);
+    showStatus("कुल " + usableItems.length + " परिणाम");
+  }
+
+  async function fetchJson(url) {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { "Accept": "application/json" }
+    });
+
+    if (!response.ok) {
+      throw new Error("Server error: " + response.status);
+    }
+
+    return response.json();
+  }
+
+  async function performSearch(query, tab = "all") {
+    query = String(query || "").trim();
+    if (!query) {
       searchInput.focus();
       return;
     }
 
-    searchInput.value = q;
-    suggestions.classList.remove("show");
-    suggestions.innerHTML = "";
-    menuPanel.classList.remove("open");
-    menuToggle.setAttribute("aria-expanded", "false");
+    currentQuery = query;
+    currentTab = tab;
 
-    resultsSection.classList.remove("hidden");
-    resultsTitle.textContent = `“${q}” के परिणाम`;
-    resultsCount.textContent = "Searching...";
-    resultsList.innerHTML = `<div class="loading">खोज जारी है…</div>`;
+    const thisRequest = ++requestNumber;
 
-    resultsSection.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
+    homeScreen.classList.add("searching");
+    searchResults.hidden = false;
+    resultsTitle.textContent = "“" + query + "” के परिणाम";
+    suggestionsBox?.replaceChildren();
+
+    document.querySelectorAll("[data-search-tab]").forEach((button) => {
+      const active = button.dataset.searchTab === tab;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
     });
 
-    const requestId = ++activeRequest;
+    clearResults();
+    showStatus("खोज रहे हैं…");
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("q", query);
+    window.history.replaceState({}, "", url);
+
+    if (tab === "images") {
+      resultsList.hidden = true;
+      imageSearchNote.hidden = false;
+      imageSearchLink.href =
+        "https://www.bing.com/images/search?q=" +
+        encodeURIComponent(query);
+
+      showStatus("तस्वीरों के लिए बाहरी इमेज सर्च उपलब्ध है।");
+      return;
+    }
+
+    const endpoint = API[tab] || API.all;
 
     try {
-      const data = await getJSON(
-        `/api/search?q=${encodeURIComponent(q)}`
-      );
+      const data = await fetchJson(makeUrl(endpoint, query));
 
-      if (requestId !== activeRequest) return;
+      if (thisRequest !== requestNumber) return;
 
       if (data && data.success === false) {
-        throw new Error(data.error || "Search failed");
+        throw new Error(data.error || data.message || "खोज विफल रही।");
       }
 
-      renderResults(normalizeResults(data));
-      const nextURL = new URL(window.location.href);
-      nextURL.searchParams.set("q", q);
-      history.replaceState({}, "", nextURL);
-    } catch (error) {
-      if (requestId !== activeRequest) return;
+      const items = getArray(data);
 
-      console.error("Search error:", error);
-      resultsCount.textContent = "";
-      resultsList.innerHTML = `
-        <div class="empty-state">
-          <strong>सर्च अभी पूरा नहीं हो पाया।</strong><br>
-          इंटरनेट कनेक्शन जाँचें और कुछ देर बाद फिर कोशिश करें।
-        </div>`;
+      if (tab === "videos" || tab === "news") {
+        renderMediaResults(items, tab);
+      } else {
+        renderWebResults(items);
+      }
+    } catch (error) {
+      if (thisRequest !== requestNumber) return;
+
+      clearResults();
+      showStatus(
+        "परिणाम लोड नहीं हुए। इंटरनेट और Flask API जाँचें। " +
+        (error.message || "")
+      );
+      console.error("Ishwar Search API error:", error);
     }
   }
 
   searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    performSearch(searchInput.value);
+    performSearch(searchInput.value, "all");
   });
 
-  document.addEventListener("click", (event) => {
-    if (!event.target.closest(".search-wrap")) {
-      suggestions.classList.remove("show");
-    }
+  document.querySelectorAll("[data-search-tab]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!currentQuery) return;
+      performSearch(currentQuery, button.dataset.searchTab);
+    });
   });
 
   searchInput.addEventListener("input", () => {
-    const q = searchInput.value.trim();
+    const query = searchInput.value.trim();
+
     clearTimeout(suggestionTimer);
 
-    if (q.length < 2) {
-      suggestions.classList.remove("show");
-      suggestions.innerHTML = "";
+    if (!query || !suggestionsBox) {
+      suggestionsBox?.replaceChildren();
       return;
     }
 
     suggestionTimer = setTimeout(async () => {
       try {
-        const data = await getJSON(
-          `/api/suggestions?q=${encodeURIComponent(q)}`
-        );
+        const data = await fetchJson(makeUrl(API.suggestions, query));
+        const suggestions = getArray(data).slice(0, 6);
 
-        const list = Array.isArray(data)
-          ? data
-          : normalizeResults(data);
+        suggestionsBox.replaceChildren();
 
-        const values = list.map((item) => {
-          if (typeof item === "string") return item;
-          return getFirst(item, ["query", "title", "name", "text"], "");
-        }).filter(Boolean).slice(0, 6);
+        suggestions.forEach((item) => {
+          const suggestion = typeof item === "string"
+            ? item
+            : item?.query || item?.text || item?.title || item?.name || "";
 
-        if (!values.length) {
-          suggestions.classList.remove("show");
-          suggestions.innerHTML = "";
-          return;
-        }
+          if (!suggestion) return;
 
-        suggestions.innerHTML = values.map((value) => `
-          <button class="suggestion-item" type="button"
-            role="option" data-suggestion="${escapeHTML(value)}">
-            ⌕ &nbsp; ${escapeHTML(value)}
-          </button>
-        `).join("");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "suggestion-item";
+          button.textContent = suggestion;
 
-        suggestions.classList.add("show");
+          button.addEventListener("click", () => {
+            searchInput.value = suggestion;
+            suggestionsBox.replaceChildren();
+            performSearch(suggestion, "all");
+          });
+
+          suggestionsBox.appendChild(button);
+        });
       } catch (error) {
-        console.warn("Suggestions unavailable:", error);
+        // Suggestions are optional; the main search remains usable.
+        console.debug("Suggestions unavailable:", error.message);
       }
-    }, 250);
+    }, 300);
   });
 
-  suggestions.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-suggestion]");
-    if (button) performSearch(button.dataset.suggestion);
-  });
-
-  document.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-search]");
-    if (button) {
-      event.preventDefault();
-      performSearch(button.dataset.search);
-    }
-  });
-
-  menuToggle.addEventListener("click", () => {
-    const open = menuPanel.classList.toggle("open");
-    menuToggle.setAttribute("aria-expanded", String(open));
-  });
-
-  menuPanel.addEventListener("click", (event) => {
-    if (event.target.closest("a")) {
-      menuPanel.classList.remove("open");
-      menuToggle.setAttribute("aria-expanded", "false");
-    }
-  });
-
-  async function loadVideos(query) {
-    const q = String(query || "").trim();
-
-    if (!q) {
-      videoGrid.innerHTML = `
-        <div class="empty-state">
-          वीडियो खोजने के लिए कोई विषय लिखें।
-        </div>`;
-      return;
-    }
-
-    videoGrid.innerHTML =
-      `<div class="loading">वीडियो खोजे जा रहे हैं…</div>`;
-
-    try {
-      const data = await getJSON(
-        `/api/videos?q=${encodeURIComponent(q)}`
-      );
-
-      const videos = normalizeResults(data);
-
-      if (data?.success === false) {
-        throw new Error(data.error || "Video search failed");
-      }
-
-      if (!videos.length) {
-        videoGrid.innerHTML = `
-          <div class="empty-state">
-            इस विषय पर वीडियो नहीं मिले। दूसरा विषय आज़माएँ।
-          </div>`;
-        return;
-      }
-
-      videoGrid.innerHTML = videos.map((video) => {
-        const title = getFirst(video, ["title", "name"], "YouTube video");
-        const channel = getFirst(
-          video, ["channel", "channelTitle", "author"], "YouTube"
-        );
-        const url = safeURL(getFirst(video, ["url", "link"], ""));
-        const thumbnail = safeURL(getFirst(
-          video, ["thumbnail", "thumbnail_url", "image"], ""
-        ));
-
-        return `
-          <article class="media-card">
-            ${thumbnail
-              ? `<img class="media-thumb"
-                   src="${escapeHTML(thumbnail)}"
-                   alt=""
-                   loading="lazy">`
-              : `<div class="media-thumb"></div>`}
-            <div class="media-content">
-              <h3>${escapeHTML(title)}</h3>
-              <p>${escapeHTML(channel)}</p>
-              ${url ? `<a href="${escapeHTML(url)}"
-                  target="_blank" rel="noopener noreferrer">
-                  वीडियो देखें ↗</a>` : ""}
-            </div>
-          </article>`;
-      }).join("");
-    } catch (error) {
-      console.error("Video error:", error);
-      videoGrid.innerHTML = `
-        <div class="empty-state">
-          वीडियो लोड नहीं हुए। कृपया बाद में फिर कोशिश करें।
-        </div>`;
-    }
-  }
-
-  videoForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    loadVideos(videoInput.value);
-  });
-
-  document.querySelectorAll("[data-open-videos]").forEach((element) => {
-    element.addEventListener("click", () => {
-      videoInput.focus();
-    });
-  });
-
-  async function loadNews(query) {
-    const q = String(query || "").trim();
-
-    if (!q) {
-      newsGrid.innerHTML = `
-        <div class="empty-state">
-          समाचार खोजने के लिए कोई विषय लिखें।
-        </div>`;
-      return;
-    }
-
-    newsGrid.innerHTML =
-      `<div class="loading">समाचार खोजे जा रहे हैं…</div>`;
-
-    try {
-      const data = await getJSON(
-        `/api/news?q=${encodeURIComponent(q)}`
-      );
-
-      const articles = normalizeResults(data);
-
-      if (data?.success === false) {
-        throw new Error(data.error || "News search failed");
-      }
-
-      if (!articles.length) {
-        newsGrid.innerHTML = `
-          <div class="empty-state">
-            समाचार नहीं मिले। दूसरा विषय लिखकर देखें।
-          </div>`;
-        return;
-      }
-
-      newsGrid.innerHTML = articles.map((article) => {
-        const title = getFirst(
-          article, ["title", "name", "headline"], "News article"
-        );
-        const description = getFirst(
-          article, ["description", "snippet", "summary"], ""
-        );
-        const source = getFirst(
-          article, ["source", "publisher", "author"], "News source"
-        );
-        const url = safeURL(getFirst(
-          article, ["url", "link"], ""
-        ));
-
-        return `
-          <article class="media-card">
-            <div class="media-content">
-              <h3>${escapeHTML(title)}</h3>
-              <p>${escapeHTML(source)}</p>
-              <p>${escapeHTML(description)}</p>
-              ${url ? `<a href="${escapeHTML(url)}"
-                  target="_blank" rel="noopener noreferrer">
-                  पूरी खबर पढ़ें ↗</a>` : ""}
-            </div>
-          </article>`;
-      }).join("");
-    } catch (error) {
-      console.error("News error:", error);
-      newsGrid.innerHTML = `
-        <div class="empty-state">
-          समाचार लोड नहीं हुए। कृपया बाद में फिर कोशिश करें।
-        </div>`;
-    }
-  }
-
-  newsForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    loadNews(newsInput.value);
-  });
-
-  document.querySelectorAll("[data-open-news]").forEach((element) => {
-    element.addEventListener("click", () => {
-      newsInput.focus();
-    });
-  });
-
-  const initialQuery =
-    new URLSearchParams(window.location.search).get("q");
+  // Agar URL mein ?q=railway hai, to wahi search khol dein.
+  const initialQuery = new URLSearchParams(window.location.search).get("q");
 
   if (initialQuery) {
-    performSearch(initialQuery);
+    searchInput.value = initialQuery;
+    performSearch(initialQuery, "all");
   }
 })();
 </script>
+
 </body>
 </html>
 
