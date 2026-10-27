@@ -2,512 +2,161 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0f172a">
-  <meta name="description" content="Ishwar Search - सरकारी सेवाएं, नौकरी, समाचार, मौसम और बाजार भाव एक जगह।">
-
-  <title>Ishwar Search | Ishwar Ghanchi</title>
-
-  <style>
-    :root {
-      --bg: #f4f7fb;
-      --card: #ffffff;
-      --text: #172033;
-      --muted: #667085;
-      --border: #e4e9f1;
-      --primary: #2457e6;
-      --primary-dark: #173fb3;
-      --green: #087f5b;
-      --shadow: 0 8px 28px rgba(15, 23, 42, .06);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, "Noto Sans Devanagari", sans-serif;
-      line-height: 1.6;
-    }
-
-    button, input, select { font: inherit; }
-
-    button, a { -webkit-tap-highlight-color: transparent; }
-
-    a { color: var(--primary); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
-    .container {
-      width: min(1160px, calc(100% - 28px));
-      margin: auto;
-    }
-
-    header {
-      background: #101a32;
-      color: white;
-      border-bottom: 3px solid var(--primary);
-    }
-
-    .header-inner {
-      min-height: 84px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 0;
-    }
-
-    .logo {
-      width: 58px;
-      height: 58px;
-      border-radius: 13px;
-      object-fit: contain;
-      background: white;
-      padding: 3px;
-      flex-shrink: 0;
-    }
-
-    .brand h1 {
-      margin: 0;
-      font-size: clamp(22px, 4vw, 30px);
-      line-height: 1.25;
-      letter-spacing: -.5px;
-    }
-
-    .brand p {
-      margin: 4px 0 0;
-      color: #d4def5;
-      font-size: 13px;
-    }
-
-    .header-tag {
-      margin-left: auto;
-      color: #dbeafe;
-      font-size: 12px;
-      text-align: right;
-    }
-
-    main { padding: 24px 0 40px; }
-
-    .hero {
-      text-align: center;
-      padding: 20px 0 16px;
-    }
-
-    .hero h2 {
-      margin: 0 0 8px;
-      font-size: clamp(25px, 5vw, 38px);
-      letter-spacing: -.8px;
-    }
-
-    .hero > p {
-      color: var(--muted);
-      margin: 0 auto 22px;
-      max-width: 620px;
-    }
-
-    .search-box {
-      max-width: 780px;
-      margin: auto;
-      display: flex;
-      gap: 8px;
-      background: white;
-      border: 1px solid var(--border);
-      padding: 8px;
-      border-radius: 17px;
-      box-shadow: var(--shadow);
-    }
-
-    .search-box input {
-      flex: 1;
-      min-width: 0;
-      border: 0;
-      outline: 0;
-      padding: 12px;
-      background: transparent;
-      color: var(--text);
-    }
-
-    .btn {
-      border: 0;
-      border-radius: 11px;
-      padding: 11px 17px;
-      background: var(--primary);
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .btn:hover { background: var(--primary-dark); }
-
-    .btn:disabled {
-      opacity: .6;
-      cursor: wait;
-    }
-
-    .quick-links {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 16px;
-    }
-
-    .quick-links a {
-      padding: 7px 12px;
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 30px;
-      font-size: 13px;
-      color: #344054;
-    }
-
-    .quick-links a:hover {
-      border-color: var(--primary);
-      text-decoration: none;
-    }
-
-    .section-heading {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin: 25px 0 14px;
-    }
-
-    .section-heading h2 {
-      margin: 0;
-      font-size: 22px;
-    }
-
-    .section-heading p {
-      margin: 3px 0 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
-      gap: 16px;
-      align-items: stretch;
-    }
-
-    .panel {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 19px;
-      padding: 20px;
-      box-shadow: var(--shadow);
-      min-width: 0;
-    }
-
-    .panel h3 {
-      margin: 0;
-      font-size: 19px;
-    }
-
-    .panel-subtitle {
-      color: var(--muted);
-      font-size: 13px;
-      margin: 3px 0 15px;
-    }
-
-    .city-form {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .city-form input,
-    .rates-controls select,
-    .news-search input {
-      width: 100%;
-      min-width: 0;
-      padding: 11px 12px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      outline: none;
-      background: white;
-      color: var(--text);
-    }
-
-    .city-form input:focus,
-    .rates-controls select:focus,
-    .news-search input:focus {
-      border-color: var(--primary);
-    }
-
-    .weather-main {
-      padding: 15px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #edf4ff, #f7faff);
-    }
-
-    .weather-place {
-      font-weight: 700;
-      font-size: 17px;
-    }
-
-    .weather-temp {
-      font-size: 37px;
-      font-weight: 800;
-      color: #1746b8;
-      line-height: 1.35;
-      margin: 4px 0;
-    }
-
-    .weather-description {
-      color: #475467;
-      font-size: 14px;
-    }
-
-    .weather-stats {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 9px;
-      margin-top: 12px;
-    }
-
-    .weather-stat {
-      border: 1px solid var(--border);
-      padding: 10px;
-      border-radius: 12px;
-      font-size: 13px;
-    }
-
-    .weather-stat span {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .weather-stat strong { overflow-wrap: anywhere; }
-
-    .rates-controls { margin: 12px 0; }
-
-    .rate-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .rate-item {
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .rate-item strong { display: block; }
-
-    .rate-item .rate-description {
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 3px;
-    }
-
-    .rate-value {
-      font-size: 14px;
-      font-weight: 700;
-      text-align: right;
-      overflow-wrap: anywhere;
-    }
-
-    .rate-note {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 13px;
-    }
-
-    .source-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 13px;
-    }
-
-    .source-links a {
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 7px 10px;
-      font-size: 12px;
-      background: #fafcff;
-    }
-
-    .status {
-      color: var(--muted);
-      font-size: 13px;
-      padding: 12px 0;
-    }
-
-    .error { color: #b42318; }
-    .success { color: var(--green); }
-
-    .results-section { margin-top: 26px; }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
-    }
-
-    .tab {
-      background: white;
-      color: #475467;
-      border: 1px solid var(--border);
-      padding: 9px 15px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    .tab.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
-    }
-
-    .results-panel {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 17px;
-      padding: 18px;
-      min-height: 110px;
-      box-shadow: var(--shadow);
-    }
-
-    .result-card {
-      padding: 15px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .result-card:first-child { padding-top: 0; }
-    .result-card:last-child { border-bottom: 0; }
-
-    .result-card h3 {
-      font-size: 17px;
-      margin: 0 0 5px;
-    }
-
-    .result-card p {
-      margin: 0 0 8px;
-      color: var(--muted);
-      font-size: 14px;
-      overflow-wrap: anywhere;
-    }
-
-    .result-meta {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 7px;
-    }
-
-    .result-link { font-weight: 700; }
-
-    .news-search {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .shopping-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .shopping-link {
-      display: block;
-      padding: 14px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: #fafcff;
-      color: var(--text);
-    }
-
-    .shopping-link strong { display: block; }
-    .shopping-link span {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .shopping-link:hover {
-      border-color: var(--primary);
-      text-decoration: none;
-    }
-
-    footer {
-      border-top: 1px solid var(--border);
-      background: white;
-      padding: 23px 0;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    footer strong { color: var(--text); }
-
-    [hidden] { display: none !important; }
-
-    @media (max-width: 760px) {
-      .dashboard-grid { grid-template-columns: 1fr; }
-      .header-tag { display: none; }
-    }
-
-    @media (max-width: 480px) {
-      .container { width: calc(100% - 20px); }
-      main { padding-top: 12px; }
-      .header-inner { min-height: 72px; }
-      .logo { width: 48px; height: 48px; }
-      .brand h1 { font-size: 22px; }
-      .hero { padding-top: 14px; }
-      .search-box { padding: 6px; gap: 4px; }
-      .search-box input { padding: 9px 7px; }
-      .search-box .btn { padding: 10px 12px; }
-      .panel { padding: 15px; }
-      .shopping-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .results-panel { padding: 14px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101a32">
+<meta name="description" content="Ishwar Search — सरकारी सेवाएँ, नौकरी, समाचार, मौसम, फोटो, वीडियो और उपयोगी जगहें खोजें।">
+<title>Ishwar Search | Ishwar Ghanchi</title>
+
+<style>
+:root {
+  --bg:#f3f6fc;
+  --card:#fff;
+  --text:#172033;
+  --muted:#667085;
+  --border:#e2e8f0;
+  --primary:#2457e6;
+  --dark:#101a32;
+  --green:#087f5b;
+  --shadow:0 8px 28px rgba(15,23,42,.07);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial,"Noto Sans Devanagari",sans-serif;
+  line-height:1.6
+}
+button,input,select{font:inherit}
+button,a{-webkit-tap-highlight-color:transparent}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{width:min(1180px,calc(100% - 26px));margin:auto}
+header{background:var(--dark);color:white;border-bottom:3px solid var(--primary)}
+.header-inner{min-height:82px;display:flex;align-items:center;gap:13px;padding:12px 0}
+.logo{width:57px;height:57px;object-fit:contain;background:white;border-radius:13px;padding:3px}
+.brand h1{font-size:clamp(22px,4vw,30px);line-height:1.2;margin:0}
+.brand p{margin:5px 0 0;font-size:13px;color:#d4def5}
+.header-tag{margin-left:auto;text-align:right;font-size:12px;color:#dbeafe}
+main{padding:20px 0 38px}
+.hero{text-align:center;padding:18px 0 22px}
+.hero h2{font-size:clamp(26px,5vw,39px);margin:0 0 6px}
+.hero>p{color:var(--muted);margin:0 auto 20px;max-width:650px}
+.search-box{display:flex;gap:8px;max-width:800px;margin:auto;padding:8px;background:white;border:1px solid var(--border);border-radius:17px;box-shadow:var(--shadow)}
+.search-box input{flex:1;min-width:0;border:0;outline:0;padding:12px;background:transparent;color:var(--text)}
+.btn{border:0;border-radius:10px;padding:10px 16px;background:var(--primary);color:white;font-weight:700;cursor:pointer}
+.btn:hover{filter:brightness(.93)}
+.btn:disabled{opacity:.6;cursor:wait}
+.quick-links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:15px}
+.quick-links a{background:white;border:1px solid var(--border);border-radius:25px;padding:7px 12px;font-size:13px;color:#344054}
+.quick-links a:hover{border-color:var(--primary);text-decoration:none}
+.section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:23px 0 13px}
+.section-heading h2{font-size:22px;margin:0}
+.section-heading p{font-size:13px;color:var(--muted);margin:3px 0 0}
+.dashboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:var(--shadow);min-width:0}
+.panel h3{font-size:18px;margin:0}
+.subtitle{color:var(--muted);font-size:13px;margin:3px 0 14px}
+.field{width:100%;min-width:0;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:white;color:var(--text);outline:0}
+.field:focus{border-color:var(--primary)}
+.inline-form{display:flex;gap:8px;margin-bottom:12px}
+.inline-form .field{flex:1}
+.weather-main{padding:15px;border-radius:14px;background:linear-gradient(135deg,#edf4ff,#f7faff)}
+.weather-place{font-size:17px;font-weight:700}
+.weather-temp{font-size:36px;font-weight:800;color:#1746b8;line-height:1.4}
+.weather-desc{font-size:14px;color:#475467}
+.weather-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.weather-stat{border:1px solid var(--border);border-radius:11px;padding:9px;font-size:13px}
+.weather-stat span{display:block;color:var(--muted);font-size:12px}
+.status{color:var(--muted);font-size:13px;padding:8px 0}
+.error{color:#b42318}
+.success{color:var(--green)}
+.rate-item{display:flex;justify-content:space-between;gap:10px;padding:11px;border:1px solid var(--border);border-radius:11px;margin-bottom:9px}
+.rate-item strong{display:block}
+.rate-item small{color:var(--muted)}
+.rate-value{text-align:right;font-size:13px;font-weight:700}
+.source-links{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.source-links a{font-size:12px;border:1px solid var(--border);border-radius:9px;padding:7px 9px;background:#fafcff}
+.results-section{margin-top:26px}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px}
+.tab{background:white;color:#475467;border:1px solid var(--border);border-radius:10px;padding:9px 12px;cursor:pointer;font-weight:700}
+.tab.active{background:var(--primary);border-color:var(--primary);color:white}
+.results-panel{background:white;border:1px solid var(--border);border-radius:17px;padding:17px;min-height:110px;box-shadow:var(--shadow)}
+.result-card{padding:14px 0;border-bottom:1px solid var(--border);overflow-wrap:anywhere}
+.result-card:first-child{padding-top:0}
+.result-card:last-child{border-bottom:0}
+.result-card h3{font-size:16px;margin:0 0 5px}
+.result-card p{font-size:14px;color:var(--muted);margin:0 0 8px;white-space:pre-wrap}
+.result-meta{font-size:12px;color:var(--muted);margin-bottom:7px}
+.result-link{font-weight:700;display:inline-block;margin-top:3px}
+.result-actions{display:flex;flex-wrap:wrap;gap:12px}
+.tabs-search{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tool-button{border:1px solid var(--border);border-radius:10px;background:#f8faff;padding:9px 12px;cursor:pointer;color:var(--text);font-weight:700}
+.tool-button.active{background:#e8efff;border-color:var(--primary);color:var(--primary)}
+.image-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.image-card{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff;min-width:0}
+.image-card img{width:100%;height:150px;object-fit:cover;background:#edf2f7;display:block}
+.image-info{padding:9px;font-size:13px;overflow-wrap:anywhere}
+.image-info a{font-weight:700}
+.place-card{border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:10px}
+.place-card h3{margin:0 0 4px;font-size:16px}
+.place-card p{margin:0 0 7px;font-size:13px;color:var(--muted)}
+.news-search{display:flex;gap:8px;margin-bottom:13px}
+.shopping-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.shopping-link{display:block;padding:13px;border:1px solid var(--border);border-radius:12px;background:#fafcff;color:var(--text)}
+.shopping-link strong{display:block}
+.shopping-link span{font-size:12px;color:var(--muted)}
+.shopping-link:hover{border-color:var(--primary);text-decoration:none}
+.disclaimer{font-size:12px;color:var(--muted);margin-top:12px}
+footer{border-top:1px solid var(--border);background:white;padding:22px 0;text-align:center;color:var(--muted);font-size:13px}
+footer strong{color:var(--text)}
+[hidden]{display:none!important}
+@media(max-width:760px){
+ .dashboard-grid{grid-template-columns:1fr}
+ .header-tag{display:none}
+ .image-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .shopping-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:480px){
+ .container{width:calc(100% - 18px)}
+ main{padding-top:10px}
+ .header-inner{min-height:70px}
+ .logo{width:47px;height:47px}
+ .brand h1{font-size:22px}
+ .hero{padding-top:12px}
+ .search-box{padding:5px;gap:3px}
+ .search-box input{padding:9px 6px;font-size:14px}
+ .search-box .btn{padding:9px 11px}
+ .panel{padding:14px}
+ .results-panel{padding:13px}
+ .image-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .image-card img{height:125px}
+ .tab{padding:8px 10px;font-size:13px}
+}
+</style>
 </head>
 
 <body>
 <header>
   <div class="container header-inner">
-    <img class="logo"
-         src="/static/logo.png"
-         alt="Ishwar Search Logo"
+    <img class="logo" src="/static/logo.png" alt="Ishwar Search Logo"
          onerror="this.style.display='none'">
-
     <div class="brand">
       <h1>Ishwar Search</h1>
       <p>Owner: Ishwar Ghanchi</p>
     </div>
-
-    <div class="header-tag">
-      आपकी खोज, एक जगह
-    </div>
+    <div class="header-tag">आपकी खोज, एक जगह</div>
   </div>
 </header>
 
 <main class="container">
   <section class="hero">
     <h2>आसानी से खोजिए</h2>
-    <p>सरकारी सेवाएँ, नौकरियाँ, योजनाएँ और उपयोगी वेबसाइट खोजें।</p>
+    <p>सरकारी सेवाएँ, नौकरी, खबरें, फोटो, वीडियो, मौसम और आसपास की उपयोगी जगहें।</p>
 
     <form class="search-box" id="searchForm">
-      <input
-        id="searchInput"
-        type="search"
-        placeholder="जैसे Railway भर्ती, Scholarship..."
-        aria-label="क्या खोजना है?"
-        required>
+      <input id="searchInput" type="search"
+             placeholder="जैसे Railway भर्ती, Scholarship, Hospital..."
+             aria-label="क्या खोजना है?" required>
       <button class="btn" id="searchButton" type="submit">खोजें</button>
     </form>
 
@@ -521,160 +170,119 @@
     </div>
   </section>
 
-  <section aria-label="मौसम और बाजार भाव">
+  <section>
     <div class="section-heading">
       <div>
-        <h2>🌍 मौसम और लाइव रेट्स</h2>
-        <p>मौसम, सोना-चाँदी, शेयर बाजार और मंडी भाव एक जगह।</p>
+        <h2>🧭 खोजने के दूसरे तरीके</h2>
+        <p>एक विकल्प चुनें और अपनी जरूरत खोजें।</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="tabs-search" id="toolButtons">
+        <button type="button" class="tool-button active" data-tool="web">🔎 वेबसाइट</button>
+        <button type="button" class="tool-button" data-tool="images">🖼️ फोटो</button>
+        <button type="button" class="tool-button" data-tool="videos">▶️ वीडियो</button>
+        <button type="button" class="tool-button" data-tool="places">📍 जगहें</button>
+      </div>
+
+      <form class="inline-form" id="toolSearchForm">
+        <input class="field" id="toolSearchInput" type="search"
+               placeholder="फोटो, वीडियो, होटल या अस्पताल खोजें..." required>
+        <button class="btn" type="submit">खोजें</button>
+      </form>
+
+      <div id="toolStatus" class="status">वेबसाइट खोजने के लिए ऊपर मुख्य सर्च का उपयोग करें या कोई दूसरा विकल्प चुनें।</div>
+      <div id="toolResults"></div>
+      <p class="disclaimer">फोटो के उपयोग से पहले उसका लाइसेंस जाँचें। जगहों की जानकारी OpenStreetMap से आ सकती है; जाने से पहले पता और उपलब्धता की पुष्टि करें।</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <div>
+        <h2>🌍 मौसम और बाजार भाव</h2>
+        <p>मौसम की जानकारी और बाजार के लिए उपयोगी स्रोत।</p>
       </div>
     </div>
 
     <div class="dashboard-grid">
-      <!-- WEATHER -->
-      <section class="panel" aria-label="मौसम">
+      <section class="panel">
         <h3>🌦️ आज का मौसम</h3>
-        <p class="panel-subtitle">अपने शहर का मौसम देखें</p>
-
-        <form class="city-form" id="weatherForm">
-          <input
-            id="weatherCityInput"
-            type="text"
-            placeholder="शहर का नाम, जैसे Jaipur"
-            aria-label="शहर का नाम"
-            value="Jaipur"
-            required>
+        <p class="subtitle">अपने शहर का मौसम देखें</p>
+        <form class="inline-form" id="weatherForm">
+          <input class="field" id="weatherCityInput" value="Jaipur"
+                 placeholder="शहर का नाम" aria-label="शहर का नाम" required>
           <button class="btn" type="submit">देखें</button>
         </form>
-
         <div id="weatherContent" aria-live="polite">
           <p class="status">मौसम लोड हो रहा है...</p>
         </div>
       </section>
 
-      <!-- LIVE RATES -->
-      <section class="panel" aria-label="लाइव बाजार भाव">
+      <section class="panel">
         <h3>📊 बाजार भाव</h3>
-        <p class="panel-subtitle">सोना, चाँदी, शेयर बाजार और कृषि मंडी</p>
-
-        <div class="rates-controls">
-          <select id="ratesPlace" aria-label="मंडी का राज्य या शहर">
-            <option value="Rajasthan">राजस्थान</option>
-            <option value="Jaipur">जयपुर</option>
-            <option value="Ajmer">अजमेर</option>
-            <option value="Jodhpur">जोधपुर</option>
-            <option value="Delhi">दिल्ली</option>
-            <option value="Mumbai">मुंबई</option>
-          </select>
-        </div>
-
+        <p class="subtitle">सोना, चाँदी, शेयर बाजार और कृषि मंडी</p>
+        <select class="field" id="ratesPlace" aria-label="शहर चुनें">
+          <option value="Rajasthan">राजस्थान</option>
+          <option value="Jaipur">जयपुर</option>
+          <option value="Ajmer">अजमेर</option>
+          <option value="Jodhpur">जोधपुर</option>
+          <option value="Delhi">दिल्ली</option>
+          <option value="Mumbai">मुंबई</option>
+        </select>
         <div id="ratesContent" aria-live="polite">
-          <p class="status">बाजार भाव लोड हो रहे हैं...</p>
+          <p class="status">बाजार स्रोत लोड हो रहे हैं...</p>
         </div>
-
-        <button class="btn" id="refreshRates" type="button">
-          ↻ भाव अपडेट करें
-        </button>
-
+        <button class="btn" id="refreshRates" type="button">↻ स्रोत अपडेट करें</button>
         <div class="source-links">
-          <a href="https://www.goodreturns.in/gold-rates/"
-             target="_blank" rel="noopener noreferrer">सोने का भाव ↗</a>
-
-          <a href="https://www.goodreturns.in/silver-rates/"
-             target="_blank" rel="noopener noreferrer">चाँदी का भाव ↗</a>
-
-          <a href="https://www.nseindia.com/"
-             target="_blank" rel="noopener noreferrer">NSE शेयर बाजार ↗</a>
-
-          <a href="https://agmarknet.gov.in/"
-             target="_blank" rel="noopener noreferrer">AGMARKNET मंडी ↗</a>
-
-          <a href="https://www.mcxindia.com/"
-             target="_blank" rel="noopener noreferrer">MCX बाजार ↗</a>
+          <a href="https://www.goodreturns.in/gold-rates/" target="_blank" rel="noopener noreferrer">🥇 सोना</a>
+          <a href="https://www.goodreturns.in/silver-rates/" target="_blank" rel="noopener noreferrer">🥈 चाँदी</a>
+          <a href="https://www.nseindia.com/" target="_blank" rel="noopener noreferrer">📈 NSE</a>
+          <a href="https://agmarknet.gov.in/" target="_blank" rel="noopener noreferrer">🌾 AGMARKNET</a>
+          <a href="https://www.mcxindia.com/" target="_blank" rel="noopener noreferrer">MCX</a>
         </div>
-
-        <p class="rate-note">
-          भाव और अपडेट का समय स्रोत पर निर्भर करता है।
-          स्रोत की पुष्टि के बिना किसी भाव को लाइव या वास्तविक नहीं माना जाएगा।
-        </p>
+        <p class="disclaimer">यहाँ लाइव भाव तभी दिखेंगे जब API वास्तविक मूल्य दे। नीचे दिए स्रोतों पर भाव और अपडेट समय की जाँच करें।</p>
       </section>
     </div>
   </section>
 
-  <!-- SEARCH RESULTS, NEWS AND SHOPPING -->
   <section class="results-section">
     <div class="section-heading">
       <div>
-        <h2>🔎 खोज परिणाम और अपडेट</h2>
-        <p>अपनी जरूरत के अनुसार नीचे का सेक्शन चुनें।</p>
+        <h2>📰 खबरें और शॉपिंग</h2>
+        <p>समाचार पढ़ें और उपयोगी वेबसाइटें खोलें।</p>
       </div>
     </div>
 
-    <div class="tabs" role="tablist" aria-label="परिणाम के सेक्शन">
-      <button class="tab active" data-tab="search" type="button"
-              role="tab" aria-selected="true">खोज परिणाम</button>
-
-      <button class="tab" data-tab="news" type="button"
-              role="tab" aria-selected="false">📰 News Updates</button>
-
-      <button class="tab" data-tab="shopping" type="button"
-              role="tab" aria-selected="false">🛒 Shopping</button>
+    <div class="tabs" role="tablist" aria-label="खबरें और शॉपिंग">
+      <button class="tab active" data-tab="news" role="tab"
+              aria-selected="true" type="button">📰 News Updates</button>
+      <button class="tab" data-tab="shopping" role="tab"
+              aria-selected="false" type="button">🛒 Shopping</button>
     </div>
 
     <div class="results-panel">
-      <div id="searchPanel">
-        <div id="statusMessage" class="status">
-          ऊपर दिए गए बॉक्स में कुछ खोजें।
-        </div>
-        <div id="resultsList"></div>
-      </div>
-
-      <div id="newsPanel" hidden>
+      <div id="newsPanel">
         <form class="news-search" id="newsSearchForm">
-          <input id="newsSearchInput" type="search"
+          <input class="field" id="newsSearchInput" type="search"
                  placeholder="खबर खोजें..." aria-label="खबर खोजें">
           <button class="btn" type="submit">खोजें</button>
         </form>
-
         <div id="newsStatus" class="status">खबरें लोड हो रही हैं...</div>
         <div id="newsList"></div>
       </div>
 
       <div id="shoppingPanel" hidden>
         <h3>🛒 उपयोगी शॉपिंग वेबसाइटें</h3>
-        <p class="panel-subtitle">
-          लिंक खोलकर वेबसाइट पर खरीदारी या व्यापार की जानकारी देखें।
-        </p>
-
+        <p class="subtitle">खरीदारी या व्यापार की जानकारी के लिए वेबसाइट खोलें।</p>
         <div class="shopping-grid">
-          <a class="shopping-link" href="https://www.amazon.in/"
-             target="_blank" rel="noopener noreferrer">
-            <strong>Amazon India</strong><span>ऑनलाइन खरीदारी ↗</span>
-          </a>
-
-          <a class="shopping-link" href="https://www.flipkart.com/"
-             target="_blank" rel="noopener noreferrer">
-            <strong>Flipkart</strong><span>ऑनलाइन खरीदारी ↗</span>
-          </a>
-
-          <a class="shopping-link" href="https://www.meesho.com/"
-             target="_blank" rel="noopener noreferrer">
-            <strong>Meesho</strong><span>प्रोडक्ट और फैशन ↗</span>
-          </a>
-
-          <a class="shopping-link" href="https://www.jiomart.com/"
-             target="_blank" rel="noopener noreferrer">
-            <strong>JioMart</strong><span>किराना और सामान ↗</span>
-          </a>
-
-          <a class="shopping-link" href="https://www.indiamart.com/"
-             target="_blank" rel="noopener noreferrer">
-            <strong>IndiaMART</strong><span>थोक व्यापार ↗</span>
-          </a>
-
-          <a class="shopping-link" href="https://www.meesho.com/"
-             target="_blank" rel="noopener noreferrer">
-            <strong>रीसेलिंग</strong><span>उपलब्ध विकल्प देखें ↗</span>
-          </a>
+          <a class="shopping-link" href="https://www.amazon.in/" target="_blank" rel="noopener noreferrer"><strong>Amazon India</strong><span>ऑनलाइन खरीदारी ↗</span></a>
+          <a class="shopping-link" href="https://www.flipkart.com/" target="_blank" rel="noopener noreferrer"><strong>Flipkart</strong><span>ऑनलाइन खरीदारी ↗</span></a>
+          <a class="shopping-link" href="https://www.meesho.com/" target="_blank" rel="noopener noreferrer"><strong>Meesho</strong><span>प्रोडक्ट और फैशन ↗</span></a>
+          <a class="shopping-link" href="https://www.jiomart.com/" target="_blank" rel="noopener noreferrer"><strong>JioMart</strong><span>किराना और सामान ↗</span></a>
+          <a class="shopping-link" href="https://www.indiamart.com/" target="_blank" rel="noopener noreferrer"><strong>IndiaMART</strong><span>थोक व्यापार ↗</span></a>
+          <a class="shopping-link" href="https://www.amazon.in/" target="_blank" rel="noopener noreferrer"><strong>ऑनलाइन उत्पाद</strong><span>उपलब्ध विकल्प देखें ↗</span></a>
         </div>
       </div>
     </div>
@@ -690,487 +298,442 @@
 </footer>
 
 <script>
-  const $ = (id) => document.getElementById(id);
+"use strict";
 
-  // ---------- SEARCH ----------
-  $("searchForm").addEventListener("submit", function (event) {
-    event.preventDefault();
-    performSearch($("searchInput").value.trim());
-  });
+const $ = id => document.getElementById(id);
+let activeTool = "web";
+let newsLoaded = false;
 
-  document.querySelectorAll("[data-search]").forEach((link) => {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      const query = link.dataset.search;
-      $("searchInput").value = query;
-      performSearch(query);
-    });
-  });
+function safeUrl(value) {
+  try {
+    const url = new URL(value, window.location.origin);
+    return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+  } catch (_) {
+    return "";
+  }
+}
 
-  async function performSearch(query) {
-    if (!query) return;
+function makeLink(label, url, className = "result-link") {
+  const href = safeUrl(url);
+  if (!href) return null;
+  const a = document.createElement("a");
+  a.href = href;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.className = className;
+  a.textContent = label;
+  return a;
+}
 
-    switchTab("search");
-    $("statusMessage").textContent = "खोजा जा रहा है...";
-    $("resultsList").innerHTML = "";
-    $("searchButton").disabled = true;
+function makeStatus(id, message, kind = "") {
+  const el = $(id);
+  el.textContent = message;
+  el.className = "status " + kind;
+}
 
-    try {
-      const response = await fetch(
-        "/api/search?q=" + encodeURIComponent(query)
-      );
-      if (!response.ok) throw new Error("Search request failed");
+function createResultCard(item, type = "web") {
+  const article = document.createElement("article");
+  article.className = "result-card";
 
-      const data = await response.json();
-      const results = Array.isArray(data.results) ? data.results : [];
+  const title = document.createElement("h3");
+  title.textContent = item.title || item.name || item.headline || "उपयोगी जानकारी";
+  article.appendChild(title);
 
-      if (!results.length) {
-        $("statusMessage").textContent =
-          "इस खोज के लिए परिणाम नहीं मिले। दूसरे शब्दों से कोशिश करें।";
-        return;
-      }
+  const description = document.createElement("p");
+  description.textContent = item.description || item.summary || item.address || "";
+  if (description.textContent) article.appendChild(description);
 
-      $("statusMessage").textContent =
-        `${results.length} परिणाम मिले।`;
-
-      const list = $("resultsList");
-
-      results.forEach((item) => {
-        const article = document.createElement("article");
-        article.className = "result-card";
-
-        const title = document.createElement("h3");
-        title.textContent = item.title || item.name || "उपयोगी लिंक";
-
-        const description = document.createElement("p");
-        description.textContent =
-          item.description || item.category || "वेबसाइट खोलने के लिए नीचे क्लिक करें।";
-
-        article.appendChild(title);
-        article.appendChild(description);
-
-        if (item.category) {
-          const meta = document.createElement("div");
-          meta.className = "result-meta";
-          meta.textContent = item.category;
-          article.appendChild(meta);
-        }
-
-        const url = item.url || item.link;
-        if (url) {
-          try {
-            const parsed = new URL(url, window.location.origin);
-            if (["http:", "https:"].includes(parsed.protocol)) {
-              const anchor = document.createElement("a");
-              anchor.className = "result-link";
-              anchor.href = parsed.href;
-              anchor.target = "_blank";
-              anchor.rel = "noopener noreferrer";
-              anchor.textContent = "वेबसाइट खोलें ↗";
-              article.appendChild(anchor);
-            }
-          } catch (_) {}
-        }
-
-        list.appendChild(article);
-      });
-    } catch (error) {
-      $("statusMessage").textContent =
-        "खोज सेवा से कनेक्शन नहीं हो पाया। थोड़ी देर बाद फिर कोशिश करें।";
-    } finally {
-      $("searchButton").disabled = false;
-    }
+  const metaText = [item.category, item.source, item.published || item.date]
+    .filter(Boolean).join(" · ");
+  if (metaText) {
+    const meta = document.createElement("div");
+    meta.className = "result-meta";
+    meta.textContent = metaText;
+    article.appendChild(meta);
   }
 
-  // ---------- TABS ----------
-  function switchTab(name) {
-    const panels = {
-      search: "searchPanel",
-      news: "newsPanel",
-      shopping: "shoppingPanel"
+  const url = item.url || item.link || item.map_url;
+  const link = makeLink(type === "news" ? "पूरी खबर पढ़ें ↗" : "खोलें ↗", url);
+  if (link) article.appendChild(link);
+  return article;
+}
+
+// MAIN WEB SEARCH
+$("searchForm").addEventListener("submit", e => {
+  e.preventDefault();
+  performSearch($("searchInput").value.trim());
+});
+
+document.querySelectorAll("[data-search]").forEach(link => {
+  link.addEventListener("click", e => {
+    e.preventDefault();
+    const query = link.dataset.search;
+    $("searchInput").value = query;
+    performSearch(query);
+  });
+});
+
+async function performSearch(query) {
+  if (!query) return;
+  switchTab("search");
+  makeStatus("statusMessage", "खोजा जा रहा है...");
+  $("resultsList").replaceChildren();
+  $("searchButton").disabled = true;
+
+  try {
+    const response = await fetch("/api/search?q=" + encodeURIComponent(query));
+    if (!response.ok) throw new Error("Search failed");
+    const data = await response.json();
+    const results = Array.isArray(data.results) ? data.results : [];
+
+    if (!results.length) {
+      makeStatus("statusMessage", "परिणाम नहीं मिले। दूसरे शब्दों से कोशिश करें।");
+      return;
+    }
+
+    makeStatus("statusMessage", results.length + " परिणाम मिले।", "success");
+    results.forEach(item => $("resultsList").appendChild(createResultCard(item)));
+  } catch (_) {
+    makeStatus("statusMessage", "सर्च सेवा से कनेक्शन नहीं हुआ। बाद में फिर कोशिश करें।", "error");
+  } finally {
+    $("searchButton").disabled = false;
+  }
+}
+
+// TABS
+function switchTab(name) {
+  const panels = {search:"searchPanel", news:"newsPanel", shopping:"shoppingPanel"};
+  Object.entries(panels).forEach(([key, id]) => {
+    if ($(id)) $(id).hidden = key !== name;
+  });
+
+  document.querySelectorAll(".tab").forEach(button => {
+    const active = button.dataset.tab === name;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+  });
+
+  if (name === "news" && !newsLoaded) loadNews();
+}
+
+document.querySelectorAll(".tab").forEach(button => {
+  button.addEventListener("click", () => switchTab(button.dataset.tab));
+});
+
+// TOOL SEARCH: website, image, video, places
+document.querySelectorAll("[data-tool]").forEach(button => {
+  button.addEventListener("click", () => {
+    activeTool = button.dataset.tool;
+    document.querySelectorAll("[data-tool]").forEach(b =>
+      b.classList.toggle("active", b === button)
+    );
+    const placeholders = {
+      web:"वेबसाइट या सेवा खोजें...",
+      images:"किस चीज की फोटो चाहिए?",
+      videos:"कौन-सा वीडियो खोजना है?",
+      places:"जैसे hospital in Bali Rajasthan"
     };
+    $("toolSearchInput").placeholder = placeholders[activeTool];
+    $("toolResults").replaceChildren();
+    makeStatus("toolStatus", activeTool === "web"
+      ? "मुख्य सर्च के लिए ऊपर वाला बड़ा सर्च बॉक्स उपयोग करें।"
+      : "अपनी खोज लिखकर बटन दबाएँ।");
+  });
+});
 
-    Object.entries(panels).forEach(([key, id]) => {
-      $(id).hidden = key !== name;
-    });
+$("toolSearchForm").addEventListener("submit", e => {
+  e.preventDefault();
+  searchTool($("toolSearchInput").value.trim());
+});
 
-    document.querySelectorAll(".tab").forEach((button) => {
-      const active = button.dataset.tab === name;
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-selected", String(active));
-    });
+async function searchTool(query) {
+  if (!query) return;
+  const endpoints = {
+    web: "/api/search?q=",
+    images: "/api/images?q=",
+    videos: "/api/videos?q=",
+    places: "/api/places?q="
+  };
 
-    if (name === "news" && !$("newsList").children.length) {
-      loadNews();
+  $("toolResults").replaceChildren();
+  makeStatus("toolStatus", "खोजा जा रहा है...");
+
+  try {
+    const response = await fetch(endpoints[activeTool] + encodeURIComponent(query));
+    if (!response.ok) throw new Error("Search failed");
+    const data = await response.json();
+    const results = Array.isArray(data.results) ? data.results : [];
+
+    if (!results.length) {
+      makeStatus("toolStatus", "कोई परिणाम नहीं मिला। दूसरा शब्द आजमाएँ।");
+      return;
     }
-  }
 
-  document.querySelectorAll(".tab").forEach((button) => {
-    button.addEventListener("click", () => switchTab(button.dataset.tab));
-  });
+    makeStatus("toolStatus", results.length + " परिणाम मिले।", "success");
 
-  // ---------- NEWS ----------
-  $("newsSearchForm").addEventListener("submit", (event) => {
-    event.preventDefault();
-    loadNews($("newsSearchInput").value.trim());
-  });
+    if (activeTool === "images") {
+      const grid = document.createElement("div");
+      grid.className = "image-grid";
 
-  async function loadNews(query = "") {
-    $("newsStatus").textContent = "News Updates लोड हो रहे हैं...";
-    $("newsList").innerHTML = "";
+      results.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "image-card";
 
-    try {
-      const endpoint = query
-        ? "/api/news?q=" + encodeURIComponent(query)
-        : "/api/news";
+        const imageUrl = safeUrl(item.image_url || item.thumbnail);
+        if (imageUrl) {
+          const img = document.createElement("img");
+          img.src = imageUrl;
+          img.alt = item.title || "खोज परिणाम की तस्वीर";
+          img.loading = "lazy";
+          img.referrerPolicy = "no-referrer";
+          img.onerror = () => { img.style.display = "none"; };
+          card.appendChild(img);
+        }
 
-      const response = await fetch(endpoint);
-      if (!response.ok) throw new Error("News request failed");
+        const info = document.createElement("div");
+        info.className = "image-info";
+        const title = document.createElement("div");
+        title.textContent = item.title || "तस्वीर";
+        info.appendChild(title);
 
-      const data = await response.json();
-      const items = Array.isArray(data)
-        ? data
-        : (data.news || data.results || data.articles || []);
+        const link = makeLink("स्रोत खोलें ↗", item.url || item.page_url);
+        if (link) info.appendChild(link);
 
-      if (!items.length) {
-        $("newsStatus").textContent =
-          "अभी खबरें उपलब्ध नहीं हैं। बाद में फिर कोशिश करें।";
-        return;
-      }
+        if (item.license || item.credit || item.artist) {
+          const credit = document.createElement("div");
+          credit.className = "result-meta";
+          credit.textContent = [item.license, item.artist, item.credit].filter(Boolean).join(" · ");
+          info.appendChild(credit);
+        }
+        card.appendChild(info);
+        grid.appendChild(card);
+      });
 
-      $("newsStatus").textContent = `${items.length} खबरें मिलीं।`;
+      $("toolResults").appendChild(grid);
+      return;
+    }
 
-      items.forEach((item) => {
-        const article = document.createElement("article");
-        article.className = "result-card";
-
+    if (activeTool === "places") {
+      results.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "place-card";
         const title = document.createElement("h3");
-        title.textContent = item.title || item.headline || "News Update";
-        article.appendChild(title);
+        title.textContent = item.name || "स्थान";
+        card.appendChild(title);
 
-        const description = document.createElement("p");
-        description.textContent =
-          item.description || item.summary || item.content || "";
-        article.appendChild(description);
+        const address = document.createElement("p");
+        address.textContent = item.address || item.category || "पता उपलब्ध नहीं";
+        card.appendChild(address);
 
-        if (item.source || item.published_at || item.date) {
-          const meta = document.createElement("div");
-          meta.className = "result-meta";
-          meta.textContent = [item.source, item.published_at || item.date]
-            .filter(Boolean).join(" · ");
-          article.appendChild(meta);
-        }
-
-        const url = item.url || item.link;
-        if (url) {
-          try {
-            const parsed = new URL(url, window.location.origin);
-            if (["http:", "https:"].includes(parsed.protocol)) {
-              const anchor = document.createElement("a");
-              anchor.href = parsed.href;
-              anchor.target = "_blank";
-              anchor.rel = "noopener noreferrer";
-              anchor.className = "result-link";
-              anchor.textContent = "पूरी खबर पढ़ें ↗";
-              article.appendChild(anchor);
-            }
-          } catch (_) {}
-        }
-
-        $("newsList").appendChild(article);
-      });
-    } catch (error) {
-      $("newsStatus").textContent =
-        "News Updates लोड नहीं हुए। /api/news सेवा जाँचें।";
-    }
-  }
-
-  // ---------- WEATHER ----------
-  function weatherDescription(code) {
-    const descriptions = {
-      0: "आसमान साफ",
-      1: "मुख्यतः साफ",
-      2: "कुछ बादल",
-      3: "बादल छाए हुए",
-      45: "कोहरा",
-      48: "घना कोहरा",
-      51: "हल्की बूंदाबांदी",
-      53: "बूंदाबांदी",
-      55: "घनी बूंदाबांदी",
-      61: "हल्की बारिश",
-      63: "बारिश",
-      65: "तेज बारिश",
-      71: "हल्की बर्फबारी",
-      73: "बर्फबारी",
-      75: "भारी बर्फबारी",
-      80: "बारिश की बौछारें",
-      81: "तेज बौछारें",
-      82: "बहुत तेज बौछारें",
-      95: "गरज-चमक के साथ तूफान",
-      96: "ओलों के साथ तूफान",
-      99: "तेज ओलों के साथ तूफान"
-    };
-    return descriptions[code] || "मौसम की जानकारी उपलब्ध";
-  }
-
-  $("weatherForm").addEventListener("submit", (event) => {
-    event.preventDefault();
-    loadWeather($("weatherCityInput").value.trim());
-  });
-
-  async function loadWeather(place) {
-    if (!place) return;
-
-    $("weatherContent").innerHTML =
-      '<p class="status">मौसम की जानकारी लाई जा रही है...</p>';
-
-    try {
-      const response = await fetch(
-        "/api/weather?place=" + encodeURIComponent(place)
-      );
-
-      if (!response.ok) throw new Error("Weather request failed");
-
-      const data = await response.json();
-      const weather = data.weather || data;
-
-      if (data.success === false || data.error ||
-          weather.temperature === undefined) {
-        throw new Error(data.error || "Weather unavailable");
-      }
-
-      const temperature = weather.temperature;
-      const feelsLike = weather.feels_like;
-      const humidity = weather.humidity;
-      const wind = weather.wind_speed;
-      const code = weather.weather_code;
-      const location = weather.city || weather.place || place;
-      const time = weather.time || weather.local_time || "";
-      const timezone = weather.timezone || "";
-
-      $("weatherContent").replaceChildren();
-
-      const main = document.createElement("div");
-      main.className = "weather-main";
-
-      const placeTitle = document.createElement("div");
-      placeTitle.className = "weather-place";
-      placeTitle.textContent = "📍 " + location;
-      main.appendChild(placeTitle);
-
-      const temp = document.createElement("div");
-      temp.className = "weather-temp";
-      temp.textContent = temperature + "°C";
-      main.appendChild(temp);
-
-      const description = document.createElement("div");
-      description.className = "weather-description";
-      description.textContent = weatherDescription(code);
-      main.appendChild(description);
-
-      if (time) {
-        const timeText = document.createElement("div");
-        timeText.className = "weather-description";
-        timeText.style.marginTop = "6px";
-        timeText.textContent = "समय: " + time +
-          (timezone ? " (" + timezone + ")" : "");
-        main.appendChild(timeText);
-      }
-
-      $("weatherContent").appendChild(main);
-
-      const stats = document.createElement("div");
-      stats.className = "weather-stats";
-
-      [
-        ["🌡️ महसूस तापमान", feelsLike],
-        ["💧 नमी", humidity],
-        ["💨 हवा की गति", wind]
-      ].forEach(([label, value]) => {
-        if (value === undefined || value === null) return;
-
-        const box = document.createElement("div");
-        box.className = "weather-stat";
-
-        const labelElement = document.createElement("span");
-        labelElement.textContent = label;
-
-        const valueElement = document.createElement("strong");
-        valueElement.textContent =
-          label.includes("नमी") ? value + "%" :
-          label.includes("हवा") ? value + " km/h" :
-          value + "°C";
-
-        box.append(labelElement, valueElement);
-        stats.appendChild(box);
+        const actions = document.createElement("div");
+        actions.className = "result-actions";
+        const map = makeLink("मैप पर देखें ↗", item.map_url);
+        const directions = makeLink("रास्ता देखें ↗", item.directions_url);
+        if (map) actions.appendChild(map);
+        if (directions) actions.appendChild(directions);
+        card.appendChild(actions);
+        $("toolResults").appendChild(card);
       });
 
-      $("weatherContent").appendChild(stats);
-    } catch (error) {
-      $("weatherContent").innerHTML =
-        '<p class="status error">मौसम उपलब्ध नहीं है। शहर का नाम जाँचें या थोड़ी देर बाद कोशिश करें।</p>';
+      if (data.attribution) {
+        const credit = document.createElement("p");
+        credit.className = "disclaimer";
+        credit.textContent = data.attribution;
+        $("toolResults").appendChild(credit);
+      }
+      return;
     }
+
+    results.forEach(item => $("toolResults").appendChild(createResultCard(item)));
+  } catch (_) {
+    makeStatus("toolStatus", "यह फीचर अभी उपलब्ध नहीं है। app.py में संबंधित API और सर्वर की स्थिति जाँचें।", "error");
   }
+}
 
-  // ---------- LIVE RATES ----------
-  function rateCard(title, description, value) {
-    const item = document.createElement("div");
-    item.className = "rate-item";
+// NEWS
+$("newsSearchForm").addEventListener("submit", e => {
+  e.preventDefault();
+  loadNews($("newsSearchInput").value.trim());
+});
 
-    const left = document.createElement("div");
-    const strong = document.createElement("strong");
-    strong.textContent = title;
-    left.appendChild(strong);
+async function loadNews(query = "") {
+  makeStatus("newsStatus", "News Updates लोड हो रहे हैं...");
+  $("newsList").replaceChildren();
+
+  try {
+    const endpoint = query
+      ? "/api/news?q=" + encodeURIComponent(query)
+      : "/api/news";
+    const response = await fetch(endpoint);
+    if (!response.ok) throw new Error("News failed");
+    const data = await response.json();
+    const items = Array.isArray(data)
+      ? data : (data.news || data.results || data.articles || []);
+
+    if (!items.length) {
+      makeStatus("newsStatus", "अभी खबरें उपलब्ध नहीं हैं। बाद में कोशिश करें।");
+      newsLoaded = true;
+      return;
+    }
+
+    makeStatus("newsStatus", items.length + " खबरें मिलीं।", "success");
+    items.forEach(item => $("newsList").appendChild(createResultCard(item, "news")));
+    newsLoaded = true;
+  } catch (_) {
+    makeStatus("newsStatus", "खबरें लोड नहीं हुईं। /api/news सेवा जाँचें।", "error");
+  }
+}
+
+// WEATHER
+function weatherDescription(code) {
+  const map = {
+    0:"आसमान साफ",1:"मुख्यतः साफ",2:"कुछ बादल",3:"बादल छाए हुए",
+    45:"कोहरा",48:"घना कोहरा",51:"हल्की बूंदाबांदी",53:"बूंदाबांदी",
+    55:"घनी बूंदाबांदी",61:"हल्की बारिश",63:"बारिश",65:"तेज बारिश",
+    71:"हल्की बर्फबारी",73:"बर्फबारी",75:"भारी बर्फबारी",
+    80:"बारिश की बौछारें",81:"तेज बौछारें",82:"बहुत तेज बौछारें",
+    95:"गरज-चमक के साथ तूफान",96:"ओलों के साथ तूफान",99:"तेज ओलों के साथ तूफान"
+  };
+  return map[code] || "मौसम की जानकारी";
+}
+
+$("weatherForm").addEventListener("submit", e => {
+  e.preventDefault();
+  loadWeather($("weatherCityInput").value.trim());
+});
+
+async function loadWeather(place) {
+  if (!place) return;
+  $("weatherContent").replaceChildren();
+  makeStatus("weatherContent", "मौसम की जानकारी लाई जा रही है...");
+
+  try {
+    const response = await fetch("/api/weather?place=" + encodeURIComponent(place));
+    if (!response.ok) throw new Error("Weather failed");
+    const data = await response.json();
+    const w = data.weather || data;
+
+    if (data.success === false || data.error || w.temperature === undefined) {
+      throw new Error("Weather unavailable");
+    }
+
+    const main = document.createElement("div");
+    main.className = "weather-main";
+
+    const name = document.createElement("div");
+    name.className = "weather-place";
+    name.textContent = "📍 " + (w.city || w.place || place);
+
+    const temp = document.createElement("div");
+    temp.className = "weather-temp";
+    temp.textContent = w.temperature + "°C";
 
     const desc = document.createElement("div");
-    desc.className = "rate-description";
-    desc.textContent = description;
-    left.appendChild(desc);
+    desc.className = "weather-desc";
+    desc.textContent = weatherDescription(Number(w.weather_code));
 
-    const right = document.createElement("div");
-    right.className = "rate-value";
-    right.textContent = value || "उपलब्ध नहीं";
+    main.append(name, temp, desc);
 
-    item.append(left, right);
-    return item;
+    if (w.time) {
+      const time = document.createElement("div");
+      time.className = "weather-desc";
+      time.textContent = "अपडेट समय: " + w.time;
+      main.appendChild(time);
+    }
+
+    $("weatherContent").replaceChildren(main);
+
+    const stats = document.createElement("div");
+    stats.className = "weather-stats";
+    [
+      ["🌡️ महसूस तापमान", w.feels_like, "°C"],
+      ["💧 नमी", w.humidity, "%"],
+      ["💨 हवा की गति", w.wind_speed, " km/h"]
+    ].forEach(([label, value, unit]) => {
+      if (value === undefined || value === null) return;
+      const box = document.createElement("div");
+      box.className = "weather-stat";
+      const caption = document.createElement("span");
+      caption.textContent = label;
+      const strong = document.createElement("strong");
+      strong.textContent = value + unit;
+      box.append(caption, strong);
+      stats.appendChild(box);
+    });
+    $("weatherContent").appendChild(stats);
+  } catch (_) {
+    $("weatherContent").replaceChildren();
+    makeStatus("weatherContent", "मौसम उपलब्ध नहीं है। शहर का नाम जाँचें या बाद में कोशिश करें।", "error");
   }
+}
 
-  async function loadRates() {
-    const place = $("ratesPlace").value;
-    const content = $("ratesContent");
+// MARKET SOURCE LINKS — API only provides values if they really exist.
+async function loadRates() {
+  const place = $("ratesPlace").value;
+  const content = $("ratesContent");
+  content.replaceChildren();
+  makeStatus("ratesContent", "बाजार स्रोत लोड हो रहे हैं...");
+
+  try {
+    const response = await fetch("/api/rates?place=" + encodeURIComponent(place), {
+      cache:"no-store"
+    });
+    if (!response.ok) throw new Error("Rates unavailable");
+    const data = await response.json();
+    if (data.success === false) throw new Error("Rates error");
 
     content.replaceChildren();
+    const rates = data.rates || {};
+    const entries = [
+      ["gold","🥇 सोना","कीमत / यूनिट"],
+      ["silver","🥈 चाँदी","कीमत / यूनिट"],
+      ["stock_market","📈 शेयर बाजार","इंडेक्स / स्थिति"],
+      ["mandi","🌾 मंडी भाव",place + " की कृषि मंडी"]
+    ];
 
-    const loading = document.createElement("p");
-    loading.className = "status";
-    loading.textContent = "बाजार भाव लोड हो रहे हैं...";
-    content.appendChild(loading);
+    let shown = 0;
+    entries.forEach(([key,title,description]) => {
+      const item = rates[key];
+      if (item === undefined || item === null) return;
+      const value = typeof item === "object"
+        ? (item.value ?? item.price ?? item.rate ?? item.status ?? "")
+        : item;
+      if (value === "") return;
 
-    try {
-      const response = await fetch(
-        "/api/rates?place=" + encodeURIComponent(place),
-        { cache: "no-store" }
-      );
+      const row = document.createElement("div");
+      row.className = "rate-item";
+      const left = document.createElement("div");
+      const strong = document.createElement("strong");
+      strong.textContent = title;
+      const small = document.createElement("small");
+      small.textContent = typeof item === "object"
+        ? (item.unit || item.description || description)
+        : description;
+      left.append(strong, small);
+      const right = document.createElement("div");
+      right.className = "rate-value";
+      right.textContent = value;
+      row.append(left, right);
+      content.appendChild(row);
+      shown++;
+    });
 
-      if (!response.ok) {
-        throw new Error("Rates API is not available");
-      }
-
-      const data = await response.json();
-
-      if (data.success === false) {
-        throw new Error(data.error || "Rates unavailable");
-      }
-
-      content.replaceChildren();
-
-      const rates = data.rates || data;
-      const entries = [
-        {
-          key: "gold",
-          title: "🥇 सोना",
-          description: "कीमत / यूनिट"
-        },
-        {
-          key: "silver",
-          title: "🥈 चाँदी",
-          description: "कीमत / यूनिट"
-        },
-        {
-          key: "stock_market",
-          title: "📈 शेयर बाजार",
-          description: "इंडेक्स / बाजार स्थिति"
-        },
-        {
-          key: "mandi",
-          title: "🌾 मंडी भाव",
-          description: place + " की कृषि मंडी"
-        }
-      ];
-
-      let shown = 0;
-
-      entries.forEach((entry) => {
-        const item = rates[entry.key];
-
-        if (item === undefined || item === null) return;
-
-        let value = "";
-        let description = entry.description;
-
-        if (typeof item === "object") {
-          value = item.value ?? item.price ?? item.rate ?? item.status ?? "";
-          description = item.unit || item.description || entry.description;
-
-          if (item.updated_at) {
-            description += " · अपडेट: " + item.updated_at;
-          }
-        } else {
-          value = item;
-        }
-
-        if (value === "") return;
-
-        content.appendChild(rateCard(entry.title, description, value));
-        shown++;
-      });
-
-      if (!shown) {
-        const message = document.createElement("p");
-        message.className = "status";
-        message.textContent =
-          "भाव का डेटा अभी उपलब्ध नहीं है। नीचे दिए गए स्रोतों से जाँचें।";
-        content.appendChild(message);
-      }
-
-      if (data.updated_at) {
-        const updated = document.createElement("p");
-        updated.className = "rate-note";
-        updated.textContent = "डेटा अपडेट: " + data.updated_at;
-        content.appendChild(updated);
-      }
-    } catch (error) {
-      content.replaceChildren();
-
-      content.appendChild(rateCard(
-        "🥇 सोना",
-        "ताज़ा भाव के लिए स्रोत खोलें",
-        "डेटा उपलब्ध नहीं"
-      ));
-
-      content.appendChild(rateCard(
-        "🥈 चाँदी",
-        "ताज़ा भाव के लिए स्रोत खोलें",
-        "डेटा उपलब्ध नहीं"
-      ));
-
-      content.appendChild(rateCard(
-        "📈 शेयर बाजार",
-        "बाजार की जानकारी",
-        "डेटा उपलब्ध नहीं"
-      ));
-
-      content.appendChild(rateCard(
-        "🌾 मंडी भाव",
-        place + " की मंडी",
-        "डेटा उपलब्ध नहीं"
-      ));
-
-      const note = document.createElement("p");
-      note.className = "rate-note";
-      note.textContent =
-        "Live Rates के लिए app.py में /api/rates endpoint जोड़ना बाकी है। अभी ऊपर दिए गए स्रोतों से भाव जाँच सकते हैं।";
-      content.appendChild(note);
+    if (!shown) {
+      makeStatus("ratesContent", "वास्तविक भाव का डेटा API से उपलब्ध नहीं है। नीचे दिए गए स्रोत खोलें।");
     }
+  } catch (_) {
+    content.replaceChildren();
+    makeStatus("ratesContent", "बाजार भाव API उपलब्ध नहीं है। नीचे दिए गए स्रोत खोलें।");
   }
+}
 
-  $("refreshRates").addEventListener("click", loadRates);
-  $("ratesPlace").addEventListener("change", loadRates);
+$("refreshRates").addEventListener("click", loadRates);
+$("ratesPlace").addEventListener("change", loadRates);
 
-  // ---------- INITIAL LOAD ----------
-  loadWeather("Jaipur");
-  loadRates();
-  loadNews();
+// INITIAL LOAD
+loadWeather("Jaipur");
+loadRates();
+loadNews();
 </script>
 </body>
 </html>
