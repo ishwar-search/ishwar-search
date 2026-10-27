@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101a32">
-<meta name="description" content="Ishwar Search - उपयोगी वेबसाइट, फोटो, मौसम, बाजार भाव और समाचार खोजें।">
+<meta name="description" content="Ishwar Search - उपयोगी वेबसाइट, फोटो, वीडियो और समाचार खोजें।">
 <title>Ishwar Search | Ishwar Ghanchi</title>
 <style>
 :root{--bg:#f3f6fc;--card:#fff;--text:#172033;--muted:#667085;--border:#e2e8f0;--primary:#2457e6;--dark:#101a32;--green:#087f5b}
@@ -69,14 +69,40 @@ main{padding:18px 0 35px}
 .shopping-link{display:block;padding:12px;border:1px solid var(--border);border-radius:10px;background:#fafcff;color:var(--text)}
 .shopping-link strong,.shopping-link span{display:block}
 .shopping-link span{font-size:12px;color:var(--muted)}
-.tabs{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
-.tab{border:1px solid var(--border);border-radius:9px;background:#fff;padding:8px 12px;cursor:pointer;font-weight:700}
-.tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* Search category tabs: only shown after a search */
+.search-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.search-tab{border:1px solid var(--border);border-radius:10px;background:#fff;padding:9px 16px;cursor:pointer;font-weight:700;color:var(--text)}
+.search-tab:hover{border-color:var(--primary);color:var(--primary)}
+.search-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.search-tab:focus-visible{outline:3px solid #9db6ff;outline-offset:2px}
+.tab-count{font-size:11px;margin-left:5px;opacity:.85}
+.search-category-content{min-height:70px}
+.video-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.video-card{padding:13px;border:1px solid var(--border);border-radius:12px;background:#fafcff}
+.video-card h3{font-size:15px;margin:0 0 6px}
+.video-card p{font-size:13px;color:var(--muted);margin:0 0 7px}
 footer{background:#fff;border-top:1px solid var(--border);padding:20px 0;text-align:center;color:var(--muted);font-size:13px}
 footer strong{color:var(--text)}
 [hidden]{display:none!important}
-@media(max-width:700px){.dashboard-grid{grid-template-columns:1fr}.header-tag{display:none}.image-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.shopping-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:430px){.container{width:calc(100% - 16px)}.panel{padding:13px}.search-box{padding:5px;gap:3px}.search-box input{padding:9px 6px;font-size:14px}.search-box .btn{padding:9px 12px}.logo{width:47px;height:47px}.image-card img{height:125px}}
+@media(max-width:700px){
+.dashboard-grid{grid-template-columns:1fr}
+.header-tag{display:none}
+.image-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.shopping-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.video-grid{grid-template-columns:1fr}
+.search-tab{padding:8px 12px;flex:1}
+}
+@media(max-width:430px){
+.container{width:calc(100% - 16px)}
+.panel{padding:13px}
+.search-box{padding:5px;gap:3px}
+.search-box input{padding:9px 6px;font-size:14px}
+.search-box .btn{padding:9px 12px}
+.logo{width:47px;height:47px}
+.image-card img{height:125px}
+.search-tab{font-size:13px;padding:8px 5px}
+}
 </style>
 </head>
 <body>
@@ -101,12 +127,23 @@ footer strong{color:var(--text)}
     </form>
   </section>
 
-  <section id="searchResultsSection" hidden>
+  <!-- Search results and category tabs appear only after submitting a search -->
+  <section id="searchResultsSection" class="results-section" hidden>
     <div class="section-heading">
       <h2>🔎 खोज के परिणाम</h2>
       <p id="searchStatus" class="status" aria-live="polite">खोजिए...</p>
     </div>
-    <div class="results-panel" id="searchResults"></div>
+    <div class="results-panel">
+      <nav class="search-tabs" id="searchTabs" aria-label="सर्च के प्रकार" hidden>
+        <button type="button" class="search-tab active" data-tab="all">All</button>
+        <button type="button" class="search-tab" data-tab="images">🖼️ Images</button>
+        <button type="button" class="search-tab" data-tab="videos">▶ Videos</button>
+        <button type="button" class="search-tab" data-tab="news">📰 समाचार</button>
+      </nav>
+      <div id="searchCategoryContent" class="search-category-content">
+        <div id="searchResults"></div>
+      </div>
+    </div>
   </section>
 
   <section>
@@ -199,8 +236,13 @@ footer strong{color:var(--text)}
 
 const $ = id => document.getElementById(id);
 
+let currentQuery = "";
+let currentTab = "all";
+const searchCache = {all: [], images: [], videos: [], news: []};
+
 function setStatus(id, message, kind = "") {
   const el = $(id);
+  if (!el) return;
   el.textContent = message;
   el.className = "status " + kind;
 }
@@ -217,6 +259,7 @@ function safeUrl(value) {
 function addLink(parent, label, url) {
   const href = safeUrl(url);
   if (!href) return;
+
   const a = document.createElement("a");
   a.href = href;
   a.target = "_blank";
@@ -231,15 +274,21 @@ function renderResult(item, type = "web") {
   card.className = "result-card";
 
   const title = document.createElement("h3");
-  title.textContent = item.title || item.name || item.headline || "उपयोगी जानकारी";
+  title.textContent =
+    item.title || item.name || item.headline || "उपयोगी जानकारी";
   card.appendChild(title);
 
   const description = document.createElement("p");
-  description.textContent = item.description || item.summary || item.snippet || item.address || "";
+  description.textContent =
+    item.description || item.summary || item.snippet || item.address || "";
   if (description.textContent) card.appendChild(description);
 
-  const meta = [item.category, item.source, item.published || item.date]
-    .filter(Boolean).join(" · ");
+  const meta = [
+    item.category,
+    item.source,
+    item.published || item.date
+  ].filter(Boolean).join(" · ");
+
   if (meta) {
     const m = document.createElement("div");
     m.className = "result-meta";
@@ -247,34 +296,284 @@ function renderResult(item, type = "web") {
     card.appendChild(m);
   }
 
-  addLink(card, type === "news" ? "पूरी खबर पढ़ें ↗" : "वेबसाइट खोलें ↗",
-    item.url || item.link || item.map_url);
+  addLink(
+    card,
+    type === "news" ? "पूरी खबर पढ़ें ↗" : "वेबसाइट खोलें ↗",
+    item.url || item.link || item.map_url
+  );
+
   return card;
+}
+
+function normalizeResults(data, keys = []) {
+  if (Array.isArray(data)) return data;
+
+  for (const key of keys) {
+    if (Array.isArray(data?.[key])) return data[key];
+  }
+
+  return [];
+}
+
+function showSearchTabs() {
+  $("searchTabs").hidden = false;
+}
+
+function setActiveTab(tab) {
+  currentTab = tab;
+
+  document.querySelectorAll(".search-tab").forEach(button => {
+    const active = button.dataset.tab === tab;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+  });
+
+  renderCurrentTab();
+}
+
+function renderCurrentTab() {
+  const container = $("searchCategoryContent");
+  container.replaceChildren();
+
+  const results = searchCache[currentTab] || [];
+
+  if (currentTab === "all") {
+    if (!results.length) {
+      container.textContent = "इस खोज में परिणाम नहीं मिले।";
+      return;
+    }
+
+    results.forEach(item => {
+      container.appendChild(renderResult(item));
+    });
+    return;
+  }
+
+  if (currentTab === "images") {
+    renderSearchImages(container, results);
+    return;
+  }
+
+  if (currentTab === "videos") {
+    renderSearchVideos(container, results);
+    return;
+  }
+
+  if (currentTab === "news") {
+    if (!results.length) {
+      container.textContent = "इस विषय की खबरें अभी उपलब्ध नहीं हैं।";
+      return;
+    }
+
+    results.forEach(item => {
+      container.appendChild(renderResult(item, "news"));
+    });
+  }
+}
+
+function renderSearchImages(container, results) {
+  if (!results.length) {
+    container.textContent = "इस विषय की फोटो अभी उपलब्ध नहीं हैं।";
+    return;
+  }
+
+  const grid = document.createElement("div");
+  grid.className = "image-grid";
+
+  results.forEach(item => {
+    const card = document.createElement("article");
+    card.className = "image-card";
+
+    const imageUrl = safeUrl(
+      item.image_url || item.thumbnail || item.image
+    );
+
+    if (imageUrl) {
+      const img = document.createElement("img");
+      img.src = imageUrl;
+      img.alt = item.title || "सर्च फोटो";
+      img.loading = "lazy";
+      img.referrerPolicy = "no-referrer";
+      img.onerror = () => {
+        img.style.display = "none";
+      };
+      card.appendChild(img);
+    }
+
+    const info = document.createElement("div");
+    info.className = "image-info";
+
+    const name = document.createElement("div");
+    name.textContent = item.title || "फोटो";
+    info.appendChild(name);
+
+    addLink(
+      info,
+      "फोटो स्रोत खोलें ↗",
+      item.url || item.page_url || item.link
+    );
+
+    card.appendChild(info);
+    grid.appendChild(card);
+  });
+
+  container.appendChild(grid);
+}
+
+function renderSearchVideos(container, results) {
+  if (!results.length) {
+    const message = document.createElement("p");
+    message.className = "status";
+    message.textContent =
+      "वीडियो के परिणाम अभी उपलब्ध नहीं हैं। इसके लिए सर्वर पर वीडियो सर्च API होना जरूरी है।";
+    container.appendChild(message);
+    return;
+  }
+
+  const grid = document.createElement("div");
+  grid.className = "video-grid";
+
+  results.forEach(item => {
+    const card = document.createElement("article");
+    card.className = "video-card";
+
+    const title = document.createElement("h3");
+    title.textContent = item.title || "वीडियो";
+    card.appendChild(title);
+
+    const description = document.createElement("p");
+    description.textContent = item.description || item.snippet || "";
+    if (description.textContent) card.appendChild(description);
+
+    addLink(
+      card,
+      "वीडियो देखें ↗",
+      item.url || item.video_url || item.link
+    );
+
+    grid.appendChild(card);
+  });
+
+  container.appendChild(grid);
+}
+
+// Click handling for All, Images, Videos and News
+$("searchTabs").addEventListener("click", async event => {
+  const button = event.target.closest(".search-tab");
+  if (!button) return;
+
+  const tab = button.dataset.tab;
+  if (!tab) return;
+
+  setActiveTab(tab);
+
+  // Fetch category data only when that tab is selected.
+  if (tab !== "all" && !searchCache[tab + "_loaded"]) {
+    await loadCategory(tab, currentQuery);
+  }
+});
+
+async function loadCategory(tab, query) {
+  const container = $("searchCategoryContent");
+  container.replaceChildren();
+
+  const loading = document.createElement("p");
+  loading.className = "status";
+  loading.textContent = "परिणाम लोड हो रहे हैं...";
+  container.appendChild(loading);
+
+  let endpoint = "";
+
+  if (tab === "images") {
+    endpoint = "/api/images?q=" + encodeURIComponent(query);
+  } else if (tab === "news") {
+    endpoint = "/api/news?q=" + encodeURIComponent(query);
+  } else if (tab === "videos") {
+    // This endpoint must be implemented by the backend to return real results.
+    endpoint = "/api/videos?q=" + encodeURIComponent(query);
+  }
+
+  try {
+    const response = await fetch(endpoint, {cache: "no-store"});
+    if (!response.ok) throw new Error("HTTP " + response.status);
+
+    const data = await response.json();
+
+    const keys = tab === "images"
+      ? ["results", "images", "items"]
+      : tab === "news"
+      ? ["news", "results", "articles", "items"]
+      : ["videos", "results", "items"];
+
+    searchCache[tab] = normalizeResults(data, keys);
+    searchCache[tab + "_loaded"] = true;
+
+    if (currentTab === tab) renderCurrentTab();
+  } catch (error) {
+    console.error(tab + " search error:", error);
+
+    container.replaceChildren();
+    const message = document.createElement("p");
+    message.className = "status error";
+
+    message.textContent = tab === "videos"
+      ? "वीडियो सर्च API अभी काम नहीं कर रही। app.py में /api/videos सेवा बनानी होगी।"
+      : "इस श्रेणी के परिणाम लोड नहीं हो पाए। सर्वर API जाँचें।";
+
+    container.appendChild(message);
+    searchCache[tab + "_loaded"] = false;
+  }
 }
 
 // MAIN SEARCH
 $("searchForm").addEventListener("submit", async event => {
   event.preventDefault();
+
   const query = $("searchInput").value.trim();
   if (!query) return;
 
+  currentQuery = query;
+  currentTab = "all";
+
+  Object.keys(searchCache).forEach(key => {
+    if (Array.isArray(searchCache[key])) searchCache[key] = [];
+    else delete searchCache[key];
+  });
+
   $("searchResultsSection").hidden = false;
-  $("searchResults").replaceChildren();
+  $("searchTabs").hidden = true;
+  $("searchCategoryContent").replaceChildren();
+
   setStatus("searchStatus", "खोजा जा रहा है...");
   $("searchButton").disabled = true;
 
   try {
-    const response = await fetch("/api/search?q=" + encodeURIComponent(query), {cache:"no-store"});
+    const response = await fetch(
+      "/api/search?q=" + encodeURIComponent(query),
+      {cache: "no-store"}
+    );
+
     if (!response.ok) throw new Error("HTTP " + response.status);
+
     const data = await response.json();
 
-    // Different API response formats are handled here.
-    const results = Array.isArray(data) ? data :
-      (data.results || data.services || data.items || data.data || []);
+    searchCache.all = normalizeResults(
+      data,
+      ["results", "services", "items", "data"]
+    );
 
-    if (!Array.isArray(results) || results.length === 0) {
-      setStatus("searchStatus",
-        "इस खोज में परिणाम नहीं मिले। नीचे दिए गए आधिकारिक स्रोत भी आजमा सकते हैं।");
+    showSearchTabs();
+    setActiveTab("all");
+
+    setStatus(
+      "searchStatus",
+      searchCache.all.length
+        ? searchCache.all.length + " परिणाम मिले। श्रेणी चुनें।"
+        : "सामान्य परिणाम नहीं मिले। दूसरी श्रेणी चुनकर देख सकते हैं।",
+      searchCache.all.length ? "success" : ""
+    );
+
+    if (!searchCache.all.length) {
       const suggestions = [
         ["Railway भर्ती", "https://www.rrbapply.gov.in/"],
         ["सरकारी नौकरी", "https://www.ncs.gov.in/"],
@@ -282,271 +581,101 @@ $("searchForm").addEventListener("submit", async event => {
         ["राजस्थान SSO", "https://sso.rajasthan.gov.in/"],
         ["आधार सेवाएँ", "https://uidai.gov.in/"]
       ];
-      suggestions.forEach(([label, url]) => addLink($("searchResults"), label + " ↗", url));
-      return;
-    }
 
-    setStatus("searchStatus", results.length + " परिणाम मिले।", "success");
-    results.forEach(item => $("searchResults").appendChild(renderResult(item)));
+      const container = $("searchCategoryContent");
+      const note = document.createElement("p");
+      note.className = "status";
+      note.textContent = "इन आधिकारिक स्रोतों को भी देख सकते हैं:";
+      container.appendChild(note);
+
+      suggestions.forEach(([label, url]) => {
+        addLink(container, label + " ↗", url);
+      });
+    }
   } catch (error) {
     console.error("Main search error:", error);
-    setStatus("searchStatus",
-      "सर्च सर्वर से जवाब नहीं मिला। app.py की /api/search सेवा और Render लॉग जाँचने होंगे।", "error");
+    setStatus(
+      "searchStatus",
+      "सर्च सर्वर से जवाब नहीं मिला। /api/search सेवा जाँचें।",
+      "error"
+    );
   } finally {
     $("searchButton").disabled = false;
   }
 });
-
-// IMAGE SEARCH
-$("imageSearchForm").addEventListener("submit", async event => {
-  event.preventDefault();
-  const query = $("imageSearchInput").value.trim();
-  if (!query) return;
-
-  $("imageResults").replaceChildren();
-  setStatus("imageStatus", "फोटो खोजी जा रही हैं...");
-
-  try {
-    const response = await fetch("/api/images?q=" + encodeURIComponent(query), {cache:"no-store"});
-    if (!response.ok) throw new Error("HTTP " + response.status);
-    const data = await response.json();
-    const results = Array.isArray(data) ? data :
-      (data.results || data.images || data.items || []);
-
-    if (!Array.isArray(results) || !results.length) {
-      setStatus("imageStatus", "फोटो नहीं मिलीं। दूसरा शब्द आजमाएँ।");
-      return;
-    }
-
-    const grid = document.createElement("div");
-    grid.className = "image-grid";
-
-    results.forEach(item => {
-      const card = document.createElement("article");
-      card.className = "image-card";
-      const imageUrl = safeUrl(item.image_url || item.thumbnail || item.image);
-
-      if (imageUrl) {
-        const img = document.createElement("img");
-        img.src = imageUrl;
-        img.alt = item.title || "खोज परिणाम की फोटो";
-        img.loading = "lazy";
-        img.referrerPolicy = "no-referrer";
-        img.onerror = () => { img.style.display = "none"; };
-        card.appendChild(img);
-      }
-
-      const info = document.createElement("div");
-      info.className = "image-info";
-      const name = document.createElement("div");
-      name.textContent = item.title || "फोटो";
-      info.appendChild(name);
-      addLink(info, "स्रोत खोलें ↗", item.url || item.page_url || item.link);
-
-      const credit = [item.license, item.artist, item.credit].filter(Boolean).join(" · ");
-      if (credit) {
-        const note = document.createElement("div");
-        note.className = "result-meta";
-        note.textContent = credit;
-        info.appendChild(note);
-      }
-      card.appendChild(info);
-      grid.appendChild(card);
-    });
-
-    $("imageResults").appendChild(grid);
-    setStatus("imageStatus", results.length + " फोटो परिणाम मिले।", "success");
-  } catch (error) {
-    console.error("Image search error:", error);
-    setStatus("imageStatus", "फोटो सर्च उपलब्ध नहीं है। /api/images सेवा जाँचें।", "error");
-  }
-});
-
-// NEWS
-$("newsSearchForm").addEventListener("submit", event => {
-  event.preventDefault();
-  loadNews($("newsSearchInput").value.trim());
-});
-
-async function loadNews(query = "") {
-  $("newsList").replaceChildren();
-  setStatus("newsStatus", "खबरें लोड हो रही हैं...");
-
-  try {
-    const endpoint = query
-      ? "/api/news?q=" + encodeURIComponent(query)
-      : "/api/news";
-
-    const response = await fetch(endpoint, {cache:"no-store"});
-    if (!response.ok) throw new Error("HTTP " + response.status);
-    const data = await response.json();
-    const items = Array.isArray(data) ? data :
-      (data.news || data.results || data.articles || []);
-
-    if (!Array.isArray(items) || !items.length) {
-      setStatus("newsStatus", "अभी खबरें उपलब्ध नहीं हैं।");
-      return;
-    }
-
-    setStatus("newsStatus", items.length + " खबरें मिलीं।", "success");
-    items.forEach(item => $("newsList").appendChild(renderResult(item, "news")));
-  } catch (error) {
-    console.error("News error:", error);
-    setStatus("newsStatus", "खबरें नहीं लोड हुईं। /api/news सेवा जाँचें।", "error");
-  }
-}
-
-// WEATHER
-function weatherDescription(code) {
-  const descriptions = {
-    0:"आसमान साफ",1:"मुख्यतः साफ",2:"कुछ बादल",3:"बादल छाए हुए",
-    45:"कोहरा",48:"घना कोहरा",51:"हल्की बूंदाबांदी",53:"बूंदाबांदी",
-    55:"घनी बूंदाबांदी",61:"हल्की बारिश",63:"बारिश",65:"तेज बारिश",
-    71:"हल्की बर्फबारी",73:"बर्फबारी",75:"भारी बर्फबारी",
-    80:"बारिश की बौछारें",81:"तेज बौछारें",82:"बहुत तेज बौछारें",
-    95:"गरज-चमक के साथ तूफान",96:"ओलों के साथ तूफान",99:"तेज ओलों के साथ तूफान"
-  };
-  return descriptions[code] || "मौसम की जानकारी";
-}
-
-$("weatherForm").addEventListener("submit", event => {
-  event.preventDefault();
-  loadWeather($("weatherCityInput").value.trim());
-});
-
-async function loadWeather(place) {
-  if (!place) return;
-  $("weatherContent").replaceChildren();
-  setStatus("weatherContent", "मौसम की जानकारी लाई जा रही है...");
-
-  try {
-    const response = await fetch("/api/weather?place=" + encodeURIComponent(place), {cache:"no-store"});
-    if (!response.ok) throw new Error("HTTP " + response.status);
-    const data = await response.json();
-    const w = data.weather || data;
-
-    if (data.success === false || data.error ||
-        (w.temperature === undefined && w.temperature_2m === undefined)) {
-      throw new Error("Weather data unavailable");
-    }
-
-    const temperature = w.temperature ?? w.temperature_2m;
-    const code = w.weather_code ?? w.weathercode;
-    const main = document.createElement("div");
-    main.className = "weather-main";
-
-    const name = document.createElement("div");
-    name.className = "weather-place";
-    name.textContent = "📍 " + (w.city || w.place || place);
-
-    const temp = document.createElement("div");
-    temp.className = "weather-temp";
-    temp.textContent = temperature + "°C";
-
-    const desc = document.createElement("div");
-    desc.className = "weather-desc";
-    desc.textContent = weatherDescription(Number(code));
-
-    main.append(name, temp, desc);
-    if (w.time) {
-      const time = document.createElement("div");
-      time.className = "weather-desc";
-      time.textContent = "अपडेट समय: " + w.time;
-      main.appendChild(time);
-    }
-    $("weatherContent").replaceChildren(main);
-
-    const stats = document.createElement("div");
-    stats.className = "weather-stats";
-    [
-      ["💧 नमी", w.humidity ?? w.relative_humidity_2m, "%"],
-      ["💨 हवा की गति", w.wind_speed ?? w.wind_speed_10m, " km/h"],
-      ["🌡️ महसूस तापमान", w.feels_like ?? w.apparent_temperature, "°C"]
-    ].forEach(([label, value, unit]) => {
-      if (value === undefined || value === null) return;
-      const box = document.createElement("div");
-      box.className = "weather-stat";
-      const caption = document.createElement("span");
-      caption.textContent = label;
-      const strong = document.createElement("strong");
-      strong.textContent = value + unit;
-      box.append(caption, strong);
-      stats.appendChild(box);
-    });
-    $("weatherContent").appendChild(stats);
-  } catch (error) {
-    console.error("Weather error:", error);
-    $("weatherContent").replaceChildren();
-    setStatus("weatherContent", "मौसम उपलब्ध नहीं है। शहर का नाम या /api/weather सेवा जाँचें।", "error");
-  }
-}
-
-// MARKET RATES
-async function loadRates() {
-  const place = $("ratesPlace").value;
-  $("ratesContent").replaceChildren();
-  setStatus("ratesContent", "बाजार स्रोत लोड हो रहे हैं...");
-
-  try {
-    const response = await fetch("/api/rates?place=" + encodeURIComponent(place), {cache:"no-store"});
-    if (!response.ok) throw new Error("HTTP " + response.status);
-    const data = await response.json();
-    if (data.success === false) throw new Error("Rates unavailable");
-
-    const rates = data.rates || {};
-    $("ratesContent").replaceChildren();
-    const entries = [
-      ["gold","🥇 सोना","कीमत / यूनिट"],
-      ["silver","🥈 चाँदी","कीमत / यूनिट"],
-      ["stock_market","📈 शेयर बाजार","इंडेक्स / स्थिति"],
-      ["mandi","🌾 मंडी भाव",place + " की कृषि मंडी"]
-    ];
-    let shown = 0;
-
-    entries.forEach(([key, title, description]) => {
-      const item = rates[key];
-      if (item === undefined || item === null) return;
-      const value = typeof item === "object"
-        ? (item.value ?? item.price ?? item.rate ?? item.status ?? "")
-        : item;
-      if (value === "") return;
-
-      const row = document.createElement("div");
-      row.className = "rate-item";
-      const left = document.createElement("div");
-      const strong = document.createElement("strong");
-      strong.textContent = title;
-      const small = document.createElement("small");
-      small.textContent = typeof item === "object"
-        ? (item.unit || item.description || description)
-        : description;
-      left.append(strong, small);
-
-      const right = document.createElement("div");
-      right.className = "rate-value";
-      right.textContent = value;
-      row.append(left, right);
-      $("ratesContent").appendChild(row);
-      shown++;
-    });
-
-    if (!shown) {
-      setStatus("ratesContent", "लाइव भाव का डेटा API से नहीं मिला। नीचे दिए गए बाजार स्रोत खोलें।");
-    }
-  } catch (error) {
-    console.error("Rates error:", error);
-    $("ratesContent").replaceChildren();
-    setStatus("ratesContent", "बाजार भाव API उपलब्ध नहीं है। नीचे दिए गए स्रोत खोलें।", "error");
-  }
-}
-
-$("refreshRates").addEventListener("click", loadRates);
-$("ratesPlace").addEventListener("change", loadRates);
-
-// Initial loading
-loadWeather("Jaipur");
-loadRates();
-loadNews();
 </script>
+
+<script>
+// वीडियो टैब के लिए वैकल्पिक बाहरी सर्च लिंक
+// जब तक app.py में /api/videos API नहीं बनती, ये लिंक उपयोगी रहेंगे।
+
+function showVideoSearchLinks(query) {
+  const container = $("searchCategoryContent");
+  container.replaceChildren();
+
+  const heading = document.createElement("p");
+  heading.textContent =
+    "वीडियो खोजने के लिए नीचे दिए गए विकल्प खोलें:";
+  container.appendChild(heading);
+
+  const encoded = encodeURIComponent(query);
+
+  addLink(
+    container,
+    "YouTube पर वीडियो खोजें ↗",
+    "https://www.youtube.com/results?search_query=" + encoded
+  );
+
+  addLink(
+    container,
+    "Google Videos पर खोजें ↗",
+    "https://www.google.com/search?tbm=vid&q=" + encoded
+  );
+}
+
+// वीडियो API उपलब्ध न होने पर उपयोगकर्ता को स्पष्ट विकल्प दिखाएँ।
+async function loadVideosWithFallback(query) {
+  const container = $("searchCategoryContent");
+  container.replaceChildren();
+
+  const loading = document.createElement("p");
+  loading.textContent = "वीडियो खोजे जा रहे हैं...";
+  container.appendChild(loading);
+
+  try {
+    const response = await fetch(
+      "/api/videos?q=" + encodeURIComponent(query),
+      {cache: "no-store"}
+    );
+
+    if (!response.ok) throw new Error("Video API unavailable");
+
+    const data = await response.json();
+    const videos = normalizeResults(data, ["videos", "results", "items"]);
+
+    searchCache.videos = videos;
+    searchCache.videos_loaded = true;
+
+    if (videos.length) {
+      renderCurrentTab();
+      return;
+    }
+
+    showVideoSearchLinks(query);
+  } catch (error) {
+    console.info("Video API is not available yet.");
+    showVideoSearchLinks(query);
+  }
+}
+
+// वीडियो टैब चुनने पर बाहरी खोज के विकल्प दिखाएँ।
+$("searchTabs").addEventListener("click", event => {
+  const button = event.target.closest(".search-tab");
+  if (!button || button.dataset.tab !== "videos") return;
+
+  loadVideosWithFallback(currentQuery);
+});
+</script>
+
 </body>
 </html>
