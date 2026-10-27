@@ -1,116 +1,129 @@
+
 [
+  {
+    "name": "Railway Recruitment Boards",
+    "category": "Railway",
+    "keywords": "railway rrb rail railway jobs ALP NTPC Group D technician रेलवे रेल भर्ती नौकरी",
+    "url": "https://www.rrbcdg.gov.in/"
+  },
+  {
+    "name": "Indian Railways",
+    "category": "Railway",
+    "keywords": "indian railways train रेलवे रेलगाड़ी",
+    "url": "https://indianrailways.gov.in/"
+  },
+  {
+    "name": "North Western Railway Recruitment",
+    "category": "Railway",
+    "keywords": "RRC NWR Jaipur apprentice railway राजस्थान रेलवे भर्ती",
+    "url": "https://nwr.indianrailways.gov.in/"
+  },
   {
     "name": "National Career Service",
     "category": "Jobs",
-    "keywords": "job employment career नौकरी रोजगार",
+    "keywords": "job jobs employment career private government नौकरी रोजगार naukri",
     "url": "https://www.ncs.gov.in/"
   },
   {
     "name": "Employment News",
     "category": "Jobs",
-    "keywords": "government jobs employment news रोजगार समाचार",
+    "keywords": "government jobs employment news सरकारी नौकरी रोजगार समाचार",
     "url": "https://employmentnews.gov.in/"
   },
   {
     "name": "Staff Selection Commission",
-    "category": "Recruitment",
-    "keywords": "SSC CGL CHSL MTS GD भर्ती",
+    "category": "Jobs",
+    "keywords": "SSC CGL CHSL MTS GD recruitment vacancy भर्ती नौकरी",
     "url": "https://ssc.gov.in/"
   },
   {
     "name": "Union Public Service Commission",
-    "category": "Recruitment",
-    "keywords": "UPSC civil services NDA CDS",
+    "category": "Jobs",
+    "keywords": "UPSC civil services NDA CDS recruitment परीक्षा भर्ती",
     "url": "https://upsc.gov.in/"
   },
   {
-    "name": "Railway Recruitment Boards",
-    "category": "Railway",
-    "keywords": "RRB ALP NTPC Group D railway भर्ती",
-    "url": "https://www.rrbcdg.gov.in/"
-  },
-  {
-    "name": "Railway Recruitment Cell North Western Railway",
-    "category": "Railway",
-    "keywords": "RRC NWR Jaipur apprentice रेलवे",
-    "url": "https://nwr.indianrailways.gov.in/"
-  },
-  {
     "name": "Rajasthan Public Service Commission",
-    "category": "Recruitment",
-    "keywords": "RPSC Rajasthan भर्ती परीक्षा",
+    "category": "Rajasthan Jobs",
+    "keywords": "RPSC Rajasthan government jobs भर्ती सरकारी नौकरी",
     "url": "https://rpsc.rajasthan.gov.in/"
   },
   {
     "name": "Rajasthan Staff Selection Board",
-    "category": "Recruitment",
-    "keywords": "RSSB RSMSSB Rajasthan jobs",
+    "category": "Rajasthan Jobs",
+    "keywords": "RSSB RSMSSB Rajasthan vacancy jobs भर्ती राजस्थान नौकरी",
     "url": "https://rssb.rajasthan.gov.in/"
+  },
+  {
+    "name": "National Scholarship Portal",
+    "category": "Scholarship",
+    "keywords": "scholarship छात्रवृत्ति स्कॉलरशिप students scholarship form",
+    "url": "https://scholarships.gov.in/"
+  },
+  {
+    "name": "Rajasthan Higher Education",
+    "category": "Scholarship",
+    "keywords": "Rajasthan scholarship छात्रवृत्ति राजस्थान कॉलेज शिक्षा",
+    "url": "https://hte.rajasthan.gov.in/"
   },
   {
     "name": "National Testing Agency",
     "category": "Education",
-    "keywords": "NTA exam JEE NEET CUET परीक्षा",
+    "keywords": "NTA JEE NEET CUET exam परीक्षा",
     "url": "https://nta.ac.in/"
   },
   {
     "name": "University Grants Commission",
     "category": "Education",
-    "keywords": "UGC university higher education",
+    "keywords": "UGC university higher education विश्वविद्यालय",
     "url": "https://www.ugc.gov.in/"
   },
   {
-    "name": "All India Council for Technical Education",
+    "name": "AICTE",
     "category": "Education",
-    "keywords": "AICTE technical education college",
+    "keywords": "AICTE technical education college तकनीकी शिक्षा",
     "url": "https://www.aicte-india.org/"
-  },
-  {
-    "name": "National Scholarship Portal",
-    "category": "Education",
-    "keywords": "scholarship छात्रवृत्ति students",
-    "url": "https://scholarships.gov.in/"
   },
   {
     "name": "SWAYAM Online Courses",
     "category": "Learning",
-    "keywords": "online courses free learning",
+    "keywords": "online courses free learning ऑनलाइन पढ़ाई",
     "url": "https://swayam.gov.in/"
   },
   {
     "name": "DIKSHA Learning Platform",
     "category": "Learning",
-    "keywords": "school education learning courses",
+    "keywords": "school education learning courses विद्यालय शिक्षा",
     "url": "https://diksha.gov.in/"
   },
   {
     "name": "Khan Academy",
     "category": "Learning",
-    "keywords": "math science learning free lessons",
+    "keywords": "math science learning free lessons गणित विज्ञान",
     "url": "https://www.khanacademy.org/"
-  },
-  {
-    "name": "National Digital Library of India",
-    "category": "Learning",
-    "keywords": "digital library books study",
-    "url": "https://ndl.iitkgp.ac.in/"
-  },
-  {
-    "name": "ePathshala",
-    "category": "Learning",
-    "keywords": "NCERT books textbook school",
-    "url": "https://epathshala.nic.in/"
   },
   {
     "name": "NCERT",
     "category": "Education",
-    "keywords": "NCERT textbooks syllabus education",
+    "keywords": "NCERT textbooks syllabus education किताबें पाठ्यक्रम",
     "url": "https://ncert.nic.in/"
+  },
+  {
+    "name": "ePathshala",
+    "category": "Learning",
+    "keywords": "NCERT books textbook school किताबें",
+    "url": "https://epathshala.nic.in/"
+  },
+  {
+    "name": "Rajasthan Board RBSE",
+    "category": "Education",
+    "keywords": "RBSE result exam Rajasthan board रिजल्ट परिणाम",
+    "url": "https://rajeduboard.rajasthan.gov.in/"
   },
   {
     "name": "All India Radio News",
     "category": "News",
-    "keywords": "Akashvani news radio भारत समाचार",
+    "keywords": "Akashvani news radio भारत समाचार खबर",
     "url": "https://www.newsonair.gov.in/"
   },
   {
@@ -122,74 +135,56 @@
   {
     "name": "DD News",
     "category": "News",
-    "keywords": "Doordarshan news India समाचार",
+    "keywords": "Doordarshan news India समाचार खबर",
     "url": "https://ddnews.gov.in/"
   },
   {
     "name": "Google News India",
     "category": "News",
-    "keywords": "latest news India ताजा खबर",
+    "keywords": "latest news India ताजा खबर समाचार",
     "url": "https://news.google.com/"
   },
   {
-    "name": "BBC News Hindi",
+    "name": "BBC Hindi",
     "category": "News",
-    "keywords": "Hindi news international समाचार",
+    "keywords": "Hindi news international हिंदी समाचार",
     "url": "https://www.bbc.com/hindi"
   },
   {
     "name": "The Hindu",
     "category": "News",
-    "keywords": "English news India newspaper",
+    "keywords": "English news India newspaper समाचार",
     "url": "https://www.thehindu.com/"
   },
   {
     "name": "Indian Express",
     "category": "News",
-    "keywords": "news India explainers newspaper",
+    "keywords": "news India explainers newspaper खबर",
     "url": "https://indianexpress.com/"
   },
   {
-    "name": "India Code",
-    "category": "Legal",
-    "keywords": "Indian laws acts कानूनी जानकारी",
-    "url": "https://www.indiacode.nic.in/"
+    "name": "UIDAI Aadhaar",
+    "category": "Documents",
+    "keywords": "aadhaar aadhar आधार UIDAI card update download",
+    "url": "https://uidai.gov.in/"
   },
   {
-    "name": "eCourts Services",
-    "category": "Legal",
-    "keywords": "court case status district court",
-    "url": "https://ecourts.gov.in/"
+    "name": "Rajasthan SSO",
+    "category": "Rajasthan",
+    "keywords": "Rajasthan SSO login services राजस्थान एसएसओ",
+    "url": "https://sso.rajasthan.gov.in/"
   },
   {
-    "name": "National Legal Services Authority",
-    "category": "Legal",
-    "keywords": "NALSA legal aid free कानूनी सहायता",
-    "url": "https://nalsa.gov.in/"
+    "name": "Rajasthan Sampark",
+    "category": "Rajasthan",
+    "keywords": "Rajasthan complaint grievance जन शिकायत राजस्थान संपर्क",
+    "url": "https://sampark.rajasthan.gov.in/"
   },
   {
-    "name": "Consumer Helpline",
-    "category": "Consumer",
-    "keywords": "consumer complaint 1915 ग्राहक शिकायत",
-    "url": "https://consumerhelpline.gov.in/"
-  },
-  {
-    "name": "National Cyber Crime Reporting Portal",
-    "category": "Safety",
-    "keywords": "cyber crime online fraud complaint साइबर ठगी",
-    "url": "https://cybercrime.gov.in/"
-  },
-  {
-    "name": "CPGRAMS Public Grievances",
-    "category": "Government",
-    "keywords": "government complaint grievance शिकायत",
-    "url": "https://pgportal.gov.in/"
-  },
-  {
-    "name": "MyGov India",
-    "category": "Government",
-    "keywords": "citizen participation government भारत सरकार",
-    "url": "https://www.mygov.in/"
+    "name": "Rajasthan Jan Aadhaar",
+    "category": "Rajasthan",
+    "keywords": "Jan Aadhaar family ID राजस्थान जन आधार",
+    "url": "https://janaadhaar.rajasthan.gov.in/"
   },
   {
     "name": "National Portal of India",
@@ -199,8 +194,8 @@
   },
   {
     "name": "MyScheme",
-    "category": "Government",
-    "keywords": "government schemes eligibility योजना",
+    "category": "Government Schemes",
+    "keywords": "government schemes eligibility योजना सरकारी योजना",
     "url": "https://www.myscheme.gov.in/"
   },
   {
@@ -212,8 +207,14 @@
   {
     "name": "DigiLocker",
     "category": "Documents",
-    "keywords": "digital documents marksheet certificate",
+    "keywords": "digital documents marksheet certificate डिजिलॉकर",
     "url": "https://www.digilocker.gov.in/"
+  },
+  {
+    "name": "Voter Services Portal",
+    "category": "Documents",
+    "keywords": "voter ID electoral roll चुनाव कार्ड मतदाता",
+    "url": "https://voters.eci.gov.in/"
   },
   {
     "name": "Passport Seva",
@@ -222,84 +223,71 @@
     "url": "https://www.passportindia.gov.in/"
   },
   {
-    "name": "Voter Services Portal",
-    "category": "Documents",
-    "keywords": "voter ID electoral roll चुनाव कार्ड",
-    "url": "https://voters.eci.gov.in/"
-  },
-  {
-    "name": "Election Commission of India",
-    "category": "Government",
-    "keywords": "election voter election commission",
-    "url": "https://www.eci.gov.in/"
-  },
-  {
-    "name": "UIDAI Aadhaar",
-    "category": "Documents",
-    "keywords": "Aadhaar update download आधार",
-    "url": "https://uidai.gov.in/"
-  },
-  {
     "name": "Income Tax e-Filing",
     "category": "Finance",
-    "keywords": "income tax return ITR PAN tax",
+    "keywords": "income tax return ITR PAN tax आयकर पैन",
     "url": "https://www.incometax.gov.in/"
   },
   {
     "name": "GST Portal",
     "category": "Business",
-    "keywords": "GST registration return tax business",
+    "keywords": "GST registration return tax business जीएसटी",
     "url": "https://www.gst.gov.in/"
   },
   {
     "name": "EPFO",
     "category": "Finance",
-    "keywords": "PF UAN provident fund pension",
+    "keywords": "PF UAN provident fund pension पीएफ",
     "url": "https://www.epfindia.gov.in/"
   },
   {
-    "name": "ESIC",
-    "category": "Health",
-    "keywords": "employee insurance medical benefits",
-    "url": "https://www.esic.gov.in/"
+    "name": "India Code",
+    "category": "Legal",
+    "keywords": "Indian laws acts कानूनी जानकारी कानून",
+    "url": "https://www.indiacode.nic.in/"
   },
   {
-    "name": "Rajasthan SSO",
-    "category": "Rajasthan",
-    "keywords": "Rajasthan SSO login services राजस्थान",
-    "url": "https://sso.rajasthan.gov.in/"
+    "name": "eCourts Services",
+    "category": "Legal",
+    "keywords": "court case status district court अदालत केस",
+    "url": "https://ecourts.gov.in/"
   },
   {
-    "name": "Rajasthan Sampark",
-    "category": "Rajasthan",
-    "keywords": "Rajasthan complaint grievance जन शिकायत",
-    "url": "https://sampark.rajasthan.gov.in/"
+    "name": "National Legal Services Authority",
+    "category": "Legal",
+    "keywords": "NALSA legal aid free कानूनी सहायता मुफ्त वकील",
+    "url": "https://nalsa.gov.in/"
   },
   {
-    "name": "Rajasthan Jan Aadhaar",
-    "category": "Rajasthan",
-    "keywords": "Jan Aadhaar family ID राजस्थान",
-    "url": "https://janaadhaar.rajasthan.gov.in/"
+    "name": "National Consumer Helpline",
+    "category": "Complaints",
+    "keywords": "consumer complaint customer 1915 ग्राहक शिकायत उपभोक्ता",
+    "url": "https://consumerhelpline.gov.in/"
   },
   {
-    "name": "Rajasthan Board of Secondary Education",
-    "category": "Education",
-    "keywords": "RBSE result exam Rajasthan board",
-    "url": "https://rajeduboard.rajasthan.gov.in/"
+    "name": "National Cyber Crime Reporting Portal",
+    "category": "Safety",
+    "keywords": "cyber crime online fraud complaint साइबर ठगी ऑनलाइन फ्रॉड",
+    "url": "https://cybercrime.gov.in/"
+  },
+  {
+    "name": "CPGRAMS Public Grievances",
+    "category": "Complaints",
+    "keywords": "government complaint grievance शिकायत केंद्र सरकार",
+    "url": "https://pgportal.gov.in/"
   },
   {
     "name": "Rajasthan Police",
     "category": "Safety",
-    "keywords": "Rajasthan police citizen services",
+    "keywords": "Rajasthan police citizen services राजस्थान पुलिस",
     "url": "https://police.rajasthan.gov.in/"
   },
   {
     "name": "Rajasthan High Court",
     "category": "Legal",
-    "keywords": "Rajasthan High Court case judgement",
+    "keywords": "Rajasthan High Court case judgement राजस्थान हाई कोर्ट",
     "url": "https://hcraj.nic.in/"
-  }
-  
+  },
   {
     "name": "Amazon India",
     "category": "Shopping",
@@ -326,32 +314,44 @@
   },
   {
     "name": "IndiaMART",
-    "category": "Shopping",
-    "keywords": "indiamart wholesale suppliers business थोक सामान",
+    "category": "Business",
+    "keywords": "indiamart wholesale suppliers business थोक सामान व्यापार",
     "url": "https://www.indiamart.com/"
   },
   {
     "name": "Goodreturns Gold Rates",
-    "category": "Live Rates",
-    "keywords": "gold price gold rate silver price सोना चांदी भाव",
+    "category": "Rates",
+    "keywords": "gold price gold rate सोना भाव gold",
     "url": "https://www.goodreturns.in/gold-rates/"
   },
   {
+    "name": "Goodreturns Silver Rates",
+    "category": "Rates",
+    "keywords": "silver price silver rate चांदी भाव",
+    "url": "https://www.goodreturns.in/silver-rates/"
+  },
+  {
     "name": "MCX India",
-    "category": "Live Rates",
-    "keywords": "MCX commodity market gold silver commodity rates कमोडिटी भाव",
+    "category": "Rates",
+    "keywords": "MCX commodity market gold silver कमोडिटी भाव",
     "url": "https://www.mcxindia.com/"
   },
   {
     "name": "NSE India",
-    "category": "Live Rates",
-    "keywords": "NSE stock market share prices nifty शेयर बाजार लाइव रेट",
+    "category": "Rates",
+    "keywords": "NSE stock market share prices nifty शेयर बाजार",
     "url": "https://www.nseindia.com/"
   },
   {
     "name": "AGMARKNET",
-    "category": "Live Rates",
+    "category": "Rates",
     "keywords": "mandi rates crop prices farmer कृषि मंडी भाव फसल",
     "url": "https://agmarknet.gov.in/"
+  },
+  {
+    "name": "Open-Meteo Weather",
+    "category": "Weather",
+    "keywords": "weather mausam मौसम तापमान forecast बारिश",
+    "url": "https://open-meteo.com/"
   }
 ]
