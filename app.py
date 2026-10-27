@@ -1,963 +1,1382 @@
-from flask import Flask, request, jsonify, render_template
-from pathlib import Path
-from datetime import datetime
-import re
-import json
+
 import os
+import json
+import re
+import logging
+import unicodedata
+from datetime import datetime, timezone
 from urllib.parse import quote_plus
-import html
-import urllib.request
-import xml.etree.ElementTree as ET
+
+from flask import Flask, request, jsonify, render_template, make_response
+
+APP_NAME = "Ishwar Search"
+OWNER_NAME = "Ishwar Ghanchi"
+APP_VERSION = "2.0.0"
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SERVICES_FILE = os.path.join(BASE_DIR, "services.json")
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("ishwar_search")
 
 app = Flask(__name__)
 
-APP_NAME = "Ishwar Search"
-OWNER = "Ishwar Ghanchi"
-BASE_DIR = Path(__file__).resolve().parent
+# Request size limit: 10 MB
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
+app.config["JSON_AS_ASCII"] = False
+
 
 RAW_SERVICES = [
-    # Search engines
-    ("Google Search", "Search", "google web search खोज", "https://www.google.com/"),
-    ("Bing Search", "Search", "bing web search", "https://www.bing.com/"),
-    ("DuckDuckGo", "Search", "private search", "https://duckduckgo.com/"),
-
-    # Government and identity
-    ("India Government Portal", "Government", "india government भारत सरकार", "https://www.india.gov.in/"),
-    ("DigiLocker", "Government", "documents marksheet certificate", "https://www.digilocker.gov.in/"),
-    ("UMANG", "Government", "government services सरकारी सेवाएं", "https://web.umang.gov.in/"),
-    ("UIDAI Aadhaar", "Government", "aadhaar aadhar आधार uidai", "https://uidai.gov.in/"),
-    ("My Aadhaar", "Government", "aadhaar services आधार सेवा", "https://myaadhaar.uidai.gov.in/"),
-    ("PAN Income Tax", "Government", "pan card income tax पैन कार्ड", "https://www.incometax.gov.in/"),
-    ("Passport Seva", "Government", "passport पासपोर्ट", "https://www.passportindia.gov.in/"),
-    ("Voter Services", "Government", "voter id election वोटर कार्ड", "https://voters.eci.gov.in/"),
-    ("EPFO", "Government", "pf provident fund पीएफ", "https://www.epfindia.gov.in/"),
-    ("ESIC", "Government", "employee insurance कर्मचारी बीमा", "https://www.esic.gov.in/"),
-    ("MyScheme", "Government", "government scheme yojana सरकारी योजना", "https://www.myscheme.gov.in/"),
-    ("National Consumer Helpline", "Complaints", "consumer complaint ग्राहक शिकायत", "https://consumerhelpline.gov.in/"),
-    ("CPGRAMS Grievance Portal", "Complaints", "government complaint grievance शिकायत", "https://pgportal.gov.in/"),
-    ("Cyber Crime Reporting", "Safety", "online fraud cyber crime साइबर ठगी", "https://cybercrime.gov.in/"),
-    ("RTI Online", "Government", "right to information सूचना अधिकार", "https://rtionline.gov.in/"),
-
-    # Rajasthan services
-    ("Rajasthan SSO", "Rajasthan", "rajasthan sso login राजस्थान एसएसओ", "https://sso.rajasthan.gov.in/"),
-    ("Rajasthan Jan Aadhaar", "Rajasthan", "jan aadhaar जन आधार", "https://janaadhaar.rajasthan.gov.in/"),
-    ("Rajasthan Sampark", "Complaints", "rajasthan complaint sampark शिकायत", "https://sampark.rajasthan.gov.in/"),
-    ("Rajasthan Public Service Commission", "Jobs", "rpsc recruitment राजस्थान भर्ती", "https://rpsc.rajasthan.gov.in/"),
-    ("Rajasthan Staff Selection Board", "Jobs", "rssb rsmssb recruitment राजस्थान भर्ती", "https://rssb.rajasthan.gov.in/"),
-    ("Rajasthan High Court", "Legal", "rajasthan high court अदालत", "https://hcraj.nic.in/"),
-    ("Rajasthan Tourism", "Travel", "rajasthan tourism राजस्थान पर्यटन", "https://www.tourism.rajasthan.gov.in/"),
-    ("Rajasthan Agriculture Department", "Agriculture", "farmer agriculture किसान कृषि", "https://agriculture.rajasthan.gov.in/"),
-    ("Bhu Naksha Rajasthan", "Agriculture", "land map जमीन नक्शा", "https://bhunaksha.rajasthan.gov.in/"),
-
-    # Railways and jobs
-    ("Indian Railways", "Railway", "railway train रेलवे", "https://indianrailways.gov.in/"),
-    ("IRCTC", "Railway", "train ticket booking टिकट", "https://www.irctc.co.in/"),
-    ("Railway Recruitment Boards", "Railway Jobs", "rrb railway recruitment भर्ती", "https://www.rrbcdg.gov.in/"),
-    ("RRB Apply", "Railway Jobs", "rrb alp ntpc group d technician", "https://www.rrbapply.gov.in/"),
-    ("Rail Madad", "Railway", "railway complaint रेलवे शिकायत", "https://railmadad.indianrailways.gov.in/"),
-    ("National Train Enquiry", "Railway", "train status running status ट्रेन स्थिति", "https://enquiry.indianrail.gov.in/"),
-    ("National Career Service", "Jobs", "job vacancy employment नौकरी", "https://www.ncs.gov.in/"),
-    ("Staff Selection Commission", "Jobs", "ssc government jobs भर्ती", "https://ssc.gov.in/"),
-    ("UPSC", "Jobs", "upsc civil services examination", "https://upsc.gov.in/"),
-    ("Employment News", "Jobs", "employment news government jobs", "https://employmentnews.gov.in/"),
-    ("Apprenticeship India", "ITI Jobs", "apprentice fitter iti अप्रेंटिस", "https://www.apprenticeshipindia.gov.in/"),
-    ("NCVT MIS", "ITI", "ncvt iti marksheet certificate fitter", "https://www.ncvtmis.gov.in/"),
-    ("Skill India Digital Hub", "ITI", "skill india sidh training कौशल", "https://www.skillindiadigital.gov.in/"),
-    ("DRDO", "Jobs", "drdo careers recruitment", "https://www.drdo.gov.in/"),
-    ("ISRO Careers", "Jobs", "isro space jobs अंतरिक्ष नौकरी", "https://www.isro.gov.in/"),
-    ("BHEL", "Jobs", "bhel recruitment apprentice", "https://www.bhel.com/"),
-    ("Indian Oil", "Jobs", "iocl careers apprentice", "https://iocl.com/"),
-    ("Airport Authority of India", "Jobs", "aai recruitment airport jobs", "https://www.aai.aero/"),
-
-    # Education
-    ("National Scholarship Portal", "Education", "scholarship छात्रवृत्ति", "https://scholarships.gov.in/"),
-    ("National Testing Agency", "Education", "nta exams परीक्षा", "https://nta.ac.in/"),
-    ("CBSE", "Education", "cbse school board result", "https://www.cbse.gov.in/"),
-    ("CBSE Results", "Education", "cbse results रिजल्ट", "https://results.cbse.nic.in/"),
-    ("NCERT", "Education", "ncert books किताबें", "https://ncert.nic.in/"),
-    ("NIOS", "Education", "nios open schooling", "https://www.nios.ac.in/"),
-    ("UGC", "Education", "ugc university college", "https://www.ugc.gov.in/"),
-    ("AICTE", "Education", "aicte technical education", "https://www.aicte-india.org/"),
-    ("IGNOU", "Education", "ignou distance education", "https://www.ignou.ac.in/"),
-    ("SWAYAM", "Education", "online courses पढ़ाई", "https://swayam.gov.in/"),
-    ("DIKSHA", "Education", "learning education courses", "https://diksha.gov.in/"),
-    ("Khan Academy", "Education", "free learning maths science", "https://www.khanacademy.org/"),
-    ("FreeCodeCamp", "Education", "free coding programming", "https://www.freecodecamp.org/"),
-
-    # Health and agriculture
-    ("Ayushman Bharat PM-JAY", "Health", "ayushman card आयुष्मान", "https://pmjay.gov.in/"),
-    ("ABHA Health Account", "Health", "abha digital health account", "https://abha.abdm.gov.in/"),
-    ("eSanjeevani", "Health", "online doctor consultation", "https://esanjeevani.mohfw.gov.in/"),
-    ("Ministry of Health", "Health", "health ministry स्वास्थ्य मंत्रालय", "https://mohfw.gov.in/"),
-    ("PM Kisan", "Agriculture", "pm kisan farmer किसान", "https://pmkisan.gov.in/"),
-    ("eShram", "Government", "labour worker श्रमिक कार्ड", "https://eshram.gov.in/"),
-    ("e-NAM", "Agriculture", "farmer mandi कृषि मंडी", "https://enam.gov.in/"),
-    ("PM Fasal Bima Yojana", "Agriculture", "crop insurance फसल बीमा", "https://pmfby.gov.in/"),
-    ("India Meteorological Department", "Weather", "weather forecast मौसम", "https://mausam.imd.gov.in/"),
-
-    # Finance and business
-    ("Reserve Bank of India", "Finance", "rbi banking आरबीआई", "https://www.rbi.org.in/"),
-    ("SEBI", "Finance", "sebi investor securities", "https://www.sebi.gov.in/"),
-    ("GST Portal", "Business", "gst registration tax जीएसटी", "https://www.gst.gov.in/"),
-    ("MCA Company Services", "Business", "company registration कंपनी", "https://www.mca.gov.in/"),
-    ("Udyam Registration", "Business", "msme small business उद्योग", "https://udyamregistration.gov.in/"),
-    ("Startup India", "Business", "startup business उद्यम", "https://www.startupindia.gov.in/"),
-    ("Government e Marketplace", "Business", "gem government procurement", "https://gem.gov.in/"),
-
-    # Search, maps and media
-    ("Google Maps", "Maps", "maps directions रास्ता नक्शा", "https://maps.google.com/"),
-    ("OpenStreetMap", "Maps", "openstreetmap maps नक्शा", "https://www.openstreetmap.org/"),
-    ("Google Translate", "Tools", "translate language अनुवाद", "https://translate.google.com/"),
-    ("Google News", "News", "news समाचार खबर", "https://news.google.com/"),
-    ("PIB India", "News", "government press release सरकारी समाचार", "https://pib.gov.in/"),
-    ("BBC Hindi", "News", "bbc hindi news समाचार", "https://www.bbc.com/hindi"),
-    ("DD News", "News", "dd news india समाचार", "https://ddnews.gov.in/"),
-    ("YouTube", "Video", "youtube video वीडियो", "https://www.youtube.com/"),
-    ("Google Drive", "Files", "cloud storage files", "https://drive.google.com/"),
-
-    # AI and technology
-    ("ChatGPT", "AI", "chatgpt artificial intelligence एआई", "https://chatgpt.com/"),
-    ("Google Gemini", "AI", "gemini google ai", "https://gemini.google.com/"),
-    ("Microsoft Copilot", "AI", "copilot microsoft ai", "https://copilot.microsoft.com/"),
-    ("Claude", "AI", "claude ai assistant", "https://claude.ai/"),
-    ("Perplexity", "AI", "perplexity ai search", "https://www.perplexity.ai/"),
-    ("Hugging Face", "AI", "machine learning ai models", "https://huggingface.co/"),
-    ("GitHub", "Technology", "github code repository coding", "https://github.com/"),
-    ("Python", "Technology", "python programming language", "https://www.python.org/"),
-    ("MDN Web Docs", "Technology", "html css javascript web development", "https://developer.mozilla.org/"),
-    ("W3Schools", "Education", "html css javascript coding", "https://www.w3schools.com/"),
-    ("Replit", "Technology", "online coding programming", "https://replit.com/"),
-    ("Canva", "Design", "canva poster graphic design", "https://www.canva.com/"),
-    ("Photopea", "Design", "photo editor image editing", "https://www.photopea.com/"),
-    ("Blender", "Design", "3d modelling animation", "https://www.blender.org/"),
-    ("OBS Studio", "Tools", "screen recording livestream", "https://obsproject.com/"),
-
-    # Additional public services
-    ("Parivahan", "Transport", "driving licence vehicle registration", "https://parivahan.gov.in/"),
-    ("National Legal Services Authority", "Legal", "nalsa legal aid मुफ्त कानूनी सहायता", "https://nalsa.gov.in/"),
-    ("eCourts Services", "Legal", "court case अदालत केस", "https://ecourts.gov.in/"),
-    ("India Code", "Legal", "laws acts कानून", "https://www.indiacode.nic.in/"),
-    ("National Disaster Management Authority", "Safety", "disaster emergency आपदा", "https://ndma.gov.in/"),
-    ("Food Safety Authority of India", "Health", "fssai food safety", "https://www.fssai.gov.in/"),
-    ("World Health Organization", "Health", "who public health", "https://www.who.int/"),
-    ("NASA", "Science", "space science astronomy", "https://www.nasa.gov/"),
-    ("ISRO", "Science", "space science india", "https://www.isro.gov.in/"),
-    ("UNESCO", "Knowledge", "education science culture", "https://www.unesco.org/"),
-
-    # Additional curated services: land, cyber safety, education, jobs, media and public services
-    ("Rajasthan Apna Khata", "Rajasthan Land", "jamabandi khasra land record राजस्थान जमाबंदी", "https://apnakhata.rajasthan.gov.in/"),
-    ("Rajasthan e-Mitra", "Rajasthan", "emitra bill certificate service ई मित्र", "https://emitra.rajasthan.gov.in/"),
-    ("Rajasthan e-Panjiyan", "Rajasthan Land", "property registration stamp duty जमीन रजिस्ट्री", "https://epanjiyan.rajasthan.gov.in/"),
-    ("Rajasthan Rajdharaa GIS", "Rajasthan Land", "gis map urban khasra नक्शा", "https://rajdharaa.rajasthan.gov.in/"),
-    ("Rajasthan Revenue Board", "Rajasthan Land", "revenue department land राजस्व", "https://landrevenue.rajasthan.gov.in/"),
-    ("Rajasthan Police", "Safety", "police complaint citizen राजस्थान पुलिस", "https://police.rajasthan.gov.in/"),
-    ("Rajasthan Jan Soochna Portal", "Rajasthan", "jan soochna scheme information जन सूचना", "https://jansoochna.rajasthan.gov.in/"),
-    ("Rajasthan State Election Commission", "Government", "local election राजस्थान चुनाव", "https://sec.rajasthan.gov.in/"),
-    ("Rajasthan Legislative Assembly", "Government", "assembly legislation राजस्थान विधानसभा", "https://assembly.rajasthan.gov.in/"),
-    ("Rajasthan Forest Department", "Environment", "forest wildlife राजस्थान वन", "https://forest.rajasthan.gov.in/"),
-    ("Rajasthan Medical Health", "Health", "medical health department राजस्थान स्वास्थ्य", "https://medical.rajasthan.gov.in/"),
-    ("Rajasthan Education Department", "Education", "school education राजस्थान शिक्षा", "https://education.rajasthan.gov.in/"),
-    ("Rajasthan Board of Secondary Education", "Education", "rbse ajmer board result", "https://rajeduboard.rajasthan.gov.in/"),
-    ("Rajasthan Scholarship Portal", "Education", "scholarship social justice राजस्थान छात्रवृत्ति", "https://sje.rajasthan.gov.in/"),
-    ("Rajasthan Social Justice Department", "Government", "pension social justice राजस्थान पेंशन", "https://sje.rajasthan.gov.in/"),
-    ("Rajasthan Labour Department", "Government", "labour worker registration श्रमिक", "https://labour.rajasthan.gov.in/"),
-    ("Rajasthan Transport Department", "Transport", "driving licence vehicle राजस्थान परिवहन", "https://transport.rajasthan.gov.in/"),
-    ("Rajasthan PHED", "Utilities", "water supply public health engineering पानी", "https://phed.rajasthan.gov.in/"),
-    ("Rajasthan Energy Department", "Utilities", "electricity energy राजस्थान बिजली", "https://energy.rajasthan.gov.in/"),
-    ("Rajasthan DISCOM", "Utilities", "electricity bill bijli राजस्थान", "https://energy.rajasthan.gov.in/"),
-    ("National Cyber Security Portal", "Safety", "cyber security awareness साइबर सुरक्षा", "https://www.cybercrime.gov.in/"),
-    ("CERT-In Advisories", "Safety", "cyber security alerts vulnerability", "https://www.cert-in.org.in/"),
-    ("Sanchar Saathi", "Safety", "mobile connections lost phone fraud", "https://sancharsaathi.gov.in/"),
-    ("Chakshu Report Suspected Fraud", "Safety", "report suspicious call sms fraud", "https://sancharsaathi.gov.in/"),
-    ("I4C Indian Cyber Crime Coordination Centre", "Safety", "cyber crime coordination india", "https://www.mha.gov.in/"),
-    ("National Digital Library of India", "Education", "digital library books research", "https://ndl.iitkgp.ac.in/"),
-    ("ePathshala", "Education", "ncert textbook e books", "https://epathshala.nic.in/"),
-    ("NPTEL", "Education", "engineering courses online learning", "https://nptel.ac.in/"),
-    ("AICTE Internship Portal", "Education", "internship technical students", "https://internship.aicte-india.org/"),
-    ("National Apprenticeship Training Scheme", "ITI Jobs", "nats apprenticeship diploma graduate", "https://nats.education.gov.in/"),
-    ("National Institute of Open Schooling", "Education", "nios admission examination", "https://nios.ac.in/"),
-    ("All India Council for Technical Education", "Education", "technical college approval", "https://www.aicte-india.org/"),
-    ("National Academic Depository", "Education", "academic certificates degree documents", "https://nad.gov.in/"),
-    ("NIRF India", "Education", "college university ranking", "https://www.nirfindia.org/"),
-    ("National Testing Agency Exams", "Education", "nta exam registration", "https://exams.nta.ac.in/"),
-    ("Railway Recruitment Cell North Western Railway", "Railway Jobs", "rrc nwr jaipur apprentice", "https://rrcjaipur.in/"),
-    ("Railway Recruitment Cell Western Railway", "Railway Jobs", "western railway apprentice recruitment", "https://www.rrc-wr.com/"),
-    ("Railway Recruitment Cell Central Railway", "Railway Jobs", "central railway apprentice recruitment", "https://rrccr.com/"),
-    ("Railway Recruitment Cell Northern Railway", "Railway Jobs", "northern railway apprentice recruitment", "https://rrcnr.org/"),
-    ("Indian Navy Recruitment", "Jobs", "navy recruitment apprentice", "https://www.joinindiannavy.gov.in/"),
-    ("Indian Army Recruitment", "Jobs", "army agniveer recruitment", "https://joinindianarmy.nic.in/"),
-    ("Indian Air Force Recruitment", "Jobs", "air force agniveer recruitment", "https://agnipathvayu.cdac.in/"),
-    ("Public Enterprises Selection Board", "Jobs", "government company jobs psu", "https://pesb.gov.in/"),
-    ("National Health Authority", "Health", "ayushman bharat health authority", "https://nha.gov.in/"),
-    ("CoWIN", "Health", "vaccination certificate vaccine", "https://www.cowin.gov.in/"),
-    ("Food Safety Connect", "Health", "food safety complaint fssai", "https://foscos.fssai.gov.in/"),
-    ("National AIDS Control Organisation", "Health", "health awareness india", "https://naco.gov.in/"),
-    ("National Portal of India Weather", "Weather", "weather forecast india imd", "https://mausam.imd.gov.in/"),
-    ("India Water Resources Information System", "Environment", "water resources river data", "https://indiawris.gov.in/"),
-    ("Central Pollution Control Board", "Environment", "air pollution environment data", "https://cpcb.nic.in/"),
-    ("National Green Tribunal", "Legal", "environment case tribunal", "https://greentribunal.gov.in/"),
-    ("eCourts Case Status", "Legal", "court case status india", "https://services.ecourts.gov.in/"),
-    ("Tele-Law", "Legal", "free legal advice legal aid", "https://tele-law.in/"),
-    ("National Legal Services Authority", "Legal", "legal aid lok adalat", "https://nalsa.gov.in/"),
-    ("Consumer Affairs Department", "Complaints", "consumer rights complaint india", "https://consumeraffairs.nic.in/"),
-    ("Bureau of Indian Standards", "Government", "product standards hallmark", "https://www.bis.gov.in/"),
-    ("Food Corporation of India", "Agriculture", "food grain procurement jobs", "https://fci.gov.in/"),
-    ("Kisan Call Centre", "Agriculture", "farmer helpline agriculture advice", "https://agriwelfare.gov.in/"),
-    ("Agriculture Infrastructure Fund", "Agriculture", "agriculture loan scheme", "https://agriinfra.dac.gov.in/"),
-    ("Soil Health Card", "Agriculture", "soil test card farmer", "https://soilhealth.dac.gov.in/"),
-    ("National Horticulture Board", "Agriculture", "horticulture farming scheme", "https://nhb.gov.in/"),
-    ("e-GRAM SWARAJ", "Government", "gram panchayat budget works", "https://egramswaraj.gov.in/"),
-    ("MGNREGA", "Government", "nrega job card wage status", "https://nrega.nic.in/"),
-    ("PM Awas Yojana Urban", "Government", "housing scheme urban", "https://pmay-urban.gov.in/"),
-    ("PM Awas Yojana Gramin", "Government", "rural housing scheme", "https://pmayg.nic.in/"),
-    ("Jal Jeevan Mission", "Utilities", "drinking water scheme", "https://jaljeevanmission.gov.in/"),
-    ("Swachh Bharat Mission Gramin", "Government", "village sanitation scheme", "https://swachhbharatmission.ddws.gov.in/"),
-    ("National Food Security Portal", "Government", "ration card food security", "https://nfsa.gov.in/"),
-    ("One Nation One Ration Card", "Government", "ration card portability", "https://impds.nic.in/"),
-    ("Bharat BillPay", "Finance", "bill payment official bbps", "https://www.npci.org.in/what-we-do/bharat-billpay/product-overview"),
-    ("NPCI", "Finance", "upi payments banking", "https://www.npci.org.in/"),
-    ("RBI Sachet Portal", "Finance", "financial fraud complaint unregulated deposits", "https://sachet.rbi.org.in/"),
-    ("RBI Complaint Management System", "Finance", "banking complaint ombudsman", "https://cms.rbi.org.in/"),
-    ("Insurance Regulatory and Development Authority", "Finance", "insurance complaint policy", "https://irdai.gov.in/"),
-    ("PFRDA", "Finance", "pension nps regulator", "https://www.pfrda.org.in/"),
-    ("National Pension System", "Finance", "nps pension account", "https://npstrust.org.in/"),
-    ("BSE India", "Finance", "stock exchange market information", "https://www.bseindia.com/"),
-    ("NSE India", "Finance", "stock market information", "https://www.nseindia.com/"),
-    ("Mera Ration App Portal", "Government", "ration distribution food", "https://mera-ration.nic.in/"),
-    ("India Post Payments Bank", "Finance", "ippb banking services", "https://www.ippbonline.com/"),
-        ("Google Images Search", "Image Search", "images photos तस्वीरें", "https://images.google.com/"),
-    ("Bing Images Search", "Image Search", "bing image search photos", "https://www.bing.com/images"),
-    ("DuckDuckGo Images", "Image Search", "private image search", "https://duckduckgo.com/?iax=images&ia=images"),
-    ("Bing Videos Search", "Video Search", "video search clips", "https://www.bing.com/videos"),
-    ("YouTube Search", "Video Search", "youtube videos search", "https://www.youtube.com/"),
-    ("Google News Search", "News", "latest news headlines समाचार", "https://news.google.com/"),
-    ("Reuters News", "News", "world news international", "https://www.reuters.com/"),
-    ("The Hindu", "News", "india news newspaper", "https://www.thehindu.com/"),
-    ("Indian Express", "News", "india news explained", "https://indianexpress.com/"),
-    ("Prasar Bharati News Services", "News", "official news india", "https://prasarbharati.gov.in/"),
-    ("Press Council of India", "News", "media standards complaint", "https://presscouncil.nic.in/"),
-    ("Internet Archive Books", "Knowledge", "public domain books archive", "https://archive.org/"),
-    ("Open Library", "Knowledge", "online library books", "https://openlibrary.org/"),
-    ("Project Gutenberg", "Knowledge", "free ebooks public domain", "https://www.gutenberg.org/"),
-    ("Wikimedia Commons", "Image Search", "free media images license", "https://commons.wikimedia.org/"),
-    ("Unsplash", "Image Search", "photos image library", "https://unsplash.com/"),
-    ("Pexels", "Image Search", "free stock photos videos", "https://www.pexels.com/"),
-    ("Pixabay", "Image Search", "free images illustrations videos", "https://pixabay.com/"),
-    ("Internet Speed Test Ookla", "Tools", "internet speed test", "https://www.speedtest.net/"),
-    ("Have I Been Pwned", "Safety", "email breach check account safety", "https://haveibeenpwned.com/"),
-    ("OWASP", "Safety", "web application security learning", "https://owasp.org/"),
-    ("Mozilla Monitor", "Safety", "email data breach monitoring", "https://monitor.mozilla.org/"),
-    ("Google Safe Browsing", "Safety", "check unsafe website", "https://transparencyreport.google.com/safe-browsing/search"),
-]
-
-
-def normalize(value):
-    value = str(value or "").lower().strip()
-    replacements = {
-        "आधार": "aadhaar",
-        "छात्रवृत्ति": "scholarship",
-        "राजस्थान": "rajasthan",
-        "रेलवे": "railway",
-        "नौकरी": "job",
-        "भर्ती": "recruitment",
-        "किसान": "farmer",
-        "पैन कार्ड": "pan card",
-        "परीक्षा": "exam",
-    }
-    for old, new in replacements.items():
-        value = value.replace(old, new)
-
-    value = re.sub(r"[^\w\s]", " ", value, flags=re.UNICODE)
-    return re.sub(r"\s+", " ", value).strip()
-
-
-ALIASES = {
-    "railway": "railway train rrb recruitment",
-    "scholarship": "scholarship student education",
-    "aadhaar": "aadhaar aadhar uidai",
-    "aadhar": "aadhaar aadhar uidai",
-    "rajasthan": "rajasthan sso rpsc rssb sampark",
-    "job": "jobs recruitment career vacancy",
-    "jobs": "job jobs recruitment career",
-    "iti": "iti ncvt fitter apprentice",
-    "fitter": "fitter iti ncvt apprentice",
-    "pan": "pan card income tax",
-    "police": "police recruitment",
-    "news": "news google news pib bbc reuters",
-    "ai": "ai artificial intelligence chatgpt gemini",
-    "map": "map maps google location",
-    "complaint": "complaint grievance sampark consumer",
-    "fraud": "fraud cyber crime online safety",
-    "khasra": "khasra jamabandi land record bhunaksha",
-    "खसरा": "khasra jamabandi land record bhunaksha",
-    "jamabandi": "jamabandi khasra land record apna khata",
-    "video": "video youtube videos bing videos",
-    "videos": "video youtube videos bing videos",
-    "image": "image images photos google images wikimedia",
-    "images": "image images photos google images wikimedia",
-    "photo": "image images photos pictures",
-    "cyber": "cyber security cybercrime cert-in sanchar saathi",
-}
-
-
-def build_services():
-    result = []
-    seen = set()
-
-    for name, category, keywords, url in RAW_SERVICES:
-        url = str(url).strip()
-        if not url.startswith("https://") or url in seen:
-            continue
-
-        seen.add(url)
-        result.append({
-            "name": name,
-            "category": category,
-            "keywords": keywords,
-            "url": url,
-        })
-
-    extra_file = BASE_DIR / "services.json"
-
-    if extra_file.exists():
-        try:
-            data = json.loads(extra_file.read_text(encoding="utf-8"))
-
-            if isinstance(data, list):
-                for item in data:
-                    if not isinstance(item, dict):
-                        continue
-
-                    name = str(item.get("name", "")).strip()
-                    url = str(item.get("url", "")).strip()
-
-                    if not name or not url.startswith("https://"):
-                        continue
-                    if url in seen:
-                        continue
-
-                    seen.add(url)
-                    result.append({
-                        "name": name[:120],
-                        "category": str(item.get("category", "Other"))[:60],
-                        "keywords": str(item.get("keywords", ""))[:500],
-                        "url": url,
-                    })
-
-        except (OSError, json.JSONDecodeError):
-            app.logger.warning("Could not read services.json")
-
-    return result
-
-
-SERVICES = build_services()
-
-
-def search_services(query, limit=50):
-    q = normalize(query)
-
-    if not q:
-        return []
-
-    expanded = ALIASES.get(q, q)
-    terms = set(expanded.split())
-    ranked = []
-
-    for service in SERVICES:
-        name = normalize(service["name"])
-        category = normalize(service["category"])
-        keywords = normalize(service["keywords"])
-        url = normalize(service["url"])
-        searchable = f"{name} {category} {keywords} {url}"
-
-        score = 0
-
-        if q == name:
-            score += 100
-        if name.startswith(q):
-            score += 70
-        elif q in name:
-            score += 45
-        if q in category:
-            score += 20
-        if q in keywords:
-            score += 25
-        if q in url:
-            score += 10
-
-        score += sum(
-            8 for term in terms
-            if len(term) > 1 and term in searchable
-        )
-
-        if score > 0:
-            ranked.append((score, service))
-
-    ranked.sort(key=lambda item: (-item[0], item[1]["name"].lower()))
-    return [service for _, service in ranked[:limit]]
-
-
-SMART_SUGGESTIONS = [
     {
-        "name": "Railway Recruitment Boards",
-        "category": "Railway Jobs",
-        "keywords": "railway rrb alp ntpc group d technician",
-        "url": "https://www.rrbapply.gov.in/",
+        "name": "Indian Railways",
+        "url": "https://indianrailways.gov.in/",
+        "category": "railway",
+        "keywords": ["railway", "train", "रेलवे", "ट्रेन"]
     },
     {
-        "name": "RRC North Western Railway",
-        "category": "Railway Jobs",
-        "keywords": "rrc nwr jaipur apprentice",
-        "url": "https://nwr.indianrailways.gov.in/",
+        "name": "IRCTC",
+        "url": "https://www.irctc.co.in/",
+        "category": "railway",
+        "keywords": ["ticket", "train ticket", "टिकट", "रेल टिकट"]
     },
     {
-        "name": "Rajasthan Sampark",
-        "category": "Complaints",
-        "keywords": "rajasthan complaint shikayat",
-        "url": "https://sampark.rajasthan.gov.in/",
-    },
-    {
-        "name": "National Cyber Crime Reporting Portal",
-        "category": "Safety",
-        "keywords": "online fraud scam cyber crime",
-        "url": "https://cybercrime.gov.in/",
-    },
-    {
-        "name": "National Consumer Helpline",
-        "category": "Complaints",
-        "keywords": "consumer complaint customer grievance",
-        "url": "https://consumerhelpline.gov.in/",
-    },
-    {
-        "name": "NCVT MIS",
-        "category": "ITI",
-        "keywords": "iti marksheet certificate pntc fitter",
-        "url": "https://www.ncvtmis.gov.in/",
+        "name": "Railway Recruitment Board",
+        "url": "https://www.rrbcdg.gov.in/",
+        "category": "jobs",
+        "keywords": ["rrb", "railway jobs", "रेलवे भर्ती", "नौकरी"]
     },
     {
         "name": "National Career Service",
-        "category": "Jobs",
-        "keywords": "job vacancy employment career",
         "url": "https://www.ncs.gov.in/",
+        "category": "jobs",
+        "keywords": ["jobs", "employment", "रोजगार", "जॉब"]
     },
     {
-        "name": "Rajasthan Staff Selection Board",
-        "category": "Rajasthan Jobs",
-        "keywords": "rssb rsmssb government recruitment",
-        "url": "https://rssb.rajasthan.gov.in/",
+        "name": "Staff Selection Commission",
+        "url": "https://ssc.gov.in/",
+        "category": "jobs",
+        "keywords": ["ssc", "government jobs", "सरकारी नौकरी"]
+    },
+    {
+        "name": "Union Public Service Commission",
+        "url": "https://upsc.gov.in/",
+        "category": "education",
+        "keywords": ["upsc", "civil services", "यूपीएससी"]
+    },
+    {
+        "name": "National Testing Agency",
+        "url": "https://nta.ac.in/",
+        "category": "education",
+        "keywords": ["nta", "exam", "entrance exam", "परीक्षा"]
+    },
+    {
+        "name": "DigiLocker",
+        "url": "https://www.digilocker.gov.in/",
+        "category": "documents",
+        "keywords": ["marksheet", "certificate", "डिजिलॉकर", "मार्कशीट"]
+    },
+    {
+        "name": "UIDAI Aadhaar",
+        "url": "https://uidai.gov.in/",
+        "category": "documents",
+        "keywords": ["aadhaar", "aadhar", "आधार", "आधार कार्ड"]
+    },
+    {
+        "name": "Income Tax Department",
+        "url": "https://www.incometax.gov.in/",
+        "category": "finance",
+        "keywords": ["income tax", "itr", "इनकम टैक्स", "आयकर"]
+    },
+    {
+        "name": "PAN Services - Protean",
+        "url": "https://www.protean-tinpan.com/",
+        "category": "documents",
+        "keywords": ["pan card", "पैन कार्ड", "pan application"]
+    },
+    {
+        "name": "Rajasthan Government",
+        "url": "https://rajasthan.gov.in/",
+        "category": "rajasthan",
+        "keywords": ["rajasthan", "राजस्थान", "राजस्थान सरकार"]
+    },
+    {
+        "name": "Rajasthan Public Service Commission",
+        "url": "https://rpsc.rajasthan.gov.in/",
+        "category": "jobs",
+        "keywords": ["rpsc", "राजस्थान भर्ती", "राजस्थान परीक्षा"]
+    },
+    {
+        "name": "Rajasthan Single Sign On",
+        "url": "https://sso.rajasthan.gov.in/",
+        "category": "rajasthan",
+        "keywords": ["sso", "राजस्थान एसएसओ", "सरकारी सेवाएं"]
+    },
+    {
+        "name": "Employment News",
+        "url": "https://www.employmentnews.gov.in/",
+        "category": "jobs",
+        "keywords": ["employment news", "job notification", "भर्ती समाचार"]
     },
     {
         "name": "National Scholarship Portal",
-        "category": "Education",
-        "keywords": "scholarship student education",
         "url": "https://scholarships.gov.in/",
+        "category": "education",
+        "keywords": ["scholarship", "छात्रवृत्ति", "छात्रवृति", "स्कॉलरशिप"]
     },
     {
-        "name": "Apprenticeship India",
-        "category": "ITI Jobs",
-        "keywords": "iti fitter apprenticeship apprentice",
-        "url": "https://www.apprenticeshipindia.gov.in/",
+        "name": "SWAYAM Online Courses",
+        "url": "https://swayam.gov.in/",
+        "category": "education",
+        "keywords": ["online course", "study", "ऑनलाइन पढ़ाई", "कोर्स"]
     },
+    {
+        "name": "University of Rajasthan",
+        "url": "https://www.uniraj.ac.in/",
+        "category": "education",
+        "keywords": ["uniraj", "rajasthan university", "राजस्थान यूनिवर्सिटी"]
+    },
+    {
+        "name": "Maharshi Dayanand Saraswati University",
+        "url": "https://www.mdsuajmer.ac.in/",
+        "category": "education",
+        "keywords": ["mdsu", "ajmer university", "एमडीएसयू", "अजमेर यूनिवर्सिटी"]
+    },
+    {
+        "name": "Rajasthan State Road Transport Corporation",
+        "url": "https://rsrtconline.rajasthan.gov.in/",
+        "category": "travel",
+        "keywords": ["rsrtc", "bus", "बस", "राजस्थान रोडवेज"]
+    },
+    {
+        "name": "Reserve Bank of India",
+        "url": "https://www.rbi.org.in/",
+        "category": "finance",
+        "keywords": ["rbi", "bank", "बैंक", "रिजर्व बैंक"]
+    },
+    {
+        "name": "National Portal of India",
+        "url": "https://www.india.gov.in/",
+        "category": "government",
+        "keywords": ["india government", "भारत सरकार", "सरकारी पोर्टल"]
+    },
+    {
+        "name": "MyGov India",
+        "url": "https://www.mygov.in/",
+        "category": "government",
+        "keywords": ["mygov", "government schemes", "सरकारी योजना"]
+    },
+    {
+        "name": "Press Information Bureau",
+        "url": "https://pib.gov.in/",
+        "category": "news",
+        "keywords": ["pib", "government news", "सरकारी समाचार"]
+    },
+    {
+        "name": "National Consumer Helpline",
+        "url": "https://consumerhelpline.gov.in/",
+        "category": "legal",
+        "keywords": ["consumer complaint", "शिकायत", "उपभोक्ता"]
+    },
+    {
+        "name": "Cyber Crime Reporting Portal",
+        "url": "https://cybercrime.gov.in/",
+        "category": "legal",
+        "keywords": ["cyber crime", "online fraud", "साइबर फ्रॉड", "ऑनलाइन ठगी"]
+    },
+    {
+        "name": "eCourts Services",
+        "url": "https://ecourts.gov.in/",
+        "category": "legal",
+        "keywords": ["court", "case status", "कोर्ट", "केस स्टेटस"]
+    },
+    {
+        "name": "Ayushman Bharat PM-JAY",
+        "url": "https://pmjay.gov.in/",
+        "category": "health",
+        "keywords": ["ayushman", "health card", "आयुष्मान कार्ड"]
+    },
+    {
+        "name": "ABHA Health Account",
+        "url": "https://abha.abdm.gov.in/",
+        "category": "health",
+        "keywords": ["abha", "health id", "आभा कार्ड", "हेल्थ आईडी"]
+    },
+    {
+        "name": "OpenStreetMap",
+        "url": "https://www.openstreetmap.org/",
+        "category": "maps",
+        "keywords": ["map", "location", "नक्शा", "लोकेशन"]
+    },
+    {
+        "name": "Wikipedia Hindi",
+        "url": "https://hi.wikipedia.org/",
+        "category": "knowledge",
+        "keywords": ["wikipedia", "जानकारी", "ज्ञान", "विकिपीडिया"]
+    },
+    {
+        "name": "YouTube",
+        "url": "https://www.youtube.com/",
+        "category": "video",
+        "keywords": ["video", "videos", "वीडियो", "यूट्यूब"]
+    },
+    {
+        "name": "Google Maps",
+        "url": "https://maps.google.com/",
+        "category": "maps",
+        "keywords": ["maps", "direction", "रास्ता", "मैप"]
+    },
+    {
+        "name": "Google News",
+        "url": "https://news.google.com/",
+        "category": "news",
+        "keywords": ["news", "latest news", "समाचार", "ताजा खबर"]
+    },
+    {
+        "name": "Amazon India",
+        "url": "https://www.amazon.in/",
+        "category": "shopping",
+        "keywords": ["shopping", "buy", "खरीदारी", "ऑनलाइन सामान"]
+    },
+    {
+        "name": "Flipkart",
+        "url": "https://www.flipkart.com/",
+        "category": "shopping",
+        "keywords": ["flipkart", "shopping", "ऑनलाइन खरीदारी"]
+    },
+    {
+        "name": "Meesho",
+        "url": "https://www.meesho.com/",
+        "category": "shopping",
+        "keywords": ["meesho", "low price", "सस्ता सामान"]
+    },
+    {
+        "name": "GitHub",
+        "url": "https://github.com/",
+        "category": "technology",
+        "keywords": ["coding", "programming", "कोडिंग", "प्रोग्रामिंग"]
+    },
+    {
+        "name": "Python",
+        "url": "https://www.python.org/",
+        "category": "technology",
+        "keywords": ["python", "learn python", "पायथन"]
+    },
+    {
+        "name": "MDN Web Docs",
+        "url": "https://developer.mozilla.org/",
+        "category": "technology",
+        "keywords": ["html", "css", "javascript", "वेब डेवलपमेंट"]
+    }
 ]
 
+# =========================================================
+# HINDI / ENGLISH SEARCH ALIASES
+# =========================================================
 
-def get_suggestions(query, limit=10):
-    q = normalize(query)
+ALIASES = {
+    "railway": [
+        "railway", "railways", "train", "rrb", "रेलवे", "रेलगाड़ी"
+    ],
+    "scholarship": [
+        "scholarship", "scholarships", "छात्रवृत्ति",
+        "छात्रवृति", "स्कॉलरशिप"
+    ],
+    "aadhaar": [
+        "aadhaar", "aadhar", "आधार", "आधार कार्ड"
+    ],
+    "jobs": [
+        "job", "jobs", "vacancy", "recruitment",
+        "नौकरी", "भर्ती", "रोजगार", "रिक्तियां"
+    ],
+    "rajasthan": [
+        "rajasthan", "राजस्थान", "राजस्थान सरकार"
+    ],
+    "news": [
+        "news", "latest news", "समाचार", "खबर", "खबरें"
+    ],
+    "pan": [
+        "pan", "pancard", "pan card", "पैन", "पैन कार्ड"
+    ],
+    "education": [
+        "education", "study", "exam", "शिक्षा", "पढ़ाई", "परीक्षा"
+    ],
+    "fraud": [
+        "fraud", "scam", "cyber crime", "फ्रॉड", "धोखाधड़ी", "ठगी"
+    ]
+}
 
-    if len(q) < 2:
+
+def normalize_text(value):
+    """Search text को सामान्य रूप में बदलता है."""
+    if value is None:
+        return ""
+
+    value = unicodedata.normalize("NFKC", str(value))
+    value = value.lower().strip()
+    value = re.sub(r"\s+", " ", value)
+
+    return value
+
+
+def expand_query(query):
+    """Query के साथ मिलते-जुलते Hindi/English शब्द जोड़ता है."""
+    normalized = normalize_text(query)
+
+    if not normalized:
         return []
 
-    candidates = SERVICES + SMART_SUGGESTIONS
-    ranked = []
-    seen_urls = set()
+    terms = {normalized}
 
-    for service in candidates:
-        url = service.get("url", "")
+    for group, aliases in ALIASES.items():
+        normalized_aliases = [
+            normalize_text(alias) for alias in aliases
+        ]
 
-        if not url.startswith("https://") or url in seen_urls:
-            continue
+        if any(alias in normalized for alias in normalized_aliases):
+            terms.add(group)
+            terms.update(normalized_aliases)
 
-        seen_urls.add(url)
+    # Query को शब्दों में भी खोजें
+    terms.update(normalized.split())
 
-        name = normalize(service.get("name", ""))
-        category = normalize(service.get("category", ""))
-        keywords = normalize(service.get("keywords", ""))
-        searchable = f"{name} {category} {keywords}"
-
-        score = 0
-
-        if q == name:
-            score += 100
-        if name.startswith(q):
-            score += 80
-        elif q in name:
-            score += 50
-        if q in category:
-            score += 25
-        if q in keywords:
-            score += 20
-
-        score += sum(
-            8 for term in q.split()
-            if len(term) > 1 and term in searchable
-        )
-
-        if score > 0:
-            ranked.append((score, service))
-
-    ranked.sort(key=lambda item: (-item[0], item[1]["name"].lower()))
-
-    return [
-        {
-            "name": service["name"],
-            "category": service["category"],
-            "url": service["url"],
-        }
-        for _, service in ranked[:limit]
-    ]
+    return [term for term in terms if term]
 
 
-RSS_FEEDS = [
-    (
-        "Google News India",
-        "https://news.google.com/rss?hl=hi&gl=IN&ceid=IN:hi",
-    ),
-    ("PIB India", "https://pib.gov.in/RssMain.aspx"),
-    ("BBC Hindi", "https://feeds.bbci.co.uk/hindi/rss.xml"),
-]
+def normalize_service(item):
+    """पुरानी और नई services.json entries को समान रूप देता है."""
+    if not isinstance(item, dict):
+        return None
 
+    name = str(item.get("name") or item.get("title") or "").strip()
+    url = str(item.get("url") or item.get("link") or "").strip()
 
+    if not name or not url:
+        return None
 
-RSS_FEEDS = [
-    (
-        "Google News India",
-        "https://news.google.com/rss?hl=hi&gl=IN&ceid=IN:hi",
-    ),
-    ("PIB India", "https://pib.gov.in/RssMain.aspx"),
-    ("BBC Hindi", "https://feeds.bbci.co.uk/hindi/rss.xml"),
-]
+    # केवल HTTP/HTTPS URLs स्वीकार करें
+    if not url.startswith(("https://", "http://")):
+        return None
 
+    keywords = item.get("keywords", [])
+    if isinstance(keywords, str):
+        keywords = [keywords]
+    if not isinstance(keywords, list):
+        keywords = []
 
-def fetch_news(limit=15):
-    """Fetch GNews articles first, then use RSS feeds as backup."""
-    articles = []
-    seen_links = set()
-    api_key = os.environ.get("GNEWS_API_KEY", "").strip()
+    category = str(item.get("category") or "general").strip().lower()
 
-    # 1. Try GNews API
-    if api_key:
-        api_url = (
-            "https://gnews.io/api/v4/top-headlines"
-            "?lang=hi&country=in&max=10&apikey="
-            + quote_plus(api_key)
-        )
-
-        try:
-            req = urllib.request.Request(
-                api_url,
-                headers={"User-Agent": "IshwarSearch/1.0"},
-            )
-
-            with urllib.request.urlopen(req, timeout=8) as response:
-                data = json.loads(response.read().decode("utf-8"))
-
-            for item in data.get("articles", []):
-                title = html.unescape(
-                    str(item.get("title") or "")
-                ).strip()
-                link = str(item.get("url") or "").strip()
-                source_data = item.get("source") or {}
-                source = str(source_data.get("name") or "GNews")
-                date = str(item.get("publishedAt") or "")
-
-                if (
-                    title
-                    and link.startswith("https://")
-                    and link not in seen_links
-                ):
-                    seen_links.add(link)
-                    articles.append({
-                        "title": title,
-                        "url": link,
-                        "source": source,
-                        "date": date,
-                    })
-
-                if len(articles) >= limit:
-                    return articles[:limit]
-
-        except Exception:
-            app.logger.warning(
-                "GNews unavailable; trying RSS backup."
-            )
-
-    # 2. RSS backup
-    for source, url in RSS_FEEDS:
-        try:
-            req = urllib.request.Request(
-                url,
-                headers={"User-Agent": "IshwarSearch/1.0"},
-            )
-
-            with urllib.request.urlopen(req, timeout=4) as response:
-                root = ET.fromstring(response.read())
-
-            for item in root.findall(".//item"):
-                title = html.unescape(
-                    item.findtext("title", "")
-                ).strip()
-                link = item.findtext("link", "").strip()
-                date = item.findtext("pubDate", "").strip()
-
-                if (
-                    title
-                    and link.startswith("https://")
-                    and link not in seen_links
-                ):
-                    seen_links.add(link)
-                    articles.append({
-                        "title": title,
-                        "url": link,
-                        "source": source,
-                        "date": date,
-                    })
-
-                if len(articles) >= limit:
-                    return articles[:limit]
-
-        except Exception:
-            app.logger.info("News feed unavailable: %s", source)
-
-    return articles[:limit]
-
-
-def fetch_youtube_videos(query, limit=10):
-    """Search YouTube videos using the YouTube Data API v3."""
-    api_key = os.environ.get("YOUTUBE_API_KEY", "").strip()
-
-    if not api_key:
-        return {
-            "success": False,
-            "error": "YouTube API key is not configured.",
-            "results": [],
-        }
-
-    query = str(query or "").strip()[:160]
-
-    if not query:
-        return {
-            "success": True,
-            "query": query,
-            "results": [],
-        }
-
-    params = {
-        "part": "snippet",
-        "q": query,
-        "type": "video",
-        "maxResults": max(1, min(int(limit), 10)),
-        "key": api_key,
+    return {
+        "name": name,
+        "url": url,
+        "category": category,
+        "keywords": [str(word) for word in keywords],
+        "description": str(item.get("description") or "")
     }
 
-    api_url = (
-        "https://www.googleapis.com/youtube/v3/search?"
-        + __import__("urllib.parse", fromlist=["urlencode"]).urlencode(params)
+
+def load_services():
+    """Built-in services और services.json को मिलाकर लोड करता है."""
+    combined = list(RAW_SERVICES)
+
+    if os.path.isfile(SERVICES_FILE):
+        try:
+            with open(SERVICES_FILE, "r", encoding="utf-8") as file:
+                extra = json.load(file)
+
+            if isinstance(extra, list):
+                combined.extend(extra)
+            elif isinstance(extra, dict):
+                # {"services": [...]} फॉर्मेट भी स्वीकार करें
+                services_list = extra.get("services", [])
+                if isinstance(services_list, list):
+                    combined.extend(services_list)
+
+        except (OSError, json.JSONDecodeError) as exc:
+            logger.warning("services.json पढ़ने में समस्या: %s", exc)
+
+    results = []
+    seen_urls = set()
+
+    for item in combined:
+        service = normalize_service(item)
+        if not service:
+            continue
+
+        key = service["url"].rstrip("/").lower()
+
+        if key in seen_urls:
+            continue
+
+        seen_urls.add(key)
+        results.append(service)
+
+    return results
+
+
+SERVICES = load_services()
+
+
+def search_services(query, limit=30):
+    """स्थानीय services में सरल ranked search."""
+    query = normalize_text(query)
+
+    if not query:
+        return []
+
+    terms = expand_query(query)
+    matches = []
+
+    for service in SERVICES:
+        name = normalize_text(service["name"])
+        category = normalize_text(service["category"])
+        description = normalize_text(service["description"])
+        keywords = " ".join(service["keywords"])
+        keywords = normalize_text(keywords)
+
+        searchable = f"{name} {category} {description} {keywords}"
+        score = 0
+
+        if query == name:
+            score += 100
+        elif query in name:
+            score += 50
+
+        if query == category:
+            score += 30
+
+        if query in keywords:
+            score += 25
+
+        for term in terms:
+            if term and term in searchable:
+                score += 5
+
+        if score > 0:
+            result = dict(service)
+            result["score"] = score
+            matches.append(result)
+
+    matches.sort(
+        key=lambda item: (-item["score"], item["name"].lower())
     )
 
+    return matches[:max(1, min(int(limit), 100))]
+
+
+def current_utc_time():
+    return datetime.now(timezone.utc).isoformat()
+
+
+from flask import abort
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
+import xml.etree.ElementTree as ET
+import urllib.parse
+import html
+import time
+
+
+# ---------------------------------------------------------
+# HOME PAGE
+# ---------------------------------------------------------
+
+@app.route("/", methods=["GET"])
+def home():
     try:
-        req = urllib.request.Request(
-            api_url,
-            headers={"User-Agent": "IshwarSearch/1.0"},
+        return render_template("index.html")
+    except Exception:
+        logger.exception("index.html load नहीं हुई")
+
+        return (
+            "<!doctype html><html lang='hi'><meta charset='utf-8'>"
+            "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+            "<title>Ishwar Search</title>"
+            "<body style='font-family:Arial;max-width:750px;margin:50px auto;"
+            "padding:20px;background:#f5f7fb;color:#172033'>"
+            "<h1>Ishwar Search</h1>"
+            "<p>Owner: Ishwar Ghanchi</p>"
+            "<p>Website का index.html template नहीं मिला। "
+            "GitHub में templates/index.html की मौजूदगी जाँचें।</p>"
+            "</body></html>",
+            200
         )
 
-        with urllib.request.urlopen(req, timeout=10) as response:
-            data = json.loads(response.read().decode("utf-8"))
 
-        videos = []
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({
+        "success": True,
+        "app": APP_NAME,
+        "version": APP_VERSION,
+        "services_count": len(SERVICES),
+        "status": "running",
+        "time": current_utc_time()
+    })
 
-        for item in data.get("items", []):
-            video_id = item.get("id", {}).get("videoId")
-            snippet = item.get("snippet", {})
 
-            if not video_id:
-                continue
+@app.route("/api/health", methods=["GET"])
+def api_health():
+    return jsonify({
+        "success": True,
+        "app": APP_NAME,
+        "status": "ok",
+        "version": APP_VERSION,
+        "services_count": len(SERVICES)
+    })
 
-            thumbnails = snippet.get("thumbnails", {})
-            thumbnail = (
-                thumbnails.get("high")
-                or thumbnails.get("medium")
-                or thumbnails.get("default")
-                or {}
+
+# ---------------------------------------------------------
+# SEARCH API
+# ---------------------------------------------------------
+
+@app.route("/api/search", methods=["GET", "POST"])
+def api_search():
+    if request.method == "POST":
+        payload = request.get_json(silent=True) or {}
+        query = payload.get("q") or payload.get("query") or ""
+        limit = payload.get("limit", 30)
+    else:
+        query = request.args.get("q") or request.args.get("query") or ""
+        limit = request.args.get("limit", 30)
+
+    query = str(query).strip()
+
+    if not query:
+        return jsonify({
+            "success": True,
+            "query": "",
+            "count": 0,
+            "results": [],
+            "message": "अपना सवाल या शब्द लिखें।"
+        })
+
+    if len(query) > 250:
+        return jsonify({
+            "success": False,
+            "error": "Search query बहुत लंबी है।"
+        }), 400
+
+    try:
+        limit = max(1, min(int(limit), 100))
+    except (TypeError, ValueError):
+        limit = 30
+
+    results = search_services(query, limit=limit)
+
+    # Search result format को frontend के लिए सरल रखें
+    formatted = []
+
+    for item in results:
+        formatted.append({
+            "name": item["name"],
+            "title": item["name"],
+            "url": item["url"],
+            "link": item["url"],
+            "category": item["category"],
+            "description": item.get("description", ""),
+            "score": item.get("score", 0)
+        })
+
+    return jsonify({
+        "success": True,
+        "query": query,
+        "count": len(formatted),
+        "results": formatted,
+        "source": "Ishwar Search local services"
+    })
+
+
+# ---------------------------------------------------------
+# SEARCH SUGGESTIONS
+# ---------------------------------------------------------
+
+@app.route("/api/suggestions", methods=["GET"])
+def api_suggestions():
+    query = (
+        request.args.get("q")
+        or request.args.get("query")
+        or ""
+    ).strip()
+
+    if not query:
+        defaults = [
+            "Railway recruitment",
+            "Rajasthan jobs",
+            "Scholarship",
+            "Aadhaar card",
+            "PAN card",
+            "Online fraud complaint"
+        ]
+
+        return jsonify({
+            "success": True,
+            "suggestions": defaults
+        })
+
+    if len(query) > 150:
+        query = query[:150]
+
+    results = search_services(query, limit=8)
+
+    suggestions = []
+    for item in results:
+        if item["name"] not in suggestions:
+            suggestions.append(item["name"])
+
+    return jsonify({
+        "success": True,
+        "query": query,
+        "suggestions": suggestions
+    })
+
+
+# ---------------------------------------------------------
+# NEWS API
+# External RSS feeds are used; results depend on feed access.
+# ---------------------------------------------------------
+
+RSS_FEEDS = [
+    {
+        "name": "Google News India",
+        "url": "https://news.google.com/rss?hl=hi&gl=IN&ceid=IN:hi"
+    },
+    {
+        "name": "BBC Hindi",
+        "url": "https://feeds.bbci.co.uk/hindi/rss.xml"
+    },
+    {
+        "name": "PIB India",
+        "url": "https://pib.gov.in/RssMain.aspx"
+    }
+]
+
+
+def fetch_news(query="", limit=15):
+    news_items = []
+    seen = set()
+
+    for feed in RSS_FEEDS:
+        if len(news_items) >= limit:
+            break
+
+        try:
+            req = Request(
+                feed["url"],
+                headers={
+                    "User-Agent": "IshwarSearch/2.0 (+news reader)"
+                }
             )
 
-            videos.append({
-                "title": snippet.get("title", ""),
-                "channel": snippet.get("channelTitle", ""),
-                "description": snippet.get("description", ""),
-                "thumbnail": thumbnail.get("url", ""),
-                "url": "https://www.youtube.com/watch?v=" + video_id,
-                "published_at": snippet.get("publishedAt", ""),
-            })
+            with urlopen(req, timeout=8) as response:
+                xml_data = response.read(2_000_000)
 
-        return {
-            "success": True,
-            "query": query,
-            "count": len(videos),
-            "results": videos,
-        }
+            root = ET.fromstring(xml_data)
 
-    except Exception:
-        app.logger.exception("YouTube API request failed")
-        return {
-            "success": False,
-            "error": "YouTube search is temporarily unavailable.",
-            "results": [],
-        }
+            for item in root.findall(".//item"):
+                title = item.findtext("title", default="").strip()
+                link = item.findtext("link", default="").strip()
+                description = item.findtext(
+                    "description", default=""
+                ).strip()
+                pub_date = item.findtext("pubDate", default="").strip()
 
-@app.route("/api/videos")
-def api_videos():
-    query = request.args.get("q", "").strip()[:160]
+                if not title or not link:
+                    continue
 
-    if not query:
-        return jsonify({
-            "success": True,
-            "query": "",
-            "count": 0,
-            "results": [],
-        })
+                if not link.startswith(("https://", "http://")):
+                    continue
 
-    result = fetch_youtube_videos(query)
+                # RSS descriptions often contain HTML
+                description = re.sub(
+                    r"<[^>]+>", " ", description
+                )
+                description = html.unescape(description)
+                description = re.sub(r"\s+", " ", description).strip()
 
-    status_code = 200 if result.get("success") else 503
-    return jsonify(result), status_code
+                if query:
+                    search_text = normalize_text(
+                        title + " " + description
+                    )
+                    if normalize_text(query) not in search_text:
+                        continue
 
-@app.route("/api/images")
-def api_images():
-    """Search openly licensed images through Openverse."""
-    query = request.args.get("q", "").strip()[:160]
+                key = link.rstrip("/").lower()
+                if key in seen:
+                    continue
+                seen.add(key)
 
-    if not query:
-        return jsonify({
-            "success": True,
-            "query": "",
-            "count": 0,
-            "results": [],
-        })
+                news_items.append({
+                    "title": html.unescape(title),
+                    "url": link,
+                    "link": link,
+                    "description": description[:500],
+                    "published": pub_date,
+                    "source": feed["name"]
+                })
 
-    api_url = (
-        "https://api.openverse.org/v1/images/"
-        f"?q={quote_plus(query)}&page_size=20&mature=false"
-    )
+                if len(news_items) >= limit:
+                    break
+
+        except (URLError, HTTPError, ET.ParseError, TimeoutError, OSError) as exc:
+            logger.warning(
+                "News feed unavailable (%s): %s",
+                feed["name"], exc
+            )
+        except Exception:
+            logger.exception("News feed processing error: %s", feed["name"])
+
+    return news_items
+
+
+@app.route("/api/news", methods=["GET"])
+def api_news():
+    query = request.args.get("q", "").strip()
 
     try:
-        req = urllib.request.Request(
-            api_url,
-            headers={"User-Agent": "IshwarSearch/1.0"},
-        )
+        limit = int(request.args.get("limit", 15))
+    except (ValueError, TypeError):
+        limit = 15
 
-        with urllib.request.urlopen(req, timeout=12) as response:
-            data = json.loads(response.read().decode("utf-8"))
+    limit = max(1, min(limit, 30))
 
-        results = []
-
-        for item in data.get("results", []):
-            image_url = item.get("thumbnail") or item.get("url") or ""
-            source_url = item.get("foreign_landing_url") or ""
-
-            if not image_url.startswith("https://"):
-                continue
-
-            if not source_url.startswith("https://"):
-                source_url = item.get("detail_url") or ""
-
-            results.append({
-                "title": item.get("title") or "Untitled image",
-                "image": image_url,
-                "thumbnail": image_url,
-                "url": source_url,
-                "creator": item.get("creator") or "Unknown creator",
-                "license": item.get("license") or "Check license",
-                "license_url": item.get("license_url") or "",
-                "source": item.get("source") or "Openverse",
-            })
+    try:
+        results = fetch_news(query=query, limit=limit)
 
         return jsonify({
             "success": True,
-            "query": query,
             "count": len(results),
             "results": results,
+            "source_note": (
+                "RSS समाचार स्रोतों से प्राप्त। "
+                "कुछ स्रोत अस्थायी रूप से उपलब्ध नहीं हो सकते।"
+            ),
+            "updated_at": current_utc_time()
         })
 
     except Exception:
-        app.logger.exception("Openverse image search failed")
+        logger.exception("News API failed")
+
         return jsonify({
             "success": False,
-            "error": "Image search is temporarily unavailable.",
+            "count": 0,
             "results": [],
+            "error": "अभी समाचार लोड नहीं हो पाए।"
         }), 503
 
 
-@app.route("/")
-def home():
-    query = request.args.get("q", "").strip()[:160]
-    results = search_services(query) if query else []
+# ---------------------------------------------------------
+# WEATHER API
+# Uses free Open-Meteo endpoints; no API key required.
+# ---------------------------------------------------------
 
-    return render_template(
-        "index.html",
-        query=query,
-        results=results,
-        news=[],
-        service_count=len(SERVICES),
-        services_count=len(SERVICES),
-        categories=sorted({service["category"] for service in SERVICES}),
-        current_year=datetime.now().year,
-        owner=OWNER,
-        app_name=APP_NAME,
-    )
-
-
-@app.route("/api/search")
-def api_search():
-    query = request.args.get("q", "").strip()[:160]
-    results = search_services(query)
-
-    return jsonify({
-        "success": True,
-        "query": query,
-        "count": len(results),
-        "results": results,
-    })
+WEATHER_CITIES = {
+    "jaipur": (26.9124, 75.7873, "Jaipur"),
+    "जयपुर": (26.9124, 75.7873, "Jaipur"),
+    "delhi": (28.6139, 77.2090, "Delhi"),
+    "दिल्ली": (28.6139, 77.2090, "Delhi"),
+    "mumbai": (19.0760, 72.8777, "Mumbai"),
+    "मुंबई": (19.0760, 72.8777, "Mumbai"),
+    "ajmer": (26.4499, 74.6399, "Ajmer"),
+    "अजमेर": (26.4499, 74.6399, "Ajmer"),
+    "jodhpur": (26.2389, 73.0243, "Jodhpur"),
+    "जोधपुर": (26.2389, 73.0243, "Jodhpur"),
+    "udaipur": (24.5854, 73.7125, "Udaipur"),
+    "उदयपुर": (24.5854, 73.7125, "Udaipur"),
+    "alwar": (27.5530, 76.6346, "Alwar"),
+    "अलवर": (27.5530, 76.6346, "Alwar"),
+    "bengaluru": (12.9716, 77.5946, "Bengaluru"),
+    "bangalore": (12.9716, 77.5946, "Bengaluru"),
+    "chennai": (13.0827, 80.2707, "Chennai"),
+    "kolkata": (22.5726, 88.3639, "Kolkata"),
+    "hyderabad": (17.3850, 78.4867, "Hyderabad"),
+    "pune": (18.5204, 73.8567, "Pune")
+}
 
 
-@app.route("/api/suggestions")
-def api_suggestions():
-    query = request.args.get("q", "").strip()[:160]
-
-    return jsonify({
-        "success": True,
-        "query": query,
-        "results": get_suggestions(query),
-    })
-
-
-@app.route("/api/news")
-def api_news():
-    return jsonify({
-        "success": True,
-        "results": fetch_news(),
-    })
-
-
-@app.route("/api/media")
-def api_media():
-    """External search links for video, image, and news queries."""
-    query = request.args.get("q", "").strip()[:160]
-    encoded = quote_plus(query)
-
-    return jsonify({
-        "success": True,
-        "query": query,
-        "results": [
-            {"name": "YouTube Videos", "category": "Video", "url": f"https://www.youtube.com/results?search_query={encoded}"},
-            {"name": "Bing Videos", "category": "Video", "url": f"https://www.bing.com/videos/search?q={encoded}"},
-            {"name": "Google Images", "category": "Image", "url": f"https://www.google.com/search?tbm=isch&q={encoded}"},
-            {"name": "Bing Images", "category": "Image", "url": f"https://www.bing.com/images/search?q={encoded}"},
-            {"name": "Google News", "category": "News", "url": f"https://news.google.com/search?q={encoded}"},
-            {"name": "DuckDuckGo Search", "category": "Web", "url": f"https://duckduckgo.com/?q={encoded}"},
-        ],
-    })
-
-
-@app.route("/api/categories")
-def api_categories():
-    counts = {}
-
-    for service in SERVICES:
-        category = service.get("category", "Other")
-        counts[category] = counts.get(category, 0) + 1
-
-    return jsonify({
-        "success": True,
-        "count": len(SERVICES),
-        "categories": [
-            {"name": name, "count": count}
-            for name, count in sorted(counts.items())
-        ],
-    })
-
-
-@app.route("/health")
-def health():
-    return jsonify({
-        "status": "ok",
-        "app": APP_NAME,
-        "owner": OWNER,
-        "services": len(SERVICES),
-    })
-
-
-@app.route("/api/weather")
-def api_weather():
-    from flask import request, jsonify
-
-    city = request.args.get("city", "Jaipur").strip()[:80]
-    if not city:
-        return jsonify({"error": "शहर का नाम लिखें"}), 400
+def weather_description(code):
+    descriptions = {
+        0: "साफ आसमान",
+        1: "मुख्यतः साफ",
+        2: "कुछ बादल",
+        3: "बादल छाए हुए",
+        45: "कोहरा",
+        48: "जमा हुआ कोहरा",
+        51: "हल्की बूंदाबांदी",
+        53: "बूंदाबांदी",
+        55: "तेज बूंदाबांदी",
+        61: "हल्की बारिश",
+        63: "बारिश",
+        65: "तेज बारिश",
+        71: "हल्की बर्फबारी",
+        73: "बर्फबारी",
+        75: "तेज बर्फबारी",
+        80: "बारिश की बौछारें",
+        81: "तेज बौछारें",
+        82: "बहुत तेज बौछारें",
+        95: "आंधी-तूफान",
+        96: "ओलों के साथ तूफान",
+        99: "तेज तूफान और ओले"
+    }
 
     try:
-        query = urllib.parse.urlencode({
-            "name": city,
-            "count": 1,
-            "language": "hi",
-            "format": "json"
-        })
-        geo_url = "https://geocoding-api.open-meteo.com/v1/search?" + query
+        return descriptions.get(int(code), "मौसम की जानकारी उपलब्ध")
+    except (ValueError, TypeError):
+        return "मौसम की जानकारी उपलब्ध"
 
-        req = urllib.request.Request(
-            geo_url, headers={"User-Agent": "IshwarSearch/1.0"}
+
+@app.route("/api/weather", methods=["GET"])
+def api_weather():
+    city_input = (
+        request.args.get("city")
+        or request.args.get("q")
+        or "Jaipur"
+    ).strip()
+
+    if not city_input or len(city_input) > 80:
+        return jsonify({
+            "success": False,
+            "error": "शहर का नाम सही तरीके से लिखें।"
+        }), 400
+
+    city_key = normalize_text(city_input)
+
+    # Known cities: coordinates from the list above
+    city_data = WEATHER_CITIES.get(city_key)
+
+    # Other city names: try Open-Meteo geocoding
+    try:
+        if city_data:
+            latitude, longitude, city_name = city_data
+        else:
+            geo_url = (
+                "https://geocoding-api.open-meteo.com/v1/search?"
+                + urllib.parse.urlencode({
+                    "name": city_input,
+                    "count": 1,
+                    "language": "en",
+                    "format": "json"
+                })
+            )
+
+            req = Request(
+                geo_url,
+                headers={"User-Agent": "IshwarSearch/2.0"}
+            )
+
+            with urlopen(req, timeout=8) as response:
+                geo_data = json.loads(response.read().decode("utf-8"))
+
+            places = geo_data.get("results") or []
+            if not places:
+                return jsonify({
+                    "success": False,
+                    "city": city_input,
+                    "error": "यह शहर नहीं मिला। अंग्रेज़ी में नाम लिखकर देखें।"
+                }), 404
+
+            place = places[0]
+            latitude = float(place["latitude"])
+            longitude = float(place["longitude"])
+            city_name = place.get("name", city_input)
+
+        weather_url = (
+            "https://api.open-meteo.com/v1/forecast?"
+            + urllib.parse.urlencode({
+                "latitude": latitude,
+                "longitude": longitude,
+                "current": (
+                    "temperature_2m,relative_humidity_2m,"
+                    "apparent_temperature,is_day,precipitation,"
+                    "weather_code,wind_speed_10m"
+                ),
+                "timezone": "auto"
+            })
         )
-        with urllib.request.urlopen(req, timeout=8) as response:
-            places = json.loads(response.read().decode("utf-8"))
 
-        if not places.get("results"):
-            return jsonify({"error": "शहर नहीं मिला"}), 404
-
-        place = places["results"][0]
-        forecast_query = urllib.parse.urlencode({
-            "latitude": place["latitude"],
-            "longitude": place["longitude"],
-            "current": "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m",
-            "timezone": "auto"
-        })
-        forecast_url = "https://api.open-meteo.com/v1/forecast?" + forecast_query
-
-        req = urllib.request.Request(
-            forecast_url, headers={"User-Agent": "IshwarSearch/1.0"}
+        req = Request(
+            weather_url,
+            headers={"User-Agent": "IshwarSearch/2.0"}
         )
-        with urllib.request.urlopen(req, timeout=8) as response:
-            data = json.loads(response.read().decode("utf-8"))
+
+        with urlopen(req, timeout=10) as response:
+            weather_data = json.loads(response.read().decode("utf-8"))
+
+        current = weather_data.get("current", {})
+
+        if not current:
+            raise ValueError("Weather provider returned no current data")
+
+        temperature = current.get("temperature_2m")
+        code = current.get("weather_code")
+
+        result = {
+            "success": True,
+            "city": city_name,
+            "country": "India",
+            "temperature": temperature,
+            "temp": temperature,
+            "description": weather_description(code),
+            "condition": weather_description(code),
+            "humidity": current.get("relative_humidity_2m"),
+            "wind_speed": current.get("wind_speed_10m"),
+            "apparent_temperature": current.get("apparent_temperature"),
+            "current": current,
+            "units": weather_data.get("current_units", {}),
+            "source": "Open-Meteo",
+            "updated_at": current.get("time")
+        }
+
+        return jsonify(result)
+
+    except (URLError, HTTPError, TimeoutError, OSError, ValueError, KeyError) as exc:
+        logger.warning("Weather API unavailable: %s", exc)
 
         return jsonify({
-            "city": place["name"],
-            "country": place.get("country", ""),
-            "current": data["current"],
-            "units": data["current_units"],
-            "source": "Open-Meteo"
+            "success": False,
+            "city": city_input,
+            "error": "मौसम सेवा अभी उपलब्ध नहीं है। थोड़ी देर बाद कोशिश करें।"
+        }), 503
+
+    except Exception:
+        logger.exception("Unexpected weather API error")
+
+        return jsonify({
+            "success": False,
+            "city": city_input,
+            "error": "मौसम की जानकारी प्राप्त नहीं हो सकी।"
+        }), 500
+
+
+
+
+import io
+import mimetypes
+from flask import send_file
+from werkzeug.utils import secure_filename
+
+
+# ---------------------------------------------------------
+# APP INFORMATION
+# ---------------------------------------------------------
+
+@app.route("/api/about", methods=["GET"])
+def api_about():
+    return jsonify({
+        "success": True,
+        "name": APP_NAME,
+        "owner": OWNER_NAME,
+        "version": APP_VERSION,
+        "features": [
+            "Hindi and English local search",
+            "Website directory",
+            "News RSS reader",
+            "Weather information",
+            "AI chat integration endpoint",
+            "File information tools",
+            "Image information tools",
+            "Website builder starter"
+        ],
+        "services_count": len(SERVICES)
+    })
+
+
+# ---------------------------------------------------------
+# AI CHAT STARTER
+# This endpoint does not pretend to be a real AI model.
+# No paid API is enabled here.
+# ---------------------------------------------------------
+
+@app.route("/api/ai/chat", methods=["POST"])
+@app.route("/api/chat", methods=["POST"])
+def api_ai_chat():
+    payload = request.get_json(silent=True)
+
+    if not isinstance(payload, dict):
+        return jsonify({
+            "success": False,
+            "error": "कृपया सही JSON संदेश भेजें।"
+        }), 400
+
+    message = str(
+        payload.get("message")
+        or payload.get("prompt")
+        or ""
+    ).strip()
+
+    if not message:
+        return jsonify({
+            "success": False,
+            "error": "अपना सवाल लिखें।"
+        }), 400
+
+    if len(message) > 5000:
+        return jsonify({
+            "success": False,
+            "error": "संदेश 5000 अक्षरों से छोटा रखें।"
+        }), 400
+
+    # Search-based assistance without an external AI model
+    results = search_services(message, limit=5)
+
+    return jsonify({
+        "success": True,
+        "mode": "starter",
+        "message": message,
+        "reply": (
+            "Ishwar Search का AI Chat अभी शुरुआती मोड में है। "
+            "यह अभी किसी वास्तविक AI मॉडल से जवाब नहीं बनाता। "
+            "नीचे तुम्हारे सवाल से मिलती-जुलती वेबसाइटें दी गई हैं।"
+        ),
+        "results": [
+            {
+                "name": item["name"],
+                "url": item["url"],
+                "category": item["category"]
+            }
+            for item in results
+        ],
+        "ai_connected": False
+    })
+
+
+# ---------------------------------------------------------
+# FILE TOOLS
+# Safe basic file information only.
+# No execution of uploaded files.
+# ---------------------------------------------------------
+
+ALLOWED_FILE_EXTENSIONS = {
+    ".txt", ".csv", ".json", ".md", ".pdf",
+    ".docx", ".xlsx", ".png", ".jpg", ".jpeg",
+    ".webp", ".gif"
+}
+
+
+@app.route("/api/files/info", methods=["POST"])
+def api_file_info():
+    uploaded = request.files.get("file")
+
+    if uploaded is None or not uploaded.filename:
+        return jsonify({
+            "success": False,
+            "error": "पहले फ़ाइल चुनें।"
+        }), 400
+
+    safe_name = secure_filename(uploaded.filename)
+    extension = os.path.splitext(safe_name)[1].lower()
+
+    if extension not in ALLOWED_FILE_EXTENSIONS:
+        return jsonify({
+            "success": False,
+            "error": "यह फ़ाइल प्रकार अभी समर्थित नहीं है।"
+        }), 400
+
+    try:
+        content = uploaded.read(10 * 1024 * 1024 + 1)
+
+        if len(content) > 10 * 1024 * 1024:
+            return jsonify({
+                "success": False,
+                "error": "फ़ाइल का आकार 10 MB से कम रखें।"
+            }), 413
+
+        guessed_type = (
+            uploaded.mimetype
+            or mimetypes.guess_type(safe_name)[0]
+            or "application/octet-stream"
+        )
+
+        result = {
+            "success": True,
+            "filename": safe_name,
+            "extension": extension,
+            "size_bytes": len(content),
+            "mime_type": guessed_type,
+            "message": (
+                "फ़ाइल की बुनियादी जानकारी पढ़ ली गई है। "
+                "यह endpoint अभी फ़ाइल की सामग्री को संपादित नहीं करता।"
+            )
+        }
+
+        # Parse small UTF-8 text files for a simple preview
+        if extension in {".txt", ".md", ".csv", ".json"}:
+            try:
+                text_content = content.decode("utf-8-sig")
+                result["preview"] = text_content[:2000]
+            except UnicodeDecodeError:
+                result["preview"] = (
+                    "यह फ़ाइल UTF-8 टेक्स्ट के रूप में नहीं पढ़ी जा सकी।"
+                )
+
+        return jsonify(result)
+
+    except Exception:
+        logger.exception("File information processing failed")
+
+        return jsonify({
+            "success": False,
+            "error": "फ़ाइल की जानकारी पढ़ने में समस्या हुई।"
+        }), 500
+
+
+# ---------------------------------------------------------
+# IMAGE TOOLS
+# Basic metadata; actual image editing is not connected yet.
+# ---------------------------------------------------------
+
+ALLOWED_IMAGE_EXTENSIONS = {
+    ".png", ".jpg", ".jpeg", ".webp", ".gif"
+}
+
+
+@app.route("/api/images/info", methods=["POST"])
+def api_image_info():
+    uploaded = request.files.get("file") or request.files.get("image")
+
+    if uploaded is None or not uploaded.filename:
+        return jsonify({
+            "success": False,
+            "error": "पहले इमेज चुनें।"
+        }), 400
+
+    safe_name = secure_filename(uploaded.filename)
+    extension = os.path.splitext(safe_name)[1].lower()
+
+    if extension not in ALLOWED_IMAGE_EXTENSIONS:
+        return jsonify({
+            "success": False,
+            "error": "PNG, JPG, JPEG, WEBP या GIF इमेज चुनें।"
+        }), 400
+
+    try:
+        content = uploaded.read(10 * 1024 * 1024 + 1)
+
+        if len(content) > 10 * 1024 * 1024:
+            return jsonify({
+                "success": False,
+                "error": "इमेज 10 MB से छोटी रखें।"
+            }), 413
+
+        # Check basic file signatures to reject obvious mismatches
+        signatures = {
+            ".png": content.startswith(b"\x89PNG\r\n\x1a\n"),
+            ".jpg": content.startswith(b"\xff\xd8\xff"),
+            ".jpeg": content.startswith(b"\xff\xd8\xff"),
+            ".gif": content.startswith((b"GIF87a", b"GIF89a")),
+            ".webp": (
+                len(content) >= 12
+                and content[:4] == b"RIFF"
+                and content[8:12] == b"WEBP"
+            )
+        }
+
+        if not signatures.get(extension, False):
+            return jsonify({
+                "success": False,
+                "error": "फ़ाइल का वास्तविक प्रकार और extension मेल नहीं खाते।"
+            }), 400
+
+        return jsonify({
+            "success": True,
+            "filename": safe_name,
+            "extension": extension,
+            "size_bytes": len(content),
+            "message": (
+                "इमेज प्राप्त हुई। यह शुरुआती endpoint केवल फ़ाइल "
+                "की जाँच करता है; इमेज एडिटिंग अभी कनेक्ट नहीं है।"
+            ),
+            "image_editing_connected": False
         })
 
     except Exception:
-        return jsonify({"error": "मौसम डेटा अभी उपलब्ध नहीं है"}), 502
+        logger.exception("Image information processing failed")
+
+        return jsonify({
+            "success": False,
+            "error": "इमेज की जाँच नहीं हो सकी।"
+        }), 500
+
+
+# ---------------------------------------------------------
+# WEBSITE BUILDER STARTER
+# Creates a simple HTML preview, not a hosted live website.
+# ---------------------------------------------------------
+
+@app.route("/api/website-builder", methods=["POST"])
+def api_website_builder():
+    payload = request.get_json(silent=True)
+
+    if not isinstance(payload, dict):
+        return jsonify({
+            "success": False,
+            "error": "कृपया वेबसाइट का विवरण JSON में भेजें।"
+        }), 400
+
+    title = str(payload.get("title") or "").strip()
+    description = str(payload.get("description") or "").strip()
+
+    if not title:
+        return jsonify({
+            "success": False,
+            "error": "वेबसाइट का नाम लिखें।"
+        }), 400
+
+    if len(title) > 100 or len(description) > 1000:
+        return jsonify({
+            "success": False,
+            "error": "नाम या विवरण बहुत लंबा है।"
+        }), 400
+
+    # Escape user-provided text to prevent HTML injection
+    safe_title = html.escape(title)
+    safe_description = html.escape(description)
+
+    html_preview = f"""<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{safe_title}</title>
+<style>
+body {{
+    margin: 0;
+    padding: 30px;
+    font-family: Arial, sans-serif;
+    background: #f3f6fb;
+    color: #172033;
+}}
+main {{
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 28px;
+    background: white;
+    border-radius: 16px;
+}}
+h1 {{ color: #174ea6; }}
+</style>
+</head>
+<body>
+<main>
+<h1>{safe_title}</h1>
+<p>{safe_description}</p>
+<footer>Made with Ishwar Search Website Builder</footer>
+</main>
+</body>
+</html>"""
+
+    return jsonify({
+        "success": True,
+        "title": title,
+        "html": html_preview,
+        "message": (
+            "HTML preview तैयार है। इसे अभी किसी सार्वजनिक URL पर "
+            "प्रकाशित नहीं किया गया है।"
+        ),
+        "published": False
+    })
+
+
+# ---------------------------------------------------------
+# SIMPLE SEARCH EXPORT
+# ---------------------------------------------------------
+
+@app.route("/api/services", methods=["GET"])
+def api_services():
+    category = normalize_text(request.args.get("category", ""))
+
+    results = SERVICES
+
+    if category:
+        results = [
+            item for item in SERVICES
+            if normalize_text(item["category"]) == category
+        ]
+
+    return jsonify({
+        "success": True,
+        "count": len(results),
+        "results": [
+            {
+                "name": item["name"],
+                "url": item["url"],
+                "category": item["category"],
+                "description": item.get("description", "")
+            }
+            for item in results
+        ]
+    })
+
+
+# ---------------------------------------------------------
+# ERROR HANDLERS
+# ---------------------------------------------------------
+
+@app.errorhandler(404)
+def not_found(error):
+    if request.path.startswith("/api/") or request.path == "/health":
+        return jsonify({
+            "success": False,
+            "error": "यह API route उपलब्ध नहीं है।",
+            "path": request.path
+        }), 404
+
+    return (
+        "<!doctype html><html lang='hi'><meta charset='utf-8'>"
+        "<title>Page Not Found</title>"
+        "<body style='font-family:Arial;padding:30px'>"
+        "<h1>Ishwar Search</h1>"
+        "<p>यह पेज नहीं मिला।</p>"
+        "<a href='/'>होम पेज पर जाएँ</a>"
+        "</body></html>",
+        404
+    )
+
+
+@app.errorhandler(413)
+def too_large(error):
+    return jsonify({
+        "success": False,
+        "error": "अपलोड की गई फ़ाइल बहुत बड़ी है। अधिकतम आकार 10 MB है।"
+    }), 413
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    logger.exception("Internal server error")
+
+    return jsonify({
+        "success": False,
+        "error": "सर्वर पर समस्या हुई। कृपया बाद में कोशिश करें।"
+    }), 500
+
+
+# ---------------------------------------------------------
+# SECURITY HEADERS
+# ---------------------------------------------------------
+
+@app.after_request
+def add_security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+    # Do not cache dynamic API results
+    if request.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+
+    return response
+
+
+# ---------------------------------------------------------
+# FINAL CONFIGURATION
+# Render sets the PORT environment variable.
+# ---------------------------------------------------------
 
 if __name__ == "__main__":
-    print("=" * 42)
-    print(f"{APP_NAME} is starting")
-    print(f"Owner: {OWNER}")
-    print(f"Services loaded: {len(SERVICES)}")
-    print("Open http://127.0.0.1:5000")
-    print("=" * 42)
+    port = int(os.environ.get("PORT", "5000"))
 
     app.run(
         host="0.0.0.0",
-        port=int(os.environ.get("PORT", "5000")),
-        debug=False,
+        port=port,
+        debug=False
     )
