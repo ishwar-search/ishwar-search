@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#101827">
   <title>Ishwar Search - Smart Search Engine</title>
-  <meta name="description" content="Ishwar Search पर वेबसाइट, समाचार, तस्वीरें, वीडियो और मौसम खोजें।">
+  <meta name="description" content="Ishwar Search पर वेबसाइट, समाचार, तस्वीरें, वीडियो, मौसम और शॉपिंग खोजें।">
 
   <style>
     :root {
@@ -18,6 +18,8 @@
       --border: #e3e8f0;
       --header: #101827;
       --radius: 18px;
+      --success: #15803d;
+      --warning: #b45309;
     }
 
     * { box-sizing: border-box; }
@@ -357,7 +359,8 @@
 
     .status-message[hidden],
     .results-list[hidden],
-    .media-grid[hidden] { display: none; }
+    .media-grid[hidden],
+    .shopping-panel[hidden] { display: none; }
 
     .results-list {
       display: grid;
@@ -469,6 +472,99 @@
       font-weight: 700;
     }
 
+    /* Shopping and future information features */
+    .shopping-panel {
+      margin: 14px 0;
+    }
+
+    .shopping-intro {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .shopping-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .shopping-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      min-width: 0;
+      padding: 18px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .shopping-card h4 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .shopping-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .shopping-link {
+      display: inline-block;
+      margin-top: auto;
+      padding: 10px 13px;
+      border-radius: 10px;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .shopping-link:hover { background: #1d4ed8; }
+
+    .future-services {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .future-service {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .future-service h4 {
+      margin: 0 0 7px;
+      font-size: 15px;
+    }
+
+    .future-service p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .future-label {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: var(--warning);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
     .site-footer {
       padding: 24px 16px;
       background: var(--header);
@@ -512,6 +608,8 @@
       .weather-details { gap: 6px; }
       .weather-detail { padding: 10px 4px; font-size: 11px; }
       .weather-detail strong { font-size: 13px; }
+      .shopping-grid { grid-template-columns: 1fr; }
+      .future-services { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 360px) {
@@ -521,6 +619,7 @@
     }
 </style>
 </head>
+
 <body>
   <header class="top-header">
     <div class="header-inner">
@@ -541,7 +640,7 @@
       <div class="hero-tag">WELCOME TO ISHWAR SEARCH</div>
       <h2>दुनिया को <span>खोजिए</span> आसानी से</h2>
       <p class="hero-description">
-        वेबसाइट, तस्वीरें, वीडियो, ताज़ा समाचार और मौसम की जानकारी खोजें।
+        वेबसाइट, तस्वीरें, वीडियो, ताज़ा समाचार, मौसम और शॉपिंग खोजें।
         अपना सवाल हिंदी या English में लिखें।
       </p>
 
@@ -549,9 +648,13 @@
         <form class="search-form" id="searchForm" role="search">
           <span class="search-icon" aria-hidden="true">⌕</span>
           <input id="searchInput" name="q" type="search"
-                 placeholder="यहाँ कुछ खोजिए..." autocomplete="off"
-                 aria-label="Search Ishwar Search" maxlength="160" required>
-          <button class="search-button" id="searchButton" type="submit">खोजें</button>
+                 placeholder="यहाँ कुछ खोजिए..."
+                 autocomplete="off"
+                 aria-label="Search Ishwar Search"
+                 maxlength="160" required>
+          <button class="search-button" id="searchButton" type="submit">
+            खोजें
+          </button>
         </form>
 
         <div class="suggestions" id="suggestions" role="listbox"
@@ -563,10 +666,12 @@
           <button class="quick-chip" type="button" data-query="Scholarship">Scholarship</button>
           <button class="quick-chip" type="button" data-query="Rajasthan news">ताज़ा समाचार</button>
           <button class="quick-chip" type="button" data-query="Aadhaar">Aadhaar</button>
+          <button class="quick-chip" type="button" data-tab="shopping">🛍️ शॉपिंग</button>
         </div>
       </div>
     </section>
 
+    <!-- मौसम -->
     <section class="weather-card" aria-label="मौसम की जानकारी">
       <div class="weather-top">
         <h3>🌤️ मौसम की जानकारी</h3>
@@ -590,6 +695,7 @@
       </p>
     </section>
 
+    <!-- परिणाम और श्रेणियाँ -->
     <section class="results-section" aria-label="Search results">
       <div class="results-heading">
         <h3 id="resultsTitle">📰 ताज़ा समाचार</h3>
@@ -605,6 +711,10 @@
                 data-tab="videos" aria-pressed="false">वीडियो</button>
         <button class="tab-button" type="button"
                 data-tab="news" aria-pressed="false">समाचार</button>
+        <button class="tab-button" type="button"
+                data-tab="shopping" aria-pressed="false">🛍️ शॉपिंग</button>
+        <button class="tab-button" type="button"
+                data-tab="rates" aria-pressed="false">📊 रेट जानकारी</button>
       </nav>
 
       <div class="status-message" id="statusMessage"
@@ -614,6 +724,86 @@
 
       <div class="results-list" id="resultsList" hidden></div>
       <div class="media-grid" id="mediaGrid" hidden></div>
+
+      <!-- शॉपिंग -->
+      <section class="shopping-panel" id="shoppingPanel" hidden>
+        <p class="shopping-intro">
+          अपना सामान खोजें और संबंधित शॉपिंग वेबसाइट पर जाकर
+          कीमत, डिलीवरी और विक्रेता की जानकारी जाँचें।
+        </p>
+
+        <div class="shopping-grid">
+          <article class="shopping-card">
+            <h4>🛒 Amazon India</h4>
+            <p>मोबाइल, इलेक्ट्रॉनिक्स, कपड़े और घरेलू सामान खोजें।</p>
+            <a class="shopping-link" id="amazonLink"
+               href="https://www.amazon.in/"
+               target="_blank" rel="noopener noreferrer">
+              Amazon पर खोजें ↗
+            </a>
+          </article>
+
+          <article class="shopping-card">
+            <h4>🛍️ Flipkart</h4>
+            <p>मोबाइल, इलेक्ट्रॉनिक्स और दूसरे उत्पादों की जानकारी देखें।</p>
+            <a class="shopping-link" id="flipkartLink"
+               href="https://www.flipkart.com/"
+               target="_blank" rel="noopener noreferrer">
+              Flipkart पर खोजें ↗
+            </a>
+          </article>
+
+          <article class="shopping-card">
+            <h4>👕 Meesho</h4>
+            <p>कपड़े, घर के सामान और दूसरे उत्पाद देखें।</p>
+            <a class="shopping-link" id="meeshoLink"
+               href="https://www.meesho.com/"
+               target="_blank" rel="noopener noreferrer">
+              Meesho पर खोजें ↗
+            </a>
+          </article>
+        </div>
+
+        <p class="shopping-intro" style="margin-top:16px">
+          ध्यान दें: ये बाहरी वेबसाइटों के लिंक हैं।
+          इनके उत्पादों की कीमत और उपलब्धता बदल सकती है।
+          Ishwar Search अभी इन वेबसाइटों की कीमतों की पुष्टि नहीं करता।
+        </p>
+      </section>
+
+      <!-- भविष्य के फीचर्स -->
+      <section class="shopping-panel" id="ratesPanel" hidden>
+        <p class="shopping-intro">
+          इन सुविधाओं को आगे विश्वसनीय डेटा स्रोत से जोड़ने की तैयारी है।
+          जब तक सत्यापित डेटा उपलब्ध नहीं होता, यहाँ लाइव कीमतें नहीं दिखाई जाएँगी।
+        </p>
+
+        <div class="future-services">
+          <article class="future-service">
+            <h4>🪙 सोना और चाँदी</h4>
+            <p>भविष्य में उपलब्ध होने पर शहर, शुद्धता और समय के अनुसार रेट दिखाए जाएँगे।</p>
+            <span class="future-label">डेटा स्रोत जुड़ना बाकी</span>
+          </article>
+
+          <article class="future-service">
+            <h4>🌾 मंडी भाव</h4>
+            <p>भविष्य में कृषि मंडियों के सत्यापित भाव और उनकी तारीख दिखाई जा सकती है।</p>
+            <span class="future-label">डेटा स्रोत जुड़ना बाकी</span>
+          </article>
+
+          <article class="future-service">
+            <h4>🥔 किराना और सब्ज़ी भाव</h4>
+            <p>भविष्य में शहर और बाजार के हिसाब से उपलब्ध कीमतों की तुलना की जा सकेगी।</p>
+            <span class="future-label">डेटा स्रोत जुड़ना बाकी</span>
+          </article>
+
+          <article class="future-service">
+            <h4>📈 कीमतों की तुलना</h4>
+            <p>भविष्य में अलग-अलग स्रोतों की कीमतों और अपडेट समय की तुलना की जा सकेगी।</p>
+            <span class="future-label">डेटा स्रोत जुड़ना बाकी</span>
+          </article>
+        </div>
+      </section>
     </section>
   </main>
 
@@ -623,617 +813,777 @@
     <div class="footer-owner">Owner: Ishwar Ghanchi</div>
   </footer>
 
-  <script>
-    "use strict";
+<script>
+"use strict";
 
-    const API = {
-      all: "/api/search",
-      images: "/api/images",
-      videos: "/api/videos",
-      news: "/api/news",
-      suggestions: "/api/suggestions",
-      weather: "/api/weather"
-    };
+/* ===============================
+   ISHWAR SEARCH — PART 3
+   JavaScript functionality
+================================ */
 
-    const searchForm = document.getElementById("searchForm");
-    const searchInput = document.getElementById("searchInput");
-    const searchButton = document.getElementById("searchButton");
-    const suggestionsBox = document.getElementById("suggestions");
-    const statusMessage = document.getElementById("statusMessage");
-    const resultsList = document.getElementById("resultsList");
-    const mediaGrid = document.getElementById("mediaGrid");
-    const resultsTitle = document.getElementById("resultsTitle");
-    const resultCount = document.getElementById("resultCount");
-    const tabButtons = document.querySelectorAll(".tab-button");
+const $ = (id) => document.getElementById(id);
 
-    const weatherForm = document.getElementById("weatherForm");
-    const weatherCityInput = document.getElementById("weatherCityInput");
-    const weatherCityLabel = document.getElementById("weatherCityLabel");
-    const weatherContent = document.getElementById("weatherContent");
-    const weatherButton = document.getElementById("weatherButton");
+const searchForm = $("searchForm");
+const searchInput = $("searchInput");
+const searchButton = $("searchButton");
+const suggestionsBox = $("suggestions");
+const statusMessage = $("statusMessage");
+const resultsList = $("resultsList");
+const mediaGrid = $("mediaGrid");
+const resultsTitle = $("resultsTitle");
+const resultCount = $("resultCount");
 
-    let activeTab = "all";
-    let currentQuery = "";
-    let searchRequestNumber = 0;
-    let suggestionTimer = null;
-    let weatherRequestNumber = 0;
+let activeTab = "all";
+let currentQuery = "";
+let suggestionTimer = null;
+let searchController = null;
 
-    async function fetchJSON(url) {
-      const response = await fetch(url, {
-        headers: { "Accept": "application/json" }
-      });
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      return response.json();
+function showStatus(message, isError = false) {
+    if (!statusMessage) return;
+
+    statusMessage.textContent = message;
+    statusMessage.hidden = false;
+    statusMessage.classList.toggle("error", isError);
+}
+
+function hideStatus() {
+    if (statusMessage) {
+        statusMessage.hidden = true;
+        statusMessage.textContent = "";
+        statusMessage.classList.remove("error");
+    }
+}
+
+function clearResults() {
+    if (resultsList) resultsList.replaceChildren();
+    if (mediaGrid) mediaGrid.replaceChildren();
+    if (resultCount) resultCount.textContent = "0";
+}
+
+function getArray(data) {
+    if (Array.isArray(data)) return data;
+
+    if (data && typeof data === "object") {
+        for (const key of [
+            "results",
+            "items",
+            "data",
+            "news",
+            "images",
+            "videos"
+        ]) {
+            if (Array.isArray(data[key])) return data[key];
+        }
     }
 
-    function safeUrl(value) {
-      if (typeof value !== "string" || !value.trim()) return "";
-      try {
-        const parsed = new URL(value, window.location.origin);
-        return ["https:", "http:"].includes(parsed.protocol)
-          ? parsed.href : "";
-      } catch {
+    return [];
+}
+
+async function fetchJSON(url, options = {}) {
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            "Accept": "application/json",
+            ...(options.headers || {})
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error("Server se jawab nahi mila (" + response.status + ")");
+    }
+
+    return await response.json();
+}
+
+function safeUrl(value) {
+    if (typeof value !== "string") return "";
+
+    try {
+        const url = new URL(value, window.location.origin);
+
+        if (url.protocol !== "https:" && url.protocol !== "http:") {
+            return "";
+        }
+
+        return url.href;
+    } catch {
         return "";
-      }
+    }
+}
+
+function makeText(value, fallback = "") {
+    if (typeof value === "string" || typeof value === "number") {
+        return String(value);
     }
 
-    function makeText(value, fallback = "") {
-      return value === null || value === undefined
-        ? fallback : String(value);
+    return fallback;
+}
+
+function createElement(tag, className, text) {
+    const element = document.createElement(tag);
+
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+
+    return element;
+}
+
+function createLink(url, text, className = "") {
+    const link = createElement("a", className, text);
+    const validUrl = safeUrl(url);
+
+    if (!validUrl) {
+        link.removeAttribute("href");
+        link.setAttribute("aria-disabled", "true");
+        return link;
     }
 
-    function getArray(data) {
-      if (Array.isArray(data)) return data;
-      if (!data || typeof data !== "object") return [];
-      for (const key of [
-        "results", "items", "services", "news",
-        "videos", "images", "suggestions"
-      ]) {
-        if (Array.isArray(data[key])) return data[key];
-      }
-      return [];
-    }
+    link.href = validUrl;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
 
-    function showStatus(message, loading = false) {
-      statusMessage.hidden = false;
-      statusMessage.replaceChildren();
-      const span = document.createElement("span");
-      span.textContent = message;
-      if (loading) span.className = "loading-dots";
-      statusMessage.appendChild(span);
-    }
+    return link;
+}
 
-    function clearResults() {
-      resultsList.replaceChildren();
-      mediaGrid.replaceChildren();
-      resultsList.hidden = true;
-      mediaGrid.hidden = true;
-    }
+function updateHeading(title, count = 0) {
+    if (resultsTitle) resultsTitle.textContent = title;
+    if (resultCount) resultCount.textContent = String(count);
+}
 
-    function setActiveTab(tab) {
-      activeTab = tab;
-      tabButtons.forEach(button => {
+function hidePanels() {
+    if (resultsList) resultsList.hidden = true;
+    if (mediaGrid) mediaGrid.hidden = true;
+
+    if ($("shoppingPanel")) $("shoppingPanel").hidden = true;
+    if ($("ratesPanel")) $("ratesPanel").hidden = true;
+}
+
+function setActiveTab(tab) {
+    activeTab = tab;
+    hidePanels();
+    clearResults();
+    hideStatus();
+
+    document.querySelectorAll("[data-tab]").forEach((button) => {
         const selected = button.dataset.tab === tab;
         button.classList.toggle("active", selected);
         button.setAttribute("aria-pressed", String(selected));
-      });
-    }
+    });
 
-    function updateHeading(query, tab) {
-      const headings = {
-        all: "खोज परिणाम",
-        images: "तस्वीरों के परिणाम",
-        videos: "वीडियो के परिणाम",
-        news: "📰 ताज़ा समाचार"
-      };
-      resultsTitle.textContent =
-        (headings[tab] || "खोज परिणाम") +
-        (query ? ': "' + query + '"' : "");
-      resultCount.textContent = "परिणाम लोड हो रहे हैं...";
-    }
+    if (tab === "shopping") {
+        if ($("shoppingPanel")) $("shoppingPanel").hidden = false;
 
-    function buildSearchUrl(tab, query) {
-      const url = new URL(API[tab] || API.all, window.location.origin);
-      url.searchParams.set("q", query);
-      return url.pathname + url.search;
-    }
-
-    async function performSearch(query, tab = activeTab) {
-      query = String(query || "").trim().slice(0, 160);
-      if (!query) {
-        searchInput.focus();
-        showStatus("पहले कुछ लिखकर खोजें।");
+        updateShoppingLinks(searchInput ? searchInput.value.trim() : "");
+        updateHeading("🛍️ शॉपिंग", 3);
         return;
-      }
-
-      const requestNumber = ++searchRequestNumber;
-      currentQuery = query;
-      searchInput.value = query;
-      setActiveTab(tab);
-      suggestionsBox.classList.remove("show");
-      suggestionsBox.replaceChildren();
-      clearResults();
-      updateHeading(query, tab);
-      showStatus("खोज जारी है, कृपया प्रतीक्षा करें...", true);
-      searchButton.disabled = true;
-      searchButton.textContent = "खोज रहे हैं...";
-
-      try {
-        const data = await fetchJSON(buildSearchUrl(tab, query));
-        if (requestNumber !== searchRequestNumber) return;
-        if (data && data.success === false) {
-          throw new Error(data.error || "Search failed");
-        }
-
-        const items = getArray(data);
-        resultCount.textContent = items.length + " परिणाम मिले";
-
-        if (["images", "videos", "news"].includes(tab)) {
-          renderMediaResults(items, tab);
-        } else {
-          renderWebResults(items);
-        }
-      } catch (error) {
-        if (requestNumber !== searchRequestNumber) return;
-        console.error("Ishwar Search error:", error);
-        clearResults();
-        resultCount.textContent = "खोज पूरी नहीं हो सकी";
-        showStatus("परिणाम नहीं मिल सके। इंटरनेट जाँचें और दोबारा कोशिश करें।");
-      } finally {
-        if (requestNumber === searchRequestNumber) {
-          searchButton.disabled = false;
-          searchButton.textContent = "खोजें";
-        }
-      }
     }
 
-    searchForm.addEventListener("submit", event => {
-      event.preventDefault();
-      performSearch(searchInput.value, activeTab);
-    });
+    if (tab === "rates") {
+        if ($("ratesPanel")) $("ratesPanel").hidden = false;
 
-    document.querySelectorAll(".quick-chip").forEach(button => {
-      button.addEventListener("click", () => {
-        performSearch(button.dataset.query || button.textContent, "all");
-      });
-    });
-
-    tabButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        const tab = button.dataset.tab;
-        setActiveTab(tab);
-        if (currentQuery) {
-          performSearch(currentQuery, tab);
-        } else if (tab === "news") {
-          loadHomeNews();
-        } else {
-          clearResults();
-          updateHeading("", tab);
-          resultCount.textContent = "अभी कोई खोज नहीं हुई";
-          showStatus("ऊपर कुछ खोजें, फिर इस श्रेणी के परिणाम देखें।");
-        }
-      });
-    });
-
-    async function loadSuggestions(query) {
-      query = String(query || "").trim();
-      if (query.length < 2) {
-        suggestionsBox.classList.remove("show");
-        suggestionsBox.replaceChildren();
+        updateHeading("📊 रेट जानकारी", 0);
         return;
-      }
-
-      try {
-        const data = await fetchJSON(
-          API.suggestions + "?q=" + encodeURIComponent(query)
-        );
-        const items = getArray(data).slice(0, 8);
-        if (searchInput.value.trim() !== query) return;
-
-        suggestionsBox.replaceChildren();
-        items.forEach(item => {
-          const label = typeof item === "string"
-            ? item
-            : item && (item.title || item.query || item.name || item.text);
-          if (!label) return;
-
-          const option = document.createElement("button");
-          option.type = "button";
-          option.className = "suggestion-item";
-          option.setAttribute("role", "option");
-          option.textContent = "⌕  " + String(label);
-          option.addEventListener("click", () => {
-            performSearch(String(label), activeTab);
-          });
-          suggestionsBox.appendChild(option);
-        });
-
-        suggestionsBox.classList.toggle(
-          "show", suggestionsBox.childElementCount > 0
-        );
-      } catch (error) {
-        console.warn("Suggestions unavailable:", error);
-        suggestionsBox.classList.remove("show");
-      }
     }
 
-    searchInput.addEventListener("input", () => {
-      clearTimeout(suggestionTimer);
-      const query = searchInput.value.trim();
-      suggestionTimer = setTimeout(() => loadSuggestions(query), 300);
+    if (tab === "images" || tab === "videos") {
+        if (mediaGrid) mediaGrid.hidden = false;
+    } else {
+        if (resultsList) resultsList.hidden = false;
+    }
+
+    if (currentQuery) {
+        performSearch(currentQuery, tab);
+    } else {
+        showStatus("ऊपर अपना सवाल या विषय लिखकर खोजें।");
+    }
+}
+
+/* ===============================
+   Shopping links
+================================ */
+
+function updateShoppingLinks(query = "") {
+    const encoded = encodeURIComponent(query);
+
+    const links = [
+        {
+            id: "amazonLink",
+            url: query
+                ? "https://www.amazon.in/s?k=" + encoded
+                : "https://www.amazon.in/"
+        },
+        {
+            id: "flipkartLink",
+            url: query
+                ? "https://www.flipkart.com/search?q=" + encoded
+                : "https://www.flipkart.com/"
+        },
+        {
+            id: "meeshoLink",
+            url: query
+                ? "https://www.meesho.com/search?q=" + encoded
+                : "https://www.meesho.com/"
+        }
+    ];
+
+    links.forEach(({ id, url }) => {
+        const link = $(id);
+        if (!link) return;
+
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
     });
+}
 
-    searchInput.addEventListener("keydown", event => {
-      if (event.key === "Escape") {
-        suggestionsBox.classList.remove("show");
-      }
-    });
+/* ===============================
+   Web search results
+================================ */
 
-    document.addEventListener("click", event => {
-      if (!searchForm.contains(event.target)) {
-        suggestionsBox.classList.remove("show");
-      }
-    });
+function getResultTitle(item) {
+    return makeText(
+        item.title || item.name || item.heading,
+        "बिना शीर्षक का परिणाम"
+    );
+}
 
-    function renderWebResults(items) {
-      clearResults();
-      const validItems = items.filter(item =>
-        item && typeof item === "object"
-      );
+function getResultUrl(item) {
+    return safeUrl(
+        item.url ||
+        item.link ||
+        item.href ||
+        item.website
+    );
+}
 
-      if (!validItems.length) {
-        showStatus("कोई परिणाम नहीं मिला। दूसरा शब्द लिखकर खोजें।");
-        return;
-      }
+function renderWebResults(items) {
+    if (!resultsList) return;
 
-      validItems.forEach(item => {
-        const title = makeText(
-          item.title || item.name || item.label, "बिना शीर्षक का परिणाम"
-        );
-        const url = safeUrl(
-          item.url || item.link || item.href || item.website
-        );
-        const description = makeText(
-          item.description || item.snippet || item.summary || item.text,
-          "अतिरिक्त जानकारी उपलब्ध नहीं है।"
-        );
-        const source = makeText(
-          item.source || item.category || item.type, ""
-        );
+    resultsList.replaceChildren();
+    resultsList.hidden = false;
 
-        const card = document.createElement("article");
-        card.className = "result-card";
-        const heading = document.createElement("h4");
+    items.forEach((item) => {
+        if (!item || typeof item !== "object") return;
 
+        const card = createElement("article", "result-card");
+        const title = getResultTitle(item);
+        const url = getResultUrl(item);
+
+        const heading = createElement("h3");
         if (url) {
-          const link = document.createElement("a");
-          link.href = url;
-          link.target = "_blank";
-          link.rel = "noopener noreferrer";
-          link.textContent = title;
-          heading.appendChild(link);
+            heading.appendChild(createLink(url, title));
         } else {
-          heading.textContent = title;
+            heading.textContent = title;
         }
+
         card.appendChild(heading);
 
-        if (url) {
-          const urlText = document.createElement("span");
-          urlText.className = "result-url";
-          urlText.textContent = url;
-          card.appendChild(urlText);
+        const description = makeText(
+            item.description ||
+            item.snippet ||
+            item.summary ||
+            item.text,
+            ""
+        );
+
+        if (description) {
+            card.appendChild(
+                createElement("p", "result-description", description)
+            );
         }
 
-        const desc = document.createElement("p");
-        desc.className = "result-description";
-        desc.textContent = description;
-        card.appendChild(desc);
-
-        if (source) {
-          const meta = document.createElement("div");
-          meta.className = "result-meta";
-          const badge = document.createElement("span");
-          badge.textContent = source;
-          meta.appendChild(badge);
-          card.appendChild(meta);
+        if (url) {
+            card.appendChild(
+                createElement("p", "result-url", url)
+            );
         }
 
         resultsList.appendChild(card);
-      });
+    });
 
-      resultsList.hidden = false;
-      statusMessage.hidden = true;
+    const count = resultsList.children.length;
+    updateHeading("🔎 खोज के परिणाम", count);
+
+    if (!count) {
+        showStatus("कोई परिणाम नहीं मिला। दूसरा शब्द लिखकर कोशिश करें।");
     }
+}
 
-    function renderMediaResults(items, type) {
-      clearResults();
+/* ===============================
+   Image and video results
+================================ */
 
-      const messages = {
-        images: "तस्वीरें नहीं मिलीं। दूसरा शब्द खोजकर देखें।",
-        videos: "वीडियो नहीं मिले। बाद में फिर कोशिश करें।",
-        news: "समाचार नहीं मिले। बाद में फिर कोशिश करें।"
-      };
+function renderMediaResults(items, type) {
+    if (!mediaGrid) return;
 
-      const validItems = items.filter(item =>
-        item && typeof item === "object"
-      );
+    mediaGrid.replaceChildren();
+    mediaGrid.hidden = false;
 
-      if (!validItems.length) {
-        showStatus(messages[type] || "कोई परिणाम नहीं मिला।");
-        return;
-      }
+    items.forEach((item) => {
+        if (!item || typeof item !== "object") return;
 
-      validItems.forEach(item => {
+        const card = createElement("article", "media-card");
         const title = makeText(
-          item.title || item.name || item.label || item.headline,
-          type === "images" ? "तस्वीर" :
-          type === "videos" ? "वीडियो" : "समाचार"
-        );
-
-        const url = safeUrl(
-          item.url || item.link || item.webpage_url ||
-          item.foreign_landing_url || item.article_url
+            item.title || item.name || item.description,
+            type === "images" ? "चित्र" : "वीडियो"
         );
 
         const imageUrl = safeUrl(
-          item.thumbnail || item.thumbnail_url ||
-          item.image || item.image_url
+            item.thumbnail ||
+            item.image ||
+            item.thumbnail_url ||
+            (type === "images" ? item.url : "")
         );
 
-        const card = document.createElement("article");
-        card.className = "media-card";
-
-        if (["images", "videos"].includes(type) && imageUrl) {
-          const image = document.createElement("img");
-          image.className = "media-image";
-          image.src = imageUrl;
-          image.alt = title;
-          image.loading = "lazy";
-          image.referrerPolicy = "no-referrer";
-          image.addEventListener("error", () => {
-            image.hidden = true;
-          });
-
-          if (url) {
-            const imageLink = document.createElement("a");
-            imageLink.href = url;
-            imageLink.target = "_blank";
-            imageLink.rel = "noopener noreferrer";
-            imageLink.appendChild(image);
-            card.appendChild(imageLink);
-          } else {
+        if (imageUrl && type === "images") {
+            const image = document.createElement("img");
+            image.src = imageUrl;
+            image.alt = title;
+            image.loading = "lazy";
+            image.referrerPolicy = "no-referrer";
             card.appendChild(image);
-          }
+        } else if (imageUrl) {
+            const image = document.createElement("img");
+            image.src = imageUrl;
+            image.alt = title;
+            image.loading = "lazy";
+            image.referrerPolicy = "no-referrer";
+            card.appendChild(image);
         }
 
-        const content = document.createElement("div");
-        content.className = "media-card-content";
-        const heading = document.createElement("h4");
-        heading.className = "media-card-title";
+        const heading = createElement("h3", "", title);
+        card.appendChild(heading);
 
-        if (url) {
-          const link = document.createElement("a");
-          link.href = url;
-          link.target = "_blank";
-          link.rel = "noopener noreferrer";
-          link.textContent = title;
-          heading.appendChild(link);
-        } else {
-          heading.textContent = title;
-        }
-        content.appendChild(heading);
+        const linkUrl = getResultUrl(item);
 
-        const description = makeText(
-          item.description || item.snippet || item.summary, ""
-        );
-        if (description) {
-          const desc = document.createElement("p");
-          desc.className = "media-card-detail";
-          desc.textContent = description;
-          content.appendChild(desc);
+        if (linkUrl) {
+            card.appendChild(
+                createLink(
+                    linkUrl,
+                    type === "videos" ? "वीडियो देखें ↗" : "चित्र खोलें ↗",
+                    "result-link"
+                )
+            );
         }
 
-        if (type === "images") {
-          const creator = document.createElement("p");
-          creator.className = "media-card-detail";
-          creator.textContent =
-            "Creator: " + makeText(item.creator, "Unknown creator");
-          content.appendChild(creator);
-
-          const licenseLine = document.createElement("p");
-          licenseLine.className = "media-card-detail";
-          licenseLine.appendChild(document.createTextNode("License: "));
-          const license = makeText(item.license, "Check license");
-          const licenseUrl = safeUrl(item.license_url);
-
-          if (licenseUrl) {
-            const licenseLink = document.createElement("a");
-            licenseLink.href = licenseUrl;
-            licenseLink.target = "_blank";
-            licenseLink.rel = "noopener noreferrer";
-            licenseLink.textContent = license;
-            licenseLine.appendChild(licenseLink);
-          } else {
-            licenseLine.appendChild(document.createTextNode(license));
-          }
-          content.appendChild(licenseLine);
-        }
-
-        const source = makeText(
-          item.source || item.publisher || item.channel, ""
-        );
-        if (source) {
-          const sourceLine = document.createElement("p");
-          sourceLine.className = "media-card-detail";
-          sourceLine.textContent = "Source: " + source;
-          content.appendChild(sourceLine);
-        }
-
-        if (url) {
-          const openLink = document.createElement("a");
-          openLink.className = "media-open-link";
-          openLink.href = url;
-          openLink.target = "_blank";
-          openLink.rel = "noopener noreferrer";
-          openLink.textContent =
-            type === "images" ? "तस्वीर का स्रोत खोलें ↗" :
-            type === "videos" ? "वीडियो देखें ↗" :
-            "पूरा समाचार पढ़ें ↗";
-          content.appendChild(openLink);
-        }
-
-        card.appendChild(content);
         mediaGrid.appendChild(card);
-      });
+    });
 
-      mediaGrid.hidden = false;
-      statusMessage.hidden = true;
+    const count = mediaGrid.children.length;
+    updateHeading(
+        type === "images" ? "🖼️ चित्र परिणाम" : "🎬 वीडियो परिणाम",
+        count
+    );
+
+    if (!count) {
+        showStatus("इस विषय पर परिणाम नहीं मिले। दूसरा शब्द आज़माएँ।");
+    }
+}
+
+/* ===============================
+   Search request
+================================ */
+
+function buildSearchUrl(query, tab) {
+    const params = new URLSearchParams({ q: query });
+
+    if (tab && tab !== "all") {
+        params.set("type", tab);
     }
 
-    async function loadHomeNews() {
-      const requestNumber = ++searchRequestNumber;
-      clearResults();
-      resultsTitle.textContent = "📰 ताज़ा समाचार";
-      resultCount.textContent = "खबरें लोड हो रही हैं...";
-      showStatus("ताज़ा खबरें लोड हो रही हैं...", true);
+    const endpoints = {
+        all: "/api/search",
+        images: "/api/images",
+        videos: "/api/videos",
+        news: "/api/news"
+    };
 
-      try {
-        const data = await fetchJSON(API.news);
-        if (requestNumber !== searchRequestNumber) return;
-        if (data && data.success === false) {
-          throw new Error(data.error || "News loading failed");
-        }
+    return (endpoints[tab] || endpoints.all) + "?" + params.toString();
+}
+
+async function performSearch(query, tab = activeTab) {
+    query = String(query || "").trim();
+
+    if (!query) {
+        showStatus("पहले खोजने के लिए कुछ लिखें।");
+        return;
+    }
+
+    currentQuery = query;
+    activeTab = tab;
+
+    if (tab === "shopping") {
+        hidePanels();
+        if ($("shoppingPanel")) $("shoppingPanel").hidden = false;
+        updateShoppingLinks(query);
+        updateHeading("🛍️ शॉपिंग: " + query, 3);
+        hideStatus();
+        return;
+    }
+
+    if (tab === "rates") {
+        hidePanels();
+        if ($("ratesPanel")) $("ratesPanel").hidden = false;
+        updateHeading("📊 रेट जानकारी", 0);
+        showStatus(
+            "यहाँ अभी लाइव रेट डेटा कनेक्ट नहीं है। किसी भी कीमत को लाइव भाव न मानें।"
+        );
+        return;
+    }
+
+    hidePanels();
+    hideStatus();
+    clearResults();
+
+    if (tab === "images" || tab === "videos") {
+        if (mediaGrid) mediaGrid.hidden = false;
+    } else {
+        if (resultsList) resultsList.hidden = false;
+    }
+
+    showStatus("खोज जारी है…");
+    if (searchButton) searchButton.disabled = true;
+
+    if (searchController) searchController.abort();
+    searchController = new AbortController();
+
+    try {
+        const data = await fetchJSON(
+            buildSearchUrl(query, tab),
+            { signal: searchController.signal }
+        );
+
+        hideStatus();
 
         const items = getArray(data);
-        resultCount.textContent = items.length + " खबरें";
-        renderMediaResults(items, "news");
 
-        if (!items.length) {
-          showStatus("अभी खबरें उपलब्ध नहीं हैं। बाद में फिर कोशिश करें।");
+        if (tab === "images" || tab === "videos") {
+            renderMediaResults(items, tab);
+        } else {
+            renderWebResults(items);
         }
-      } catch (error) {
-        if (requestNumber !== searchRequestNumber) return;
-        console.error("Home news error:", error);
-        resultCount.textContent = "खबरें लोड नहीं हो सकीं";
-        showStatus("खबरें अभी लोड नहीं हो सकीं। पेज रीफ्रेश करके देखें।");
-      }
+
+        if (data && data.error) {
+            showStatus(makeText(data.error, "खोज में समस्या आई।"), true);
+        }
+    } catch (error) {
+        if (error.name === "AbortError") return;
+
+        clearResults();
+
+        showStatus(
+            "खोज पूरी नहीं हुई। सर्वर चालू है या नहीं जाँचें। " +
+            "(" + error.message + ")",
+            true
+        );
+    } finally {
+        if (searchButton) searchButton.disabled = false;
     }
+}
 
-    /* Weather feature */
-    function weatherDescription(code) {
-      const descriptions = {
-        0: "साफ़ आसमान ☀️",
-        1: "मुख्यतः साफ़ 🌤️",
-        2: "कुछ बादल ⛅",
-        3: "बादल छाए हुए ☁️",
-        45: "कोहरा 🌫️",
-        48: "कोहरा 🌫️",
-        51: "हल्की बूंदाबांदी 🌦️",
-        53: "बूंदाबांदी 🌦️",
-        55: "तेज़ बूंदाबांदी 🌧️",
-        61: "हल्की बारिश 🌧️",
-        63: "बारिश 🌧️",
-        65: "तेज़ बारिश 🌧️",
-        71: "बर्फ़बारी ❄️",
-        80: "बारिश की बौछारें 🌦️",
-        81: "तेज़ बौछारें 🌧️",
-        82: "बहुत तेज़ बौछारें 🌧️",
-        95: "गरज के साथ तूफ़ान ⛈️"
-      };
-      return descriptions[code] || "मौसम की जानकारी";
-    }
+/* ===============================
+   Search form and tabs
+================================ */
 
-    async function loadWeather(city) {
-      city = String(city || "").trim().slice(0, 80);
+if (searchForm) {
+    searchForm.addEventListener("submit", (event) => {
+        event.preventDefault();
 
-      if (!city) {
-        weatherContent.textContent = "कृपया शहर का नाम लिखें।";
+        const query = searchInput ? searchInput.value.trim() : "";
+        if (!query) {
+            showStatus("भाई, पहले खोजने के लिए कोई शब्द लिखें।");
+            if (searchInput) searchInput.focus();
+            return;
+        }
+
+        currentQuery = query;
+        updateShoppingLinks(query);
+        hideSuggestions();
+        performSearch(query, activeTab);
+    });
+}
+
+document.querySelectorAll("[data-tab]").forEach((button) => {
+    button.addEventListener("click", () => {
+        setActiveTab(button.dataset.tab);
+    });
+});
+
+/* ===============================
+   Search suggestions
+================================ */
+
+function hideSuggestions() {
+    if (!suggestionsBox) return;
+
+    suggestionsBox.hidden = true;
+    suggestionsBox.replaceChildren();
+}
+
+function renderSuggestions(items) {
+    if (!suggestionsBox) return;
+
+    suggestionsBox.replaceChildren();
+
+    items.slice(0, 8).forEach((item) => {
+        const value = typeof item === "string"
+            ? item
+            : makeText(item.query || item.title || item.text, "");
+
+        if (!value) return;
+
+        const button = createElement("button", "suggestion-item", value);
+        button.type = "button";
+
+        button.addEventListener("click", () => {
+            if (searchInput) searchInput.value = value;
+
+            currentQuery = value;
+            hideSuggestions();
+            performSearch(value, activeTab);
+        });
+
+        suggestionsBox.appendChild(button);
+    });
+
+    suggestionsBox.hidden = suggestionsBox.children.length === 0;
+}
+
+async function loadSuggestions(query) {
+    if (!query || query.length < 2) {
+        hideSuggestions();
         return;
-      }
+    }
 
-      const requestNumber = ++weatherRequestNumber;
-      weatherButton.disabled = true;
-      weatherButton.textContent = "लोड हो रहा है...";
-      weatherContent.textContent = "मौसम की जानकारी प्राप्त हो रही है...";
-
-      try {
+    try {
         const data = await fetchJSON(
-          API.weather + "?city=" + encodeURIComponent(city)
+            "/api/suggestions?q=" + encodeURIComponent(query)
         );
 
-        if (requestNumber !== weatherRequestNumber) return;
-        if (data.error) throw new Error(data.error);
-        if (!data.current) throw new Error("Weather data missing");
+        renderSuggestions(getArray(data));
+    } catch {
+        hideSuggestions();
+    }
+}
 
-        const current = data.current;
-        const units = data.units || {};
-        weatherCityLabel.textContent =
-          [data.city, data.country].filter(Boolean).join(", ");
+if (searchInput) {
+    searchInput.addEventListener("input", () => {
+        clearTimeout(suggestionTimer);
+
+        const query = searchInput.value.trim();
+
+        if (!query) {
+            hideSuggestions();
+            return;
+        }
+
+        suggestionTimer = setTimeout(() => {
+            loadSuggestions(query);
+        }, 250);
+
+        if (activeTab === "shopping") {
+            updateShoppingLinks(query);
+        }
+    });
+
+    searchInput.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") hideSuggestions();
+    });
+}
+
+document.addEventListener("click", (event) => {
+    if (
+        suggestionsBox &&
+        searchInput &&
+        !suggestionsBox.contains(event.target) &&
+        event.target !== searchInput
+    ) {
+        hideSuggestions();
+    }
+});
+
+/* ===============================
+   Home news
+================================ */
+
+async function loadHomeNews() {
+    const newsContainer = $("homeNews") || $("newsContainer");
+
+    if (!newsContainer) return;
+
+    try {
+        const data = await fetchJSON("/api/news");
+        const items = getArray(data);
+
+        newsContainer.replaceChildren();
+
+        items.slice(0, 8).forEach((item) => {
+            if (!item || typeof item !== "object") return;
+
+            const card = createElement("article", "news-card");
+            const title = getResultTitle(item);
+            const url = getResultUrl(item);
+
+            const heading = createElement("h3");
+
+            if (url) {
+                heading.appendChild(createLink(url, title));
+            } else {
+                heading.textContent = title;
+            }
+
+            card.appendChild(heading);
+
+            const description = makeText(
+                item.description || item.snippet || item.summary,
+                ""
+            );
+
+            if (description) {
+                card.appendChild(createElement("p", "", description));
+            }
+
+            newsContainer.appendChild(card);
+        });
+    } catch (error) {
+        console.warn("Home news load failed:", error.message);
+    }
+}
+
+/* ===============================
+   Weather
+================================ */
+
+function weatherDescription(code) {
+    const descriptions = {
+        0: "साफ आसमान",
+        1: "अधिकतर साफ",
+        2: "कुछ बादल",
+        3: "बादल छाए हुए",
+        45: "कोहरा",
+        48: "घना कोहरा",
+        51: "हल्की बूंदाबांदी",
+        53: "बूंदाबांदी",
+        55: "तेज बूंदाबांदी",
+        61: "हल्की बारिश",
+        63: "बारिश",
+        65: "तेज बारिश",
+        71: "हल्की बर्फबारी",
+        73: "बर्फबारी",
+        75: "तेज बर्फबारी",
+        80: "बारिश की बौछारें",
+        81: "तेज बौछारें",
+        82: "बहुत तेज बौछारें",
+        95: "गरज-चमक के साथ बारिश"
+    };
+
+    return descriptions[code] || "मौसम की जानकारी";
+}
+
+async function loadWeather(city = "Jaipur") {
+    const weatherContent = $("weatherContent");
+    const cityLabel = $("weatherCityLabel");
+
+    if (cityLabel) cityLabel.textContent = city;
+
+    if (!weatherContent) return;
+
+    weatherContent.textContent = "मौसम की जानकारी लोड हो रही है…";
+
+    try {
+        const data = await fetchJSON(
+            "/api/weather?city=" + encodeURIComponent(city)
+        );
+
+        const temperature =
+            data.temperature ??
+            data.temp ??
+            data.current_temperature;
+
+        const description =
+            data.description ||
+            data.condition ||
+            (data.weathercode !== undefined
+                ? weatherDescription(Number(data.weathercode))
+                : "");
 
         weatherContent.replaceChildren();
 
-        const main = document.createElement("div");
-        main.className = "weather-main";
+        const temperatureText = temperature !== undefined
+            ? temperature + "°C"
+            : "तापमान उपलब्ध नहीं";
 
-        const temp = document.createElement("div");
-        temp.className = "weather-temp";
-        temp.textContent =
-          current.temperature_2m + (units.temperature_2m || "°C");
+        weatherContent.appendChild(
+            createElement("p", "weather-temperature", temperatureText)
+        );
 
-        const description = document.createElement("div");
-        description.textContent = weatherDescription(current.weather_code);
-        main.append(temp, description);
-        weatherContent.appendChild(main);
-
-        const details = document.createElement("div");
-        details.className = "weather-details";
-
-        const values = [
-          ["महसूस तापमान", current.apparent_temperature,
-            units.apparent_temperature || "°C"],
-          ["नमी", current.relative_humidity_2m,
-            units.relative_humidity_2m || "%"],
-          ["हवा की गति", current.wind_speed_10m,
-            units.wind_speed_10m || "km/h"]
-        ];
-
-        values.forEach(([label, value, unit]) => {
-          const box = document.createElement("div");
-          box.className = "weather-detail";
-
-          const name = document.createElement("span");
-          name.textContent = label;
-
-          const number = document.createElement("strong");
-          number.textContent = value + " " + unit;
-
-          box.append(name, number);
-          details.appendChild(box);
-        });
-
-        weatherContent.appendChild(details);
-      } catch (error) {
-        if (requestNumber !== weatherRequestNumber) return;
-        console.error("Weather error:", error);
-        weatherCityLabel.textContent = "मौसम उपलब्ध नहीं";
-        weatherContent.textContent =
-          "मौसम नहीं मिल सका। शहर का नाम जाँचें और दोबारा कोशिश करें।";
-      } finally {
-        if (requestNumber === weatherRequestNumber) {
-          weatherButton.disabled = false;
-          weatherButton.textContent = "मौसम देखें";
+        if (description) {
+            weatherContent.appendChild(
+                createElement("p", "weather-description", description)
+            );
         }
-      }
+
+        if (data.humidity !== undefined) {
+            weatherContent.appendChild(
+                createElement(
+                    "p",
+                    "",
+                    "नमी: " + data.humidity + "%"
+                )
+            );
+        }
+
+        if (data.wind_speed !== undefined) {
+            weatherContent.appendChild(
+                createElement(
+                    "p",
+                    "",
+                    "हवा: " + data.wind_speed + " km/h"
+                )
+            );
+        }
+
+        if (
+            temperature === undefined &&
+            !description
+        ) {
+            weatherContent.textContent =
+                "मौसम का डेटा इस समय उपलब्ध नहीं है।";
+        }
+    } catch (error) {
+        weatherContent.textContent =
+            "मौसम की जानकारी नहीं मिली। शहर का नाम जाँचें या बाद में प्रयास करें।";
     }
+}
 
-    weatherForm.addEventListener("submit", event => {
-      event.preventDefault();
-      loadWeather(weatherCityInput.value);
+const weatherForm = $("weatherForm");
+
+if (weatherForm) {
+    weatherForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const cityInput = $("weatherCity");
+        const city = cityInput ? cityInput.value.trim() : "";
+
+        if (city) loadWeather(city);
     });
+}
 
-    /* Homepage par news aur weather automatically load karein */
+/* ===============================
+   Start page
+================================ */
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateShoppingLinks("");
     loadHomeNews();
     loadWeather("Jaipur");
-  </script>
+
+    if (resultsList) resultsList.hidden = true;
+    if (mediaGrid) mediaGrid.hidden = true;
+
+    if (searchInput) searchInput.focus();
+});
+</script>
+
 </body>
 </html>
