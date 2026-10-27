@@ -299,4 +299,59 @@
     "keywords": "Rajasthan High Court case judgement",
     "url": "https://hcraj.nic.in/"
   }
+  
+  {
+    "name": "Amazon India",
+    "category": "Shopping",
+    "keywords": "amazon shopping online mobile electronics clothes खरीदारी",
+    "url": "https://www.amazon.in/"
+  },
+  {
+    "name": "Flipkart",
+    "category": "Shopping",
+    "keywords": "flipkart shopping mobile laptop electronics ऑनलाइन खरीदारी",
+    "url": "https://www.flipkart.com/"
+  },
+  {
+    "name": "Meesho",
+    "category": "Shopping",
+    "keywords": "meesho clothes fashion home products सस्ते सामान",
+    "url": "https://www.meesho.com/"
+  },
+  {
+    "name": "JioMart",
+    "category": "Shopping",
+    "keywords": "jiomart grocery kirana food राशन किराना",
+    "url": "https://www.jiomart.com/"
+  },
+  {
+    "name": "IndiaMART",
+    "category": "Shopping",
+    "keywords": "indiamart wholesale suppliers business थोक सामान",
+    "url": "https://www.indiamart.com/"
+  },
+  {
+    "name": "Goodreturns Gold Rates",
+    "category": "Live Rates",
+    "keywords": "gold price gold rate silver price सोना चांदी भाव",
+    "url": "https://www.goodreturns.in/gold-rates/"
+  },
+  {
+    "name": "MCX India",
+    "category": "Live Rates",
+    "keywords": "MCX commodity market gold silver commodity rates कमोडिटी भाव",
+    "url": "https://www.mcxindia.com/"
+  },
+  {
+    "name": "NSE India",
+    "category": "Live Rates",
+    "keywords": "NSE stock market share prices nifty शेयर बाजार लाइव रेट",
+    "url": "https://www.nseindia.com/"
+  },
+  {
+    "name": "AGMARKNET",
+    "category": "Live Rates",
+    "keywords": "mandi rates crop prices farmer कृषि मंडी भाव फसल",
+    "url": "https://agmarknet.gov.in/"
+  }
 ]
