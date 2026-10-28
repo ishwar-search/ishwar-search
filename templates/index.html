@@ -66,6 +66,104 @@ footer{min-height:110px;border-top:1px solid #087dff;box-shadow:0 -5px 22px #007
 @media(max-width:1100px){.brand{min-width:auto}.nav{gap:0}.nav a{padding:10px 7px}.system-console{width:220px;right:16px}.layout{grid-template-columns:180px minmax(0,1fr)}}
 @media(max-width:800px){.topbar{height:auto;padding:10px 14px;gap:12px;flex-wrap:wrap}.brand-title{font-size:22px}.logo{width:48px;height:48px}.tagline{font-size:11px}.nav{order:3;flex-basis:100%;overflow-x:auto;justify-content:flex-start}.nav a{font-size:13px;padding:8px}.top-actions{margin-left:auto}.layout{display:block}.sidebar{display:none}.hero{min-height:calc(100vh - 180px);padding:120px 18px 55px}.hero:before{width:75vw}.system-console{top:12px;right:12px;width:auto;font-size:10px;line-height:1.5;padding:8px 12px}.console-top{margin-bottom:4px}.hero-logo{width:64px;height:64px}footer{grid-template-columns:1fr;text-align:center;padding:22px 16px}.footer-brand{justify-content:center}.footer-right{text-align:center}.founder{order:2}.footer-right{order:3}}
 @media(max-width:420px){.brand-title{font-size:19px}.brand{gap:8px}.search-form{padding:6px 7px 6px 14px;gap:5px}.search-form input{font-size:15px;padding:8px}.search-form button{width:44px;height:44px;font-size:24px}.search-symbol{font-size:23px}.system-console{max-width:175px}.hero-subtitle{margin-bottom:24px}}
+  
+.tool-panel {
+  max-width: 1100px;
+  margin: 25px auto;
+  padding: 24px;
+  color: #edf6ff;
+}
+
+.tool-panel h2 {
+  color: #00d9ff;
+  margin-bottom: 8px;
+}
+
+.tool-panel p,
+.panel-status {
+  color: #a8c3e4;
+  line-height: 1.6;
+}
+
+.panel-search {
+  width: 100%;
+  min-width: 0;
+  padding: 13px 15px;
+  margin: 12px 0 18px;
+  border: 1px solid #087dff;
+  border-radius: 10px;
+  background: #020d20;
+  color: white;
+  font-size: 16px;
+}
+
+.panel-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.panel-form .panel-search {
+  flex: 1;
+}
+
+.panel-form button,
+#refreshNews {
+  padding: 13px 17px;
+  border: 0;
+  border-radius: 10px;
+  background: #087dff;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.directory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.directory-card {
+  display: block;
+  padding: 17px;
+  background: #06152a;
+  border: 1px solid #075a9d;
+  border-radius: 12px;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.directory-card:hover {
+  border-color: #00d9ff;
+  box-shadow: 0 0 15px #007bff40;
+}
+
+.directory-card small {
+  display: block;
+  color: #a8c3e4;
+  margin-top: 8px;
+}
+
+@media (max-width: 700px) {
+  .directory-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tool-panel {
+    padding: 16px;
+  }
+
+  .panel-form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .panel-form button {
+    width: 100%;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -79,14 +177,15 @@ footer{min-height:110px;border-top:1px solid #087dff;box-shadow:0 -5px 22px #007
     </div>
   </a>
 
-  <nav class="nav" aria-label="Main navigation">
-    <a class="active" href="/">⌂ Home</a>
-    <a href="#searchResults">◎ Websites</a>
-    <a href="#searchResults">🔧 Tools</a>
-    <a href="#searchResults">▧ Images</a>
-    <a href="#searchResults">▤ News</a>
-    <a href="#footer">More⌄</a>
-  </nav>
+ 
+<nav class="nav" aria-label="Main navigation">
+  <a href="#" class="active" data-view="home">⌂ Home</a>
+  <a href="#" data-view="websites">◎ Websites</a>
+  <a href="#" data-view="tools">🔧 Tools</a>
+  <a href="#" data-view="images">▧ Images</a>
+  <a href="#" data-view="news">▤ News</a>
+</nav>
+
 
   <div class="top-actions">
     <button class="round-btn" id="themeButton" type="button" aria-label="Toggle theme">☾</button>
@@ -94,15 +193,14 @@ footer{min-height:110px;border-top:1px solid #087dff;box-shadow:0 -5px 22px #007
   </div>
 </header>
 
-<div class="layout">
-  <aside class="sidebar">
-    <a class="active" href="/"><span class="side-icon">⌂</span>Home</a>
-    <a href="#searchResults"><span class="side-icon">◎</span>Websites</a>
-    <a href="#searchResults"><span class="side-icon">🔧</span>Tools</a>
-    <a href="#searchResults"><span class="side-icon">▧</span>Images</a>
-    <a href="#searchResults"><span class="side-icon">▤</span>News</a>
-    <a href="#footer"><span class="side-icon">▦</span>More</a>
-  </aside>
+
+<aside class="sidebar">
+  <a href="#" class="active" data-view="home">⌂ Home</a>
+  <a href="#" data-view="websites">◎ Websites</a>
+  <a href="#" data-view="tools">🔧 Tools</a>
+  <a href="#" data-view="images">▧ Images</a>
+  <a href="#" data-view="news">▤ News</a>
+</aside>
 
   <main>
     <section class="hero" aria-label="Ishwar Search">
@@ -142,6 +240,42 @@ footer{min-height:110px;border-top:1px solid #087dff;box-shadow:0 -5px 22px #007
       <div id="resultsStatus" class="empty">अपना सवाल या शब्द लिखकर खोजें।</div>
       <div id="resultsList" class="result-list"></div>
     </section>
+    
+<section class="tool-panel" id="websitesPanel" hidden>
+  <h2>🌐 Websites Directory</h2>
+  <p>वेबसाइट खोजो और सीधे खोलो।</p>
+  <input class="panel-search" id="websiteFilter" placeholder="वेबसाइट का नाम खोजें...">
+  <div class="directory-grid" id="websiteList">वेबसाइटें लोड हो रही हैं...</div>
+</section>
+
+<section class="tool-panel" id="toolsPanel" hidden>
+  <h2>🔧 Online Tools</h2>
+  <p>टूल खोजो और इस्तेमाल करने के लिए उसकी वेबसाइट खोलो।</p>
+  <input class="panel-search" id="toolFilter" placeholder="टूल खोजें...">
+  <div class="directory-grid" id="toolList"></div>
+</section>
+
+<section class="tool-panel" id="imagesPanel" hidden>
+  <h2>🖼️ Image Search</h2>
+  <p>फोटो खोजने के लिए शब्द लिखो। परिणाम नई टैब में खुलेंगे।</p>
+  <form id="imageSearchForm" class="panel-form">
+    <input id="imageQuery" class="panel-search" placeholder="जैसे: nature, car, Rajasthan..." required>
+    <button type="submit">फोटो खोजें ↗</button>
+  </form>
+  <div class="directory-grid">
+    <a class="directory-card" id="googleImagesLink" href="https://www.google.com/imghp" target="_blank" rel="noopener noreferrer">🔎 Google Images <small>इमेज के परिणाम खोलें</small></a>
+    <a class="directory-card" id="bingImagesLink" href="https://www.bing.com/images" target="_blank" rel="noopener noreferrer">🖼️ Bing Images <small>इमेज खोजें</small></a>
+  </div>
+</section>
+
+<section class="tool-panel" id="newsPanel" hidden>
+  <h2>📰 Latest News</h2>
+  <p>उपलब्ध RSS स्रोतों से खबरें लोड होंगी।</p>
+  <button type="button" id="refreshNews">खबरें फिर से लोड करें ↻</button>
+  <div id="newsStatus" class="panel-status">खबरें लोड करने के लिए क्लिक करें।</div>
+  <div class="directory-grid" id="newsList"></div>
+</section>
+
   </main>
 </div>
 
@@ -170,94 +304,230 @@ footer{min-height:110px;border-top:1px solid #087dff;box-shadow:0 -5px 22px #007
 <script>
 
 (() => {
-  const form = document.getElementById('searchForm');
-  const input = document.getElementById('searchInput');
-  const section = document.getElementById('searchResults');
-  const status = document.getElementById('resultsStatus');
-  const list = document.getElementById('resultsList');
-  const heading = document.getElementById('resultsHeading');
+  const $ = id => document.getElementById(id);
 
-  document.getElementById('year').textContent = new Date().getFullYear();
+  const views = {
+    home: null,
+    websites: $('websitesPanel'),
+    tools: $('toolsPanel'),
+    images: $('imagesPanel'),
+    news: $('newsPanel')
+  };
 
-  form.addEventListener('submit', async (event) => {
+  $('year').textContent = new Date().getFullYear();
+
+  function showView(name) {
+    document.querySelectorAll('[data-view]').forEach(link => {
+      link.classList.toggle('active', link.dataset.view === name);
+    });
+
+    Object.entries(views).forEach(([key, panel]) => {
+      if (panel) panel.hidden = key !== name;
+    });
+
+    $('searchResults').classList.remove('show');
+    document.querySelector('.hero').hidden = name !== 'home';
+
+    if (name === 'websites') loadWebsites();
+    if (name === 'tools') renderTools();
+    if (name === 'news') loadNews();
+  }
+
+  document.querySelectorAll('[data-view]').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      showView(link.dataset.view);
+    });
+  });
+
+  async function loadWebsites() {
+    const container = $('websiteList');
+    container.textContent = 'वेबसाइटें लोड हो रही हैं...';
+
+    try {
+      const response = await fetch('/api/services');
+      if (!response.ok) throw new Error('Website API unavailable');
+
+      const data = await response.json();
+      const services = Array.isArray(data.results) ? data.results : [];
+
+      renderCards(
+        container,
+        services.map(item => ({
+          name: item.name,
+          url: item.url,
+          description: item.description || item.category || 'वेबसाइट खोलें'
+        }))
+      );
+
+      filterCards('websiteFilter', container);
+    } catch (error) {
+      container.textContent =
+        'वेबसाइट सूची लोड नहीं हुई। /api/services जाँचें।';
+    }
+  }
+
+  const tools = [
+    {name:'Photopea', url:'https://www.photopea.com/', description:'ऑनलाइन फोटो एडिटिंग'},
+    {name:'Remove.bg', url:'https://www.remove.bg/', description:'फोटो का बैकग्राउंड हटाएँ'},
+    {name:'Pexels', url:'https://www.pexels.com/', description:'फोटो और वीडियो खोजें'},
+    {name:'Pixabay', url:'https://pixabay.com/', description:'फोटो और चित्र'},
+    {name:'Figma', url:'https://www.figma.com/', description:'डिजाइन टूल'},
+    {name:'CodePen', url:'https://codepen.io/', description:'HTML, CSS और JavaScript'},
+    {name:'freeCodeCamp', url:'https://www.freecodecamp.org/', description:'मुफ्त कोडिंग सीखें'},
+    {name:'Stack Overflow', url:'https://stackoverflow.com/', description:'कोडिंग सवाल-जवाब'},
+    {name:'Canva', url:'https://www.canva.com/', description:'पोस्टर और ग्राफिक्स'},
+    {name:'Google Translate', url:'https://translate.google.com/', description:'भाषा अनुवाद'},
+    {name:'Google Maps', url:'https://maps.google.com/', description:'मैप और रास्ते'},
+    {name:'Internet Archive', url:'https://archive.org/', description:'डिजिटल लाइब्रेरी'}
+  ];
+
+  function renderTools() {
+    renderCards($('toolList'), tools);
+    filterCards('toolFilter', $('toolList'));
+  }
+
+  function renderCards(container, items) {
+    container.replaceChildren();
+
+    if (!items.length) {
+      container.textContent = 'कोई परिणाम नहीं मिला।';
+      return;
+    }
+
+    for (const item of items) {
+      if (!item.url || !/^https?:\/\//i.test(item.url)) continue;
+
+      const card = document.createElement('a');
+      card.className = 'directory-card';
+      card.href = item.url;
+      card.target = '_blank';
+      card.rel = 'noopener noreferrer';
+
+      const title = document.createElement('strong');
+      title.textContent = item.name;
+
+      const description = document.createElement('small');
+      description.textContent = item.description || '';
+
+      card.append(title, description);
+      container.appendChild(card);
+    }
+  }
+
+  function filterCards(inputId, container) {
+    const input = $(inputId);
+    input.oninput = () => {
+      const query = input.value.trim().toLowerCase();
+
+      container.querySelectorAll('.directory-card').forEach(card => {
+        card.hidden = !card.textContent.toLowerCase().includes(query);
+      });
+    };
+  }
+
+  $('imageSearchForm').addEventListener('submit', event => {
     event.preventDefault();
 
-    const query = input.value.trim();
+    const query = $('imageQuery').value.trim();
     if (!query) return;
 
+    $('googleImagesLink').href =
+      'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(query);
+
+    $('bingImagesLink').href =
+      'https://www.bing.com/images/search?q=' + encodeURIComponent(query);
+
+    window.open(
+      'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(query),
+      '_blank',
+      'noopener'
+    );
+  });
+
+  async function loadNews() {
+    const status = $('newsStatus');
+    const container = $('newsList');
+
+    status.textContent = 'खबरें लोड हो रही हैं...';
+    container.replaceChildren();
+
+    try {
+      const response = await fetch('/api/news?limit=15');
+      if (!response.ok) throw new Error('News API unavailable');
+
+      const data = await response.json();
+      const items = Array.isArray(data.results) ? data.results : [];
+
+      renderCards(
+        container,
+        items.map(item => ({
+          name: item.title,
+          url: item.url,
+          description: [item.source, item.published, item.description]
+            .filter(Boolean).join(' • ')
+        }))
+      );
+
+      status.textContent = items.length
+        ? `${items.length} खबरें मिलीं। खबर खोलने के लिए कार्ड पर क्लिक करें।`
+        : 'अभी खबरें नहीं मिलीं। बाद में फिर कोशिश करें।';
+    } catch (error) {
+      status.textContent =
+        'खबरें लोड नहीं हुईं। RSS स्रोत या /api/news जाँचें।';
+    }
+  }
+
+  $('refreshNews').addEventListener('click', loadNews);
+
+  $('searchForm').addEventListener('submit', async event => {
+    event.preventDefault();
+
+    const query = $('searchInput').value.trim();
+    if (!query) return;
+
+    const section = $('searchResults');
+    const status = $('resultsStatus');
+    const list = $('resultsList');
+
+    showView('home');
     section.classList.add('show');
-    heading.textContent = `“${query}” के परिणाम`;
+    $('resultsHeading').textContent = `“${query}” के परिणाम`;
     status.textContent = 'खोज रहे हैं...';
     list.replaceChildren();
 
-    section.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    });
-
     try {
       const response = await fetch(
-        `/api/search?q=${encodeURIComponent(query)}&limit=30`,
-        {
-          headers: { 'Accept': 'application/json' }
-        }
+        `/api/search?q=${encodeURIComponent(query)}&limit=30`
       );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
+      if (!response.ok) throw new Error('Search API unavailable');
 
       const data = await response.json();
-      const results = Array.isArray(data.results) ? data.results : [];
+      const items = Array.isArray(data.results) ? data.results : [];
 
-      list.replaceChildren();
+      renderCards(
+        list,
+        items.map(item => ({
+          name: item.name || item.title,
+          url: item.url || item.link,
+          description: item.description || item.category
+        }))
+      );
 
-      if (!results.length) {
-        status.textContent =
-          'स्थानीय सूची में परिणाम नहीं मिले। कोई दूसरा शब्द आज़माएँ।';
-        return;
-      }
-
-      status.textContent = `${results.length} परिणाम मिले`;
-
-      for (const item of results) {
-        if (!item || !item.url || !/^https?:\/\//i.test(item.url)) {
-          continue;
-        }
-
-        const card = document.createElement('a');
-        card.className = 'result-card';
-        card.href = item.url;
-        card.target = '_blank';
-        card.rel = 'noopener noreferrer';
-
-        const title = document.createElement('strong');
-        title.textContent = item.name || item.title || item.url;
-
-        const description = document.createElement('div');
-        description.textContent = item.description || item.category || '';
-
-        const url = document.createElement('small');
-        url.textContent = item.url;
-
-        card.append(title, description, url);
-        list.appendChild(card);
-      }
-
-      if (!list.children.length) {
-        status.textContent = 'सुरक्षित लिंक वाले परिणाम नहीं मिले।';
-      }
-
+      status.textContent = items.length
+        ? `${items.length} परिणाम मिले। लिंक खोलने के लिए क्लिक करें।`
+        : 'कोई परिणाम नहीं मिला। दूसरा शब्द आज़माएँ।';
     } catch (error) {
-      console.error('Search failed:', error);
       status.textContent =
-        'सर्च सेवा अभी उपलब्ध नहीं है। थोड़ी देर बाद फिर कोशिश करें।';
+        'सर्च सेवा अभी उपलब्ध नहीं है। /api/search जाँचें।';
     }
+
+    section.scrollIntoView({behavior:'smooth', block:'start'});
   });
 
-  document.getElementById('themeButton').addEventListener('click', () => {
-    const light = document.body.classList.toggle('light-mode');
-
+  $('themeButton').addEventListener('click', () => {
+    document.body.classList.toggle('light-mode');
+    const light = document.body.classList.contains('light-mode');
     document.body.style.background = light ? '#eef5ff' : '#020817';
     document.body.style.color = light ? '#10213a' : '#edf6ff';
   });
