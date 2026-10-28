@@ -1035,7 +1035,9 @@ def internal_server_error(error):
 # ------------------------------------------------------------
 # Run locally / Render
 # ------------------------------------------------------------
-
+@app.route("/education", methods=["GET"])
+def education():
+    return render_template("education.html")
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
 
