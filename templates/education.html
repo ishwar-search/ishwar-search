@@ -4,720 +4,477 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Ishwar Search Education: कक्षा 1 से 5 तक हिंदी और English में अध्ययन सामग्री">
+<meta name="description" content="Ishwar Search Education - कक्षा 1 से 5 तक हिंदी और English अध्ययन सामग्री">
 <title>Ishwar Search Education</title>
-
 <style>
-:root {
-    --blue: #174ea6;
-    --blue-dark: #103778;
-    --bg: #f4f7fc;
-    --card: #ffffff;
-    --text: #172033;
-    --muted: #667085;
-    --border: #dfe6f0;
-    --green: #16834a;
-}
-* { box-sizing: border-box; }
-body {
-    margin: 0;
-    font-family: Arial, "Noto Sans Devanagari", sans-serif;
-    color: var(--text);
-    background: var(--bg);
-    line-height: 1.65;
-}
-header {
-    background: linear-gradient(135deg, #103778, #2878df);
-    color: white;
-    text-align: center;
-    padding: 24px 15px 32px;
-}
-.brand { font-size: 28px; font-weight: 800; margin: 0; }
-.owner { margin: 2px 0 15px; font-size: 14px; }
-header h1 { font-size: clamp(25px, 5vw, 38px); margin: 12px 0; }
-header p { margin-top: 8px; }
-.back-link {
-    display: inline-block;
-    color: white;
-    text-decoration: none;
-    border: 1px solid #ffffff90;
-    border-radius: 9px;
-    padding: 7px 12px;
-}
-.container { max-width: 1050px; margin: auto; padding: 20px 14px 40px; }
-.notice {
-    background: #fff8df;
-    border: 1px solid #f2d47b;
-    color: #674c00;
-    padding: 13px;
-    border-radius: 12px;
-    font-size: 14px;
-}
-h2 { margin-top: 24px; }
-.toolbar {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 10px;
-    margin: 15px 0;
-}
-input, select, button { font: inherit; }
-input, select {
-    width: 100%;
-    padding: 11px;
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    background: white;
-}
-.class-grid, .subject-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
-    gap: 11px;
-}
-.class-card, .subject-button {
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: white;
-    padding: 14px 10px;
-    cursor: pointer;
-}
-.class-card { text-align: center; }
-.class-card:hover, .class-card.active,
-.subject-button:hover, .subject-button.active {
-    border-color: var(--blue);
-    background: #edf4ff;
-}
-.class-number { display: block; font-size: 27px; font-weight: bold; color: var(--blue); }
-.class-label { font-size: 13px; color: var(--muted); }
-.panel {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 15px;
-    padding: 18px;
-    margin-top: 22px;
-}
-.subject-button { text-align: left; }
-.subject-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
-.lesson-list { display: grid; gap: 10px; margin-top: 15px; }
-.lesson-button {
-    width: 100%;
-    text-align: left;
-    padding: 13px;
-    border: 1px solid var(--border);
-    background: #fff;
-    border-radius: 10px;
-    cursor: pointer;
-}
-.lesson-button:hover, .lesson-button.active {
-    background: #edf4ff;
-    border-color: var(--blue);
-}
-.note {
-    border: 1px solid var(--border);
-    background: #f8faff;
-    border-radius: 12px;
-    padding: 17px;
-    margin-top: 18px;
-}
-.note h3 { margin-top: 0; color: var(--blue-dark); }
-.bilingual {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 12px;
-}
-.language-box {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 13px;
-}
-.language-box h4 { margin: 0 0 8px; color: var(--blue); }
-.question {
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-}
-.question label { display: block; margin: 6px 0; cursor: pointer; }
-.action {
-    background: var(--blue);
-    color: white;
-    border: 0;
-    border-radius: 9px;
-    padding: 10px 15px;
-    cursor: pointer;
-    margin: 8px 6px 0 0;
-}
-.action:hover { background: var(--blue-dark); }
-.result { font-weight: bold; margin-top: 12px; }
-.small { color: var(--muted); font-size: 13px; }
-footer { text-align: center; padding: 22px 12px; color: var(--muted); font-size: 13px; }
-[hidden] { display: none !important; }
-@media print {
-    header, .notice, .toolbar, .class-grid, #subjectsPanel,
-    #lessonsPanel, .no-print, footer { display: none !important; }
-    body { background: white; }
-    .container, .panel, .note { border: 0; padding: 0; margin: 0; }
-}
+:root{--blue:#174ea6;--dark:#103778;--bg:#f4f7fc;--border:#dfe6f0;--text:#172033;--muted:#667085;--green:#16834a}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Noto Sans Devanagari",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+header{background:linear-gradient(135deg,#103778,#2878df);color:#fff;text-align:center;padding:24px 14px 30px}
+.brand{font-size:27px;font-weight:800;margin:0}
+.owner{font-size:14px;margin:0 0 12px}
+header h1{font-size:clamp(25px,5vw,38px);margin:14px 0 5px}
+.back{display:inline-block;color:white;border:1px solid #ffffff99;border-radius:9px;padding:7px 12px;text-decoration:none}
+.container{max-width:1100px;margin:auto;padding:18px 13px 40px}
+.notice{background:#fff8df;border:1px solid #f2d47b;border-radius:12px;padding:12px;font-size:14px}
+.toolbar{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:15px 0}
+input,select,button{font:inherit}
+input,select{width:100%;padding:11px;border:1px solid var(--border);border-radius:9px;background:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
+.card,.subject,.lesson{border:1px solid var(--border);background:white;border-radius:11px;padding:13px;cursor:pointer}
+.card{text-align:center}
+.card strong{display:block;font-size:27px;color:var(--blue)}
+.card.active,.subject.active,.lesson.active,.card:hover,.subject:hover,.lesson:hover{background:#edf4ff;border-color:var(--blue)}
+.panel{background:white;border:1px solid var(--border);border-radius:14px;padding:17px;margin-top:20px}
+.subject{text-align:left}
+.lesson-list{display:grid;gap:9px;margin-top:12px}
+.lesson{text-align:left;width:100%}
+.note{background:#f8faff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:15px}
+.bilingual{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.langbox{background:white;border:1px solid var(--border);border-radius:10px;padding:13px;min-width:0}
+.langbox h3,.langbox h4{color:var(--blue-dark)}
+.action{background:var(--blue);color:white;border:0;border-radius:9px;padding:10px 14px;margin:8px 6px 0 0;cursor:pointer}
+.action:hover{background:var(--dark)}
+.secondary{background:#e8eef8;color:var(--dark)}
+.question{padding:12px 0;border-bottom:1px solid var(--border)}
+.question label{display:block;margin:7px 0;cursor:pointer}
+.result{font-weight:bold;color:var(--green)}
+.small{color:var(--muted);font-size:13px}
+footer{text-align:center;padding:22px;color:var(--muted);font-size:13px}
+[hidden]{display:none!important}
+@media print{header,.notice,.toolbar,.class-grid,#subjectsPanel,#lessonsPanel,.no-print,footer{display:none!important}body{background:white}.container,.panel,.note{border:0;padding:0;margin:0}.bilingual{display:block}.langbox{border:0;page-break-inside:avoid}}
 </style>
 </head>
-
 <body>
 <header>
-    <p class="brand">Ishwar Search</p>
-    <p class="owner">Owner: Ishwar Ghanchi</p>
-    <a class="back-link" href="/">← मुख्य वेबसाइट / Main Website</a>
-    <h1>Ishwar Search Education</h1>
-    <p>RBSE Study Centre • हिंदी + English</p>
-    <p>सीखें • अभ्यास करें • आगे बढ़ें</p>
+  <p class="brand">Ishwar Search</p>
+  <p class="owner">Owner: Ishwar Ghanchi</p>
+  <a class="back" href="/">← मुख्य वेबसाइट / Main Website</a>
+  <h1>Ishwar Search Education</h1>
+  <p>RBSE Study Centre • हिंदी + English</p>
+  <p>सीखें • अभ्यास करें • आगे बढ़ें</p>
 </header>
 
 <main class="container">
-    <div class="notice">
-        <strong>ध्यान दें / Note:</strong>
-        यह शुरुआती अध्ययन सामग्री है, आधिकारिक RBSE पाठ्यपुस्तक नहीं।
-        अध्याय क्रम और पाठ्यक्रम को नवीनतम RBSE पुस्तकों से सत्यापित करके
-        आगे अपडेट किया जाएगा।
+  <div class="notice">
+    <strong>महत्वपूर्ण / Important:</strong>
+    यह सामान्य अभ्यास सामग्री है। इसे आधिकारिक RBSE पाठ्यपुस्तक या प्रमाणित पाठ्यक्रम न मानें।
+  </div>
+
+  <h2>कक्षा चुनें / Select Class</h2>
+  <div class="toolbar">
+    <select id="language" aria-label="Language">
+      <option value="both">हिंदी + English</option>
+      <option value="hi">केवल हिंदी / Hindi only</option>
+      <option value="en">English only</option>
+    </select>
+    <input id="classSearch" type="search" placeholder="कक्षा खोजें / Search class">
+    <input id="lessonSearch" type="search" placeholder="पाठ खोजें / Search lesson">
+  </div>
+
+  <div class="grid class-grid" id="classGrid"></div>
+
+  <section class="panel" id="subjectsPanel" hidden>
+    <h2 id="classTitle"></h2>
+    <p class="small">अपना विषय चुनें / Choose a subject</p>
+    <div class="grid" id="subjectGrid"></div>
+  </section>
+
+  <section class="panel" id="lessonsPanel" hidden>
+    <h2 id="subjectTitle"></h2>
+    <p class="small">पाठ चुनें / Select a lesson</p>
+    <div class="lesson-list" id="lessonList"></div>
+  </section>
+
+  <section class="panel" id="notesPanel" hidden>
+    <div id="notesContent"></div>
+    <div class="no-print">
+      <button class="action" id="printButton">नोट्स प्रिंट करें / Print Notes</button>
+      <button class="action" id="quizButton">अभ्यास जाँचें / Check Practice</button>
     </div>
-
-    <h2>कक्षा चुनें / Select Class</h2>
-    <div class="toolbar">
-        <select id="language" aria-label="Display language">
-            <option value="both">हिंदी + English</option>
-            <option value="hi">केवल हिंदी / Hindi</option>
-            <option value="en">English only</option>
-        </select>
-        <input id="classSearch" type="search"
-               placeholder="कक्षा खोजें / Search class">
-    </div>
-    <div class="class-grid" id="classGrid"></div>
-
-    <section class="panel" id="subjectsPanel" hidden>
-        <h2 id="classTitle"></h2>
-        <p id="classDescription" class="small"></p>
-        <h3>विषय / Subjects</h3>
-        <div class="subject-grid" id="subjectGrid"></div>
-    </section>
-
-    <section class="panel" id="lessonsPanel" hidden>
-        <h2 id="subjectTitle"></h2>
-        <p class="small">पाठ चुनें / Select a lesson</p>
-        <div class="lesson-list" id="lessonList"></div>
-    </section>
-
-    <section class="panel" id="notesPanel" hidden>
-        <div id="notesContent"></div>
-        <div class="no-print">
-            <button class="action" id="printButton">नोट्स प्रिंट करें / Print Notes</button>
-            <button class="action" id="quizButton">अभ्यास जाँचें / Check Practice</button>
-        </div>
-        <div id="quizArea" hidden></div>
-    </section>
+    <div id="quizArea" hidden></div>
+  </section>
 </main>
 
 <footer>
-    © <span id="year"></span> Ishwar Search Education
-    <br>Learning for everyone • सबके लिए शिक्षा
+  © <span id="year"></span> Ishwar Search Education
+  <br>Learning for everyone • सबके लिए शिक्षा
 </footer>
 
 <script>
 "use strict";
 
 const $ = id => document.getElementById(id);
-
 $("year").textContent = new Date().getFullYear();
 
-const classes = Array.from({length: 5}, (_, i) => i + 1);
-
-const subjectData = {
-    hi: ["हिंदी", "अंग्रेज़ी", "गणित", "पर्यावरण अध्ययन"],
-    en: ["Hindi", "English", "Mathematics", "Environmental Studies"]
+const classes = [1,2,3,4,5];
+const subjectInfo = {
+  hindi:{hi:"हिंदी",en:"Hindi"},
+  english:{hi:"अंग्रेज़ी",en:"English"},
+  math:{hi:"गणित",en:"Mathematics"},
+  evs:{hi:"पर्यावरण अध्ययन",en:"Environmental Studies"}
 };
 
-/*
- * यह शुरुआती नोट्स डेटाबेस है।
- * अभी विस्तृत पाठ केवल कक्षा 1 गणित के लिए जोड़े गए हैं।
- * दूसरे विषयों और कक्षाओं के नोट्स सत्यापित सामग्री मिलने पर बढ़ेंगे।
- */
-const lessons = [
-    {
-        id: "numbers",
-        class: 1,
-        subject: "math",
-        titleHi: "पाठ 1: संख्याओं की पहचान",
-        titleEn: "Lesson 1: Recognising Numbers",
-        hi: `
-<h3>पाठ 1: संख्याओं की पहचान</h3>
-<p><strong>सीखने का लक्ष्य:</strong> संख्याओं को पहचानना, गिनना और क्रम समझना।</p>
-<h4>1. संख्या क्या है?</h4>
-<p>संख्या का उपयोग वस्तुओं की गिनती बताने के लिए किया जाता है। जैसे एक गेंद, दो किताबें या तीन पेंसिल।</p>
-<h4>2. संख्या क्रम</h4>
-<p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10</p>
-<ul>
-<li>1 के बाद 2 आता है।</li>
-<li>3 के बाद 4 आता है।</li>
-<li>5 से पहले 4 आता है।</li>
-<li>8 के बाद 9 आता है।</li>
-</ul>
-<h4>3. शून्य (0)</h4>
-<p>जब कोई वस्तु नहीं होती, तो हम शून्य का उपयोग कर सकते हैं। उदाहरण: खाली टोकरी में 0 आम हैं।</p>
-<h4>4. गिनती का अभ्यास</h4>
-<p>अपनी कॉपी में 1 से 20 तक संख्याएँ लिखें। फिर घर में पाँच वस्तुएँ गिनें।</p>
-`,
-        en: `
-<h3>Lesson 1: Recognising Numbers</h3>
-<p><strong>Learning goal:</strong> Recognise numbers, count objects and understand number order.</p>
-<h4>1. What is a number?</h4>
-<p>Numbers tell us how many objects there are. For example, one ball, two books or three pencils.</p>
-<h4>2. Number sequence</h4>
-<p>1, 2, 3, 4, 5, 6, 7, 8, 9, 10</p>
-<ul>
-<li>2 comes after 1.</li>
-<li>4 comes after 3.</li>
-<li>4 comes before 5.</li>
-<li>9 comes after 8.</li>
-</ul>
-<h4>3. Zero (0)</h4>
-<p>We can use zero when there are no objects. Example: an empty basket has 0 mangoes.</p>
-<h4>4. Counting practice</h4>
-<p>Write the numbers from 1 to 20 in your notebook. Then count five objects at home.</p>
-`
-    },
-    {
-        id: "before-after",
-        class: 1,
-        subject: "math",
-        titleHi: "पाठ 2: पहले और बाद की संख्या",
-        titleEn: "Lesson 2: Before and After",
-        hi: `
-<h3>पाठ 2: पहले और बाद की संख्या</h3>
-<p>संख्या क्रम में किसी संख्या से ठीक पहले आने वाली संख्या को पहले की संख्या और ठीक बाद आने वाली संख्या को बाद की संख्या कहते हैं।</p>
-<ul>
-<li>5 से पहले 4 आता है।</li>
-<li>5 के बाद 6 आता है।</li>
-<li>9 से पहले 8 आता है।</li>
-<li>9 के बाद 10 आता है।</li>
-</ul>
-<p><strong>अभ्यास:</strong> 3 के बाद कौन-सी संख्या आती है? 7 से पहले कौन-सी संख्या आती है?</p>
-`,
-        en: `
-<h3>Lesson 2: Before and After</h3>
-<p>The number immediately before a number is its previous number. The number immediately after it is its next number.</p>
-<ul>
-<li>4 comes before 5.</li>
-<li>6 comes after 5.</li>
-<li>8 comes before 9.</li>
-<li>10 comes after 9.</li>
-</ul>
-<p><strong>Practice:</strong> Which number comes after 3? Which number comes before 7?</p>
-`
-    },
-    {
-        id: "addition",
-        class: 1,
-        subject: "math",
-        titleHi: "पाठ 3: जोड़",
-        titleEn: "Lesson 3: Addition",
-        hi: `
-<h3>पाठ 3: जोड़</h3>
-<p>दो या अधिक संख्याओं को मिलाकर कुल पता करना जोड़ कहलाता है। जोड़ का चिह्न + है।</p>
-<p><strong>उदाहरण:</strong> आपके पास 2 आम हैं और 1 आम और मिला। कुल 2 + 1 = 3 आम।</p>
-<ul>
-<li>1 + 1 = 2</li>
-<li>2 + 1 = 3</li>
-<li>2 + 2 = 4</li>
-<li>3 + 2 = 5</li>
-</ul>
-<p>उँगलियों या छोटी वस्तुओं की सहायता से जोड़ का अभ्यास करें।</p>
-`,
-        en: `
-<h3>Lesson 3: Addition</h3>
-<p>Addition means putting numbers together to find the total. The plus sign is +.</p>
-<p><strong>Example:</strong> You have 2 mangoes and get 1 more. Total: 2 + 1 = 3 mangoes.</p>
-<ul>
-<li>1 + 1 = 2</li>
-<li>2 + 1 = 3</li>
-<li>2 + 2 = 4</li>
-<li>3 + 2 = 5</li>
-</ul>
-<p>Practise addition using your fingers or small objects.</p>
-`
-    },
-    {
-        id: "subtraction",
-        class: 1,
-        subject: "math",
-        titleHi: "पाठ 4: घटाव",
-        titleEn: "Lesson 4: Subtraction",
-        hi: `
-<h3>पाठ 4: घटाव</h3>
-<p>किसी समूह में से कुछ वस्तुएँ हटाने पर कितनी बचती हैं, यह पता करना घटाव कहलाता है। घटाव का चिह्न − है।</p>
-<p><strong>उदाहरण:</strong> 3 टॉफियों में से 1 टॉफी दे दी। 3 − 1 = 2 टॉफियाँ बचीं।</p>
-<ul>
-<li>2 − 1 = 1</li>
-<li>3 − 1 = 2</li>
-<li>4 − 2 = 2</li>
-<li>5 − 2 = 3</li>
-</ul>
-`,
-        en: `
-<h3>Lesson 4: Subtraction</h3>
-<p>Subtraction means taking away some objects and finding how many remain. The minus sign is −.</p>
-<p><strong>Example:</strong> You have 3 sweets and give away 1. Then 3 − 1 = 2 sweets remain.</p>
-<ul>
-<li>2 − 1 = 1</li>
-<li>3 − 1 = 2</li>
-<li>4 − 2 = 2</li>
-<li>5 − 2 = 3</li>
-</ul>
-`
-    },
-    {
-        id: "shapes",
-        class: 1,
-        subject: "math",
-        titleHi: "पाठ 5: आकृतियाँ",
-        titleEn: "Lesson 5: Shapes",
-        hi: `
-<h3>पाठ 5: आकृतियाँ</h3>
-<ul>
-<li><strong>वृत्त:</strong> गोल आकृति, जैसे सिक्का।</li>
-<li><strong>वर्ग:</strong> चार बराबर भुजाओं वाली आकृति।</li>
-<li><strong>आयत:</strong> चार भुजाओं वाली आकृति, जिसमें सामने की भुजाएँ बराबर होती हैं।</li>
-<li><strong>त्रिभुज:</strong> तीन भुजाओं वाली आकृति।</li>
-</ul>
-<p>अपने आसपास इन आकृतियों जैसी वस्तुएँ खोजें।</p>
-`,
-        en: `
-<h3>Lesson 5: Shapes</h3>
-<ul>
-<li><strong>Circle:</strong> A round shape, like a coin.</li>
-<li><strong>Square:</strong> A shape with four equal sides.</li>
-<li><strong>Rectangle:</strong> A four-sided shape with opposite sides equal.</li>
-<li><strong>Triangle:</strong> A shape with three sides.</li>
-</ul>
-<p>Look around you and find objects that match these shapes.</p>
-`
-    }
-];
-
-const quizzes = {
-    numbers: [
-        {hi:"1 के बाद कौन-सी संख्या आती है?", en:"Which number comes after 1?", options:["2","4","5"], answer:0},
-        {hi:"5 से पहले कौन-सी संख्या आती है?", en:"Which number comes before 5?", options:["3","4","6"], answer:1},
-        {hi:"खाली टोकरी में कितने आम हैं?", en:"How many mangoes are in an empty basket?", options:["0","1","2"], answer:0}
+const topics = {
+  1:{
+    hindi:[
+      ["स्वर और व्यंजन","स्वर स्वतंत्र रूप से बोले जाते हैं। व्यंजन के उच्चारण में स्वर की सहायता होती है।","Vowels are spoken independently. Consonants use vowel sounds when pronounced.","स्वर के दो उदाहरण चुनिए।","Name two vowels.","अ, आ","A, E"],
+      ["वर्णमाला","हिंदी वर्णमाला में अनेक स्वर और व्यंजन होते हैं। अक्षरों को पहचानने और सही क्रम में बोलने का अभ्यास करें।","The Hindi alphabet contains vowels and consonants. Practise recognising letters and saying them in order.","दो व्यंजन लिखिए।","Write two Hindi consonants.","क, म","क, म"],
+      ["मात्राएँ","मात्राएँ अक्षरों के साथ लगकर शब्द बनाने में मदद करती हैं। जैसे क, का, कि, की।","Matras combine with consonants to make sounds and words, such as क, का, कि and की.","क की आ की मात्रा वाला रूप लिखिए।","Write क with the आ matra.","का","का"],
+      ["सरल शब्द","दो या अधिक अक्षरों से सरल शब्द बनते हैं। जैसे जल, फल, घर और कमल।","Simple words are formed from letters. Examples include cat, sun, pen and cup.","फल शब्द लिखिए।","Write one simple English word.","फल","cat"],
+      ["चित्र और शब्द","चित्र देखकर वस्तु का नाम बोलें और लिखें। इससे शब्द पहचानने की क्षमता बढ़ती है।","Look at a picture, say the object's name and write it. This builds vocabulary.","किसी फल का नाम लिखिए।","Name a fruit.","आम","Mango"],
+      ["एकवचन और बहुवचन","एक वस्तु के लिए एकवचन और एक से अधिक के लिए बहुवचन का प्रयोग होता है।","Singular refers to one; plural generally refers to more than one.","एकवचन का उदाहरण दीजिए।","Give a singular example.","किताब","Book"],
+      ["संज्ञा","किसी व्यक्ति, स्थान, वस्तु या प्राणी के नाम को संज्ञा कहते हैं।","A noun names a person, place, animal or thing.","एक वस्तु का नाम लिखिए।","Name one object.","किताब","Book"],
+      ["क्रिया","काम बताने वाले शब्द क्रिया कहलाते हैं। जैसे खाना, पढ़ना और खेलना।","Action words are called verbs, such as eat, read and play.","एक क्रिया लिखिए।","Write one verb.","खेलना","Play"],
+      ["छोटे वाक्य","शब्दों को सही क्रम में रखकर अर्थपूर्ण वाक्य बनता है।","Words arranged in the right order make a meaningful sentence.","एक छोटा वाक्य लिखिए।","Write a short sentence.","मैं पढ़ता हूँ।","I can read."],
+      ["पुनरावृत्ति","सीखे हुए अक्षरों और शब्दों को पढ़ें, लिखें और उनकी वर्तनी जाँचें।","Review the letters and words you have learned. Read them and check spelling.","तीन शब्द लिखिए।","Write three words.","खुला अभ्यास","Open practice"]
     ],
-    "before-after": [
-        {hi:"3 के बाद कौन-सी संख्या आती है?", en:"Which number comes after 3?", options:["2","4","5"], answer:1},
-        {hi:"7 से पहले कौन-सी संख्या आती है?", en:"Which number comes before 7?", options:["6","8","9"], answer:0}
+    english:[
+      ["The Alphabet","अंग्रेज़ी में 26 letters होते हैं। Capital और small letters का अभ्यास करें।","English has 26 letters. Practise capital and small letters.","Write A, B and C.","Write A, B and C.","A, B, C","A, B, C"],
+      ["Vowels","A, E, I, O, U को vowels कहते हैं। बाकी letters consonants हैं।","A, E, I, O and U are vowels. The other letters are consonants.","Name two vowels.","Name two vowels.","A, E","A, E"],
+      ["Simple Words","Cat, dog, sun और pen जैसे छोटे शब्द पढ़ें और लिखें।","Read and write simple words such as cat, dog, sun and pen.","Write one animal word.","Write one animal word.","dog","dog"],
+      ["Greetings","Hello और Good morning अभिवादन के उदाहरण हैं।","Hello and Good morning are greetings.","How can you greet someone?","How can you greet someone?","नमस्ते / Hello","Hello"],
+      ["My Name","अपने नाम का पहला अक्षर बड़ा लिखना सीखें।","Learn to write your name, using a capital letter at the beginning.","Write your name.","Write your name.","अपना नाम","Your name"],
+      ["Colours","Red, blue, green और yellow रंगों के नाम हैं।","Red, blue, green and yellow are colour names.","Name one colour.","Name one colour.","Red","Red"],
+      ["Numbers","One, two, three, four और five संख्या के नाम हैं।","One, two, three, four and five are number words.","What comes after two?","What comes after two?","Three","Three"],
+      ["Animals","Cat, dog, cow और bird जानवरों के नाम हैं।","Cat, dog, cow and bird are animal names.","Name one animal.","Name one animal.","Cow","Cow"],
+      ["Short Sentences","I am a student जैसे छोटे वाक्य पढ़ें।","Read short sentences such as I am a student.","Complete: I ___ happy.","Complete: I ___ happy.","am","am"],
+      ["Revision","Letters, words and short sentences को दोहराएँ।","Review letters, words and short sentences.","Write any three letters.","Write any three letters.","खुला अभ्यास","Open practice"]
     ],
-    addition: [
-        {hi:"2 + 1 = ?", en:"2 + 1 = ?", options:["2","3","4"], answer:1},
-        {hi:"2 + 2 = ?", en:"2 + 2 = ?", options:["3","4","5"], answer:1},
-        {hi:"3 + 2 = ?", en:"3 + 2 = ?", options:["4","5","6"], answer:1}
+    math:[
+      ["संख्याएँ","संख्याएँ वस्तुओं की गिनती बताती हैं। 1 से 20 तक गिनें।","Numbers tell us how many objects there are. Count from 1 to 20.","3 के बाद कौन-सी संख्या है?","What comes after 3?","4","4"],
+      ["पहले और बाद","संख्या क्रम में पहले और बाद की संख्या पहचानें।","Identify the number before and after a given number.","5 से पहले क्या आता है?","What comes before 5?","4","4"],
+      ["जोड़","जोड़ में संख्याओं को मिलाकर कुल पता करते हैं।","Addition combines numbers to find a total.","2 + 1 = ?","2 + 1 = ?","3","3"],
+      ["घटाव","घटाव में किसी समूह से कुछ वस्तुएँ हटाते हैं।","Subtraction takes away objects from a group.","4 − 1 = ?","4 − 1 = ?","3","3"],
+      ["आकृतियाँ","वृत्त गोल होता है, त्रिभुज की तीन भुजाएँ होती हैं।","A circle is round; a triangle has three sides.","त्रिभुज की कितनी भुजाएँ हैं?","How many sides has a triangle?","3","3"],
+      ["लंबा और छोटा","वस्तुओं की लंबाई की तुलना करें।","Compare objects by length.","कौन-सी वस्तु लंबी है?","Which object is longer?","वस्तु देखकर उत्तर","Observe and answer"],
+      ["भारी और हल्का","वस्तुओं के भार की तुलना करें।","Compare the weight of objects.","पत्थर और पंख में कौन भारी है?","Which is heavier, a stone or a feather?","पत्थर","Stone"],
+      ["पैटर्न","दोहराते क्रम को पैटर्न कहते हैं।","A repeating sequence is called a pattern.","2, 4, 2, 4, __","2, 4, 2, 4, __","2","2"],
+      ["समय","दिन में सुबह, दोपहर, शाम और रात होती है।","Parts of a day include morning, afternoon, evening and night.","स्कूल सामान्यतः दिन के किस भाग में होता है?","When do many schools open?","सुबह","Morning"],
+      ["पुनरावृत्ति","गिनती, जोड़, घटाव और आकृतियों का अभ्यास करें।","Review counting, addition, subtraction and shapes.","3 + 2 = ?","3 + 2 = ?","5","5"]
     ],
-    subtraction: [
-        {hi:"3 − 1 = ?", en:"3 − 1 = ?", options:["1","2","3"], answer:1},
-        {hi:"4 − 2 = ?", en:"4 − 2 = ?", options:["1","2","3"], answer:1}
-    ],
-    shapes: [
-        {hi:"त्रिभुज की कितनी भुजाएँ होती हैं?", en:"How many sides does a triangle have?", options:["2","3","4"], answer:1},
-        {hi:"सिक्का किस आकृति जैसा होता है?", en:"Which shape is like a coin?", options:["Circle","Square","Triangle"], answer:0}
+    evs:[
+      ["मेरा परिवार","परिवार के सदस्य एक-दूसरे की देखभाल करते हैं। हर परिवार अलग हो सकता है।","Family members care for one another. Every family may be different.","परिवार के किसी सदस्य का नाम बताइए।","Name a family member.","खुला अभ्यास","Open practice"],
+      ["मेरा शरीर","आँखों से देखते हैं और कानों से सुनते हैं।","We see with our eyes and hear with our ears.","हम किससे सुनते हैं?","Which body part helps us hear?","कान","Ears"],
+      ["स्वच्छता","हाथ धोना और साफ कपड़े पहनना अच्छी आदतें हैं।","Washing hands and wearing clean clothes are good habits.","खाने से पहले क्या करना चाहिए?","What should you do before eating?","हाथ धोना","Wash hands"],
+      ["पौधे","पौधों को पानी, हवा, प्रकाश और देखभाल चाहिए।","Plants need water, air, light and care.","पौधों को क्या चाहिए?","What do plants need?","पानी और प्रकाश","Water and light"],
+      ["जानवर","जानवरों को भोजन, पानी और सुरक्षित स्थान चाहिए।","Animals need food, water and a safe place.","एक पालतू जानवर का नाम लिखिए।","Name a pet animal.","कुत्ता","Dog"],
+      ["भोजन","भोजन शरीर को ऊर्जा देता है। अलग-अलग पौष्टिक खाद्य पदार्थ खाएँ।","Food gives our bodies energy. Eat a variety of nutritious foods.","एक फल का नाम बताइए।","Name a fruit.","आम","Mango"],
+      ["पानी","पानी पीने और सफाई के लिए आवश्यक है। पानी व्यर्थ न बहाएँ।","Water is needed for drinking and cleaning. Avoid wasting it.","पानी बचाने का एक तरीका बताइए।","Name one way to save water.","नल बंद करें","Turn off the tap"],
+      ["मेरा घर","घर हमें रहने और मौसम से बचने की जगह देता है।","A home gives us shelter and protection from weather.","घर का एक कमरा बताइए।","Name a room in a home.","रसोई","Kitchen"],
+      ["सुरक्षा","सड़क पार करते समय बड़ों की मदद लें और यातायात संकेत देखें।","Ask a trusted adult for help when crossing roads and follow traffic signals.","सड़क पार करते समय क्या देखना चाहिए?","What should you check before crossing?","यातायात","Traffic"],
+      ["पुनरावृत्ति","परिवार, शरीर, पौधे, जानवर और सुरक्षा के बारे में दोहराएँ।","Review family, body, plants, animals and safety.","एक अच्छी स्वच्छता आदत लिखिए।","Name one good hygiene habit.","हाथ धोना","Handwashing"]
     ]
+  }
 };
 
-let selectedClass = 1;
-let selectedSubject = "";
-let selectedLesson = null;
+/* कक्षा 2–5 के लिए पाठ-शीर्षक और अभ्यास विषय-वार दिए गए हैं। */
+const topicNames = {
+  hindi:[
+    ["मात्राएँ","संज्ञा","सर्वनाम","क्रिया","विशेषण","वचन","लिंग","वाक्य निर्माण","अनुच्छेद लेखन","पुनरावृत्ति"],
+    ["मात्राओं का अभ्यास","संज्ञा","सर्वनाम","क्रिया","विशेषण","वचन","लिंग","वाक्य","कहानी लेखन","पुनरावृत्ति"],
+    ["संज्ञा और सर्वनाम","क्रिया","विशेषण","काल का परिचय","वाक्य रचना","पर्यायवाची","विलोम शब्द","अनुच्छेद","पत्र लेखन","पुनरावृत्ति"],
+    ["संज्ञा","सर्वनाम","विशेषण","क्रिया और काल","वाक्य भेद","पर्यायवाची","विलोम","मुहावरे","अनुच्छेद","पुनरावृत्ति"],
+    ["भाषा और व्याकरण","संज्ञा","सर्वनाम","विशेषण","क्रिया और काल","वचन और लिंग","पर्यायवाची","विलोम","पत्र और अनुच्छेद","पुनरावृत्ति"]
+  ],
+  english:[
+    ["Alphabet","Vowels and Consonants","Naming Words","Action Words","Colours","Numbers","Pronouns","Simple Sentences","Reading Practice","Revision"],
+    ["Nouns","Pronouns","Verbs","Adjectives","Articles","Singular and Plural","Prepositions","Sentences","Short Paragraph","Revision"],
+    ["Nouns","Pronouns","Verbs","Adjectives","Articles","Tenses Introduction","Prepositions","Comprehension","Paragraph Writing","Revision"],
+    ["Nouns and Pronouns","Adjectives","Verbs","Simple Tenses","Articles","Prepositions","Conjunctions","Comprehension","Letter Writing","Revision"],
+    ["Parts of Speech","Nouns","Pronouns","Adjectives","Tenses","Articles","Prepositions","Conjunctions","Paragraph Writing","Revision"]
+  ],
+  math:[
+    ["गिनती","जोड़","घटाव","आकृतियाँ","संख्या तुलना","पैटर्न","माप","समय","पैसे की पहचान","पुनरावृत्ति"],
+    ["संख्या क्रम","जोड़","घटाव","गुणा का परिचय","भाग का परिचय","आकृतियाँ","माप","समय","पैसे","पुनरावृत्ति"],
+    ["बड़ी संख्याएँ","जोड़","घटाव","गुणा","भाग","भिन्न का परिचय","माप","समय","आकृतियाँ","पुनरावृत्ति"],
+    ["संख्या पद्धति","जोड़ और घटाव","गुणा","भाग","गुणज","भिन्न","माप","समय और कैलेंडर","ज्यामितीय आकृतियाँ","पुनरावृत्ति"],
+    ["बड़ी संख्याएँ","चार संक्रियाएँ","गुणज और गुणनखंड","भिन्न","दशमलव परिचय","मापन","परिमाप","ज्यामिति","आँकड़ों का परिचय","पुनरावृत्ति"]
+  ],
+  evs:[
+    ["मेरा परिवार","मेरा शरीर","स्वच्छता","पौधे","जानवर","भोजन","पानी","मेरा घर","सुरक्षा","पुनरावृत्ति"],
+    ["परिवार और पड़ोस","शरीर की देखभाल","स्वच्छ भोजन","पौधों की जरूरतें","जानवरों के घर","पानी","मौसम","यातायात","सुरक्षा","पुनरावृत्ति"],
+    ["परिवार और समुदाय","स्वास्थ्य","भोजन","पौधों के भाग","जानवर","जल संरक्षण","हवा","परिवहन","पर्यावरण","पुनरावृत्ति"],
+    ["हमारा पर्यावरण","मानव शरीर","पौधों का जीवन","जानवरों का जीवन","भोजन और स्वास्थ्य","जल चक्र परिचय","प्राकृतिक संसाधन","यातायात","कचरा प्रबंधन","पुनरावृत्ति"],
+    ["पर्यावरण और हम","स्वास्थ्य और स्वच्छता","पौधे","जानवर","पोषण","जल संरक्षण","प्राकृतिक संसाधन","प्रदूषण","समुदाय और सुरक्षा","पुनरावृत्ति"]
+  ]
+};
 
-function language() {
-    return $("language").value;
+const genericNotes = {
+  hindi:{
+    hi:"इस पाठ में शब्दों और वाक्यों को ध्यान से पढ़ें। उदाहरणों को अपनी कॉपी में लिखें। पाठ से जुड़े नए शब्द पहचानें और अपने वाक्य बनाएं। लिखने के बाद वर्तनी और विराम चिह्न जाँचें।",
+    en:"Read the examples carefully. Write the new words in your notebook and make your own sentences. Check spelling and punctuation after writing.",
+    qhi:"इस पाठ से संबंधित एक उदाहरण लिखिए।",
+    qen:"Write one example related to this lesson.",
+    ahi:"विद्यार्थी का अपना सही उदाहरण।",
+    aen:"A suitable example written by the learner."
+  },
+  english:{
+    hi:"इस पाठ के शब्द और उदाहरण पढ़ें। नए शब्दों का अर्थ समझें। छोटे वाक्य बोलने और लिखने का अभ्यास करें। अपने उत्तर में बड़े अक्षर और सही विराम चिह्न लगाएँ।",
+    en:"Read the words and examples. Learn their meanings and practise speaking and writing short sentences. Use capital letters and correct punctuation.",
+    qhi:"इस पाठ से एक अंग्रेज़ी शब्द या वाक्य लिखिए।",
+    qen:"Write one English word or sentence related to this lesson.",
+    ahi:"विद्यार्थी का अपना सही उत्तर।",
+    aen:"A suitable answer written by the learner."
+  },
+  math:{
+    hi:"पहले उदाहरण को समझें। प्रश्न को ध्यान से पढ़ें और संख्याओं का सही उपयोग करें। जरूरत हो तो चित्र या वस्तुओं की सहायता लें। उत्तर के साथ अपना तरीका भी लिखें।",
+    en:"Study the example first. Read the question carefully and use numbers correctly. Use drawings or objects if needed. Show your working with the answer.",
+    qhi:"इस पाठ से संबंधित एक प्रश्न हल कीजिए।",
+    qen:"Solve one question related to this lesson.",
+    ahi:"प्रश्न के अनुसार सही उत्तर चुनें।",
+    aen:"Choose the correct answer for the question."
+  },
+  evs:{
+    hi:"अपने आसपास के उदाहरणों को देखकर विषय समझें। प्रकृति, परिवार, स्वास्थ्य और सुरक्षा से जुड़ी बातों पर चर्चा करें। देखी गई बातों को अपनी कॉपी में लिखें।",
+    en:"Observe examples around you. Discuss topics related to nature, family, health and safety. Write down what you observe in your notebook.",
+    qhi:"इस पाठ से जुड़ी एक बात बताइए।",
+    qen:"Name one thing you learned from this lesson.",
+    ahi:"विद्यार्थी का अपना सही उत्तर।",
+    aen:"A suitable answer written by the learner."
+  }
+};
+
+const lessons = [];
+const quizzes = {};
+
+function addLesson(c, subject, index, title, hi, en, qhi, qen, ahi, aen) {
+  const id = `c${c}-${subject}-${index+1}`;
+  lessons.push({
+    id, class:c, subject, index,
+    titleHi:`पाठ ${index+1}: ${title}`,
+    titleEn:`Lesson ${index+1}: ${title}`,
+    hi,en,qhi,qen,ahi,aen
+  });
 }
 
-function text(hi, en) {
-    const lang = language();
-    if (lang === "hi") return hi;
-    if (lang === "en") return en;
-    return hi + " / " + en;
+/* कक्षा 1 के लिए दस पाठ प्रति विषय */
+for (const subject of Object.keys(topicNames)) {
+  const names = topicNames[subject][0];
+  const detailed = (topics[1] && topics[1][subject]) || [];
+  names.forEach((name,i) => {
+    const d = detailed[i];
+    const g = genericNotes[subject];
+    addLesson(1,subject,i,name,
+      d ? `<h3>${d[0]}</h3><p>${d[1]}</p><h4>अभ्यास</h4><p>${d[3]}</p>` : `<h3>${name}</h3><p>${g.hi}</p><h4>उदाहरण</h4><p>${g.ahi}</p><h4>अभ्यास</h4><p>${g.qhi}</p>`,
+      d ? `<h3>${d[0]}</h3><p>${d[2]}</p><h4>Practice</h4><p>${d[4]}</p>` : `<h3>${name}</h3><p>${g.en}</p><h4>Example</h4><p>${g.aen}</p><h4>Practice</h4><p>${g.qen}</p>`,
+      d ? d[3] : g.qhi,d ? d[4] : g.qen,d ? d[5] : g.ahi,d ? d[6] : g.aen
+    );
+  });
 }
+
+/* कक्षा 2–5: प्रत्येक विषय में दस पाठ */
+for (let c=2;c<=5;c++) {
+  for (const subject of Object.keys(topicNames)) {
+    const names = topicNames[subject][c-1];
+    const g = genericNotes[subject];
+    names.forEach((name,i) => {
+      const number = i+1;
+      let exampleHi = g.ahi;
+      let exampleEn = g.aen;
+      let questionHi = g.qhi;
+      let questionEn = g.qen;
+
+      if(subject==="math"){
+        const a=c+number, b=number;
+        exampleHi = `${a} और ${b} पर आधारित अभ्यास करें।`;
+        exampleEn = `Practise using ${a} and ${b}.`;
+        questionHi = `${a} + ${b} = ?`;
+        questionEn = `${a} + ${b} = ?`;
+      }
+
+      addLesson(c,subject,i,name,
+        `<h3>${name}</h3><p><strong>सीखने का लक्ष्य:</strong> ${name} के मूल विचार समझना और उन्हें उदाहरणों में पहचानना।</p><h4>मुख्य बातें</h4><p>${g.hi}</p><h4>उदाहरण</h4><p>${exampleHi}</p><h4>अभ्यास</h4><p>${questionHi}</p><p>उत्तर अपनी कॉपी में लिखें और शिक्षक या अभिभावक के साथ जाँचें।</p>`,
+        `<h3>${name}</h3><p><strong>Learning goal:</strong> Understand the basic ideas of ${name} and identify them in examples.</p><h4>Key ideas</h4><p>${g.en}</p><h4>Example</h4><p>${exampleEn}</p><h4>Practice</h4><p>${questionEn}</p><p>Write your answer in your notebook and check it with a teacher or guardian.</p>`,
+        questionHi,questionEn,exampleHi,exampleEn
+      );
+    });
+  }
+}
+
+function lang() { return $("language").value; }
+function bilingual(hi,en) {
+  if(lang()==="hi") return hi;
+  if(lang()==="en") return en;
+  return `${hi} / ${en}`;
+}
+let selectedClass=1, selectedSubject="math", selectedLesson=null;
 
 function renderClasses() {
-    const filter = $("classSearch").value.trim().toLowerCase();
-    $("classGrid").replaceChildren();
-
-    classes.forEach(number => {
-        const hi = `कक्षा ${number}`;
-        const en = `Class ${number}`;
-        if (filter && !`${hi} ${en} ${number}`.toLowerCase().includes(filter)) return;
-
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "class-card" + (selectedClass === number ? " active" : "");
-        button.setAttribute("aria-pressed", String(selectedClass === number));
-
-        const n = document.createElement("span");
-        n.className = "class-number";
-        n.textContent = number;
-
-        const label = document.createElement("span");
-        label.className = "class-label";
-        label.textContent = text(hi, en);
-
-        button.append(n, label);
-        button.addEventListener("click", () => chooseClass(number));
-        $("classGrid").appendChild(button);
-    });
-}
-
-function chooseClass(number) {
-    selectedClass = number;
-    selectedSubject = "";
-    selectedLesson = null;
-
-    $("classTitle").textContent = text(`कक्षा ${number}`, `Class ${number}`);
-    $("classDescription").textContent = text(
-        "राजस्थान बोर्ड के लिए अध्ययन केंद्र। उपलब्ध नोट्स नीचे देखें।",
-        "Study centre for Rajasthan Board. See available notes below."
-    );
-
-    $("subjectsPanel").hidden = false;
-    $("lessonsPanel").hidden = true;
-    $("notesPanel").hidden = true;
-    renderClasses();
-    renderSubjects();
+  const filter=$("classSearch").value.trim().toLowerCase();
+  const grid=$("classGrid");
+  grid.replaceChildren();
+  classes.forEach(c=>{
+    if(filter && !(`class ${c} कक्षा ${c}`).includes(filter)) return;
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="card"+(selectedClass===c?" active":"");
+    button.innerHTML=`<strong>${c}</strong><span>${bilingual("कक्षा","Class")} ${c}</span>`;
+    button.addEventListener("click",()=>chooseClass(c));
+    grid.appendChild(button);
+  });
 }
 
 function renderSubjects() {
-    $("subjectGrid").replaceChildren();
-    const lang = language();
-    const names = subjectData[lang === "en" ? "en" : "hi"];
-
-    names.forEach((name, index) => {
-        const subjectKey = ["hindi", "english", "math", "evs"][index];
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "subject-button" + (selectedSubject === subjectKey ? " active" : "");
-        button.textContent = name;
-        button.addEventListener("click", () => chooseSubject(subjectKey, name));
-        $("subjectGrid").appendChild(button);
-    });
+  const grid=$("subjectGrid");
+  grid.replaceChildren();
+  Object.keys(subjectInfo).forEach(key=>{
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="subject"+(selectedSubject===key?" active":"");
+    button.textContent=bilingual(subjectInfo[key].hi,subjectInfo[key].en);
+    button.addEventListener("click",()=>chooseSubject(key));
+    grid.appendChild(button);
+  });
 }
 
-function chooseSubject(key, name) {
-    selectedSubject = key;
-    selectedLesson = null;
-    $("subjectTitle").textContent = text(
-        `कक्षा ${selectedClass} — ${name}`,
-        `Class ${selectedClass} — ${name}`
-    );
-    $("lessonsPanel").hidden = false;
-    $("notesPanel").hidden = true;
-    renderSubjects();
-    renderLessons();
+function chooseClass(c) {
+  selectedClass=c;
+  selectedLesson=null;
+  $("classTitle").textContent=bilingual(`कक्षा ${c}`,`Class ${c}`);
+  $("subjectsPanel").hidden=false;
+  $("lessonsPanel").hidden=true;
+  $("notesPanel").hidden=true;
+  renderClasses();
+  renderSubjects();
+}
+
+function chooseSubject(subject) {
+  selectedSubject=subject;
+  selectedLesson=null;
+  $("subjectTitle").textContent=`${bilingual(`कक्षा ${selectedClass}`,`Class ${selectedClass}`)} — ${bilingual(subjectInfo[subject].hi,subjectInfo[subject].en)}`;
+  $("lessonsPanel").hidden=false;
+  $("notesPanel").hidden=true;
+  renderSubjects();
+  renderLessons();
 }
 
 function renderLessons() {
-    $("lessonList").replaceChildren();
-
-    const available = lessons.filter(item =>
-        item.class === selectedClass && item.subject === selectedSubject
-    );
-
-    if (available.length === 0) {
-        const message = document.createElement("p");
-        message.className = "small";
-        message.textContent = text(
-            "इस कक्षा और विषय के विस्तृत नोट्स अभी जोड़े नहीं गए हैं। अगले चरण में सामग्री सत्यापित करके जोड़ी जाएगी।",
-            "Detailed notes for this class and subject have not been added yet. Verified material will be added in a future update."
-        );
-        $("lessonList").appendChild(message);
-        return;
-    }
-
-    available.forEach(item => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "lesson-button" + (selectedLesson === item.id ? " active" : "");
-        button.textContent = text(item.titleHi, item.titleEn);
-        button.addEventListener("click", () => showLesson(item.id));
-        $("lessonList").appendChild(button);
-    });
+  const list=$("lessonList");
+  list.replaceChildren();
+  const filter=$("lessonSearch").value.trim().toLowerCase();
+  const available=lessons.filter(l=>l.class===selectedClass && l.subject===selectedSubject);
+  available.filter(l=>!filter || `${l.titleHi} ${l.titleEn}`.toLowerCase().includes(filter))
+  .forEach(l=>{
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="lesson"+(selectedLesson===l.id?" active":"");
+    button.textContent=bilingual(l.titleHi,l.titleEn);
+    button.addEventListener("click",()=>showLesson(l.id));
+    list.appendChild(button);
+  });
+  if(!list.children.length){
+    const p=document.createElement("p");
+    p.textContent=bilingual("कोई मिलता हुआ पाठ नहीं मिला।","No matching lesson found.");
+    list.appendChild(p);
+  }
 }
 
 function showLesson(id) {
-    selectedLesson = id;
-    const lesson = lessons.find(item => item.id === id);
-    if (!lesson) return;
+  selectedLesson=id;
+  const l=lessons.find(x=>x.id===id);
+  if(!l) return;
+  const content=$("notesContent");
+  content.replaceChildren();
+  const heading=document.createElement("h2");
+  heading.textContent=bilingual(l.titleHi,l.titleEn);
+  content.appendChild(heading);
 
-    const lang = language();
-    $("notesContent").replaceChildren();
-
-    const heading = document.createElement("h2");
-    heading.textContent = text(lesson.titleHi, lesson.titleEn);
-    $("notesContent").appendChild(heading);
-
-    const columns = document.createElement("div");
-    columns.className = "bilingual";
-
-    if (lang !== "en") {
-        const hi = document.createElement("article");
-        hi.className = "language-box";
-        hi.innerHTML = lesson.hi;
-        columns.appendChild(hi);
-    }
-
-    if (lang !== "hi") {
-        const en = document.createElement("article");
-        en.className = "language-box";
-        en.innerHTML = lesson.en;
-        columns.appendChild(en);
-    }
-
-    $("notesContent").appendChild(columns);
-    $("notesPanel").hidden = false;
-    $("quizArea").hidden = true;
-    renderLessons();
-    $("notesPanel").scrollIntoView({behavior:"smooth", block:"start"});
+  const columns=document.createElement("div");
+  columns.className="bilingual";
+  if(lang()!=="en"){
+    const hi=document.createElement("article");
+    hi.className="langbox";
+    hi.innerHTML=l.hi;
+    columns.appendChild(hi);
+  }
+  if(lang()!=="hi"){
+    const en=document.createElement("article");
+    en.className="langbox";
+    en.innerHTML=l.en;
+    columns.appendChild(en);
+  }
+  content.appendChild(columns);
+  $("notesPanel").hidden=false;
+  $("quizArea").hidden=true;
+  renderLessons();
+  $("notesPanel").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 function showQuiz() {
-    if (!selectedLesson || !quizzes[selectedLesson]) {
-        $("quizArea").hidden = false;
-        $("quizArea").textContent = text(
-            "इस पाठ के अभ्यास प्रश्न उपलब्ध नहीं हैं।",
-            "Practice questions are not available for this lesson."
-        );
-        return;
+  const l=lessons.find(x=>x.id===selectedLesson);
+  const area=$("quizArea");
+  area.replaceChildren();
+  area.hidden=false;
+  if(!l) return;
+
+  const heading=document.createElement("h3");
+  heading.textContent=bilingual("अभ्यास जाँचें","Check your practice");
+  area.appendChild(heading);
+
+  const q=document.createElement("div");
+  q.className="question";
+  const p=document.createElement("p");
+  p.textContent=bilingual(l.qhi,l.qen);
+  q.appendChild(p);
+
+  const options=document.createElement("div");
+  const answers=[l.ahi,l.aen];
+  const correct=answers[lang()==="en"?1:0] || answers[0];
+  const distractors=lang()==="en"
+    ? ["Try again","Write in your notebook"]
+    : ["दोबारा प्रयास करें","कॉपी में लिखें"];
+  const choices=[correct,...distractors].sort(()=>Math.random()-0.5);
+
+  choices.forEach((answer,i)=>{
+    const label=document.createElement("label");
+    label.style.display="block";
+    const radio=document.createElement("input");
+    radio.type="radio";
+    radio.name="lesson-answer";
+    radio.value=answer===correct?"correct":"other";
+    label.append(radio,document.createTextNode(" "+answer));
+    options.appendChild(label);
+  });
+  q.appendChild(options);
+  area.appendChild(q);
+
+  const result=document.createElement("p");
+  result.className="result";
+  const check=document.createElement("button");
+  check.type="button";
+  check.className="action";
+  check.textContent=bilingual("उत्तर जाँचें","Check Answer");
+  check.addEventListener("click",()=>{
+    const chosen=area.querySelector('input[name="lesson-answer"]:checked');
+    if(!chosen){
+      result.textContent=bilingual("पहले एक विकल्प चुनें।","Choose an option first.");
+    }else if(chosen.value==="correct"){
+      result.textContent=bilingual("बहुत अच्छा! उत्तर सही है।","Well done! Correct answer.");
+    }else{
+      result.textContent=bilingual("फिर से प्रयास करें।","Try again.");
     }
-
-    const questions = quizzes[selectedLesson];
-    const area = $("quizArea");
-    area.replaceChildren();
-    area.hidden = false;
-
-    const title = document.createElement("h3");
-    title.textContent = text("अभ्यास प्रश्न / Practice", "Practice Questions");
-    area.appendChild(title);
-
-    questions.forEach((q, index) => {
-        const block = document.createElement("div");
-        block.className = "question";
-
-        const prompt = document.createElement("p");
-        prompt.textContent = `${index + 1}. ${text(q.hi, q.en)}`;
-        block.appendChild(prompt);
-
-        q.options.forEach((option, optionIndex) => {
-            const label = document.createElement("label");
-            const radio = document.createElement("input");
-            radio.type = "radio";
-            radio.name = `q-${index}`;
-            radio.value = optionIndex;
-            label.append(radio, document.createTextNode(" " + option));
-            block.appendChild(label);
-        });
-
-        area.appendChild(block);
-    });
-
-    const check = document.createElement("button");
-    check.type = "button";
-    check.className = "action";
-    check.textContent = text("उत्तर जाँचें", "Check Answers");
-
-    const result = document.createElement("p");
-    result.className = "result";
-    result.setAttribute("aria-live", "polite");
-
-    check.addEventListener("click", () => {
-        let score = 0;
-        questions.forEach((q, index) => {
-            const chosen = area.querySelector(`input[name="q-${index}"]:checked`);
-            if (chosen && Number(chosen.value) === q.answer) score++;
-        });
-        result.textContent = text(
-            `आपका स्कोर: ${score} / ${questions.length}`,
-            `Your score: ${score} / ${questions.length}`
-        );
-    });
-
-    area.append(check, result);
+  });
+  area.append(check,result);
 }
 
-$("classSearch").addEventListener("input", renderClasses);
-
-$("language").addEventListener("change", () => {
-    renderClasses();
-
-    if (!$("subjectsPanel").hidden) {
-        $("classTitle").textContent = text(`कक्षा ${selectedClass}`, `Class ${selectedClass}`);
-        if (selectedSubject) {
-            const subjectList = subjectData[language() === "en" ? "en" : "hi"];
-            const index = ["hindi", "english", "math", "evs"].indexOf(selectedSubject);
-            chooseSubject(selectedSubject, subjectList[index]);
-            if (selectedLesson) showLesson(selectedLesson);
-        } else {
-            renderSubjects();
-        }
-    }
+$("classSearch").addEventListener("input",renderClasses);
+$("lessonSearch").addEventListener("input",renderLessons);
+$("language").addEventListener("change",()=>{
+  renderClasses();
+  if(!$("subjectsPanel").hidden){
+    $("classTitle").textContent=bilingual(`कक्षा ${selectedClass}`,`Class ${selectedClass}`);
+    renderSubjects();
+    if(!$("lessonsPanel").hidden) chooseSubject(selectedSubject);
+    if(selectedLesson) showLesson(selectedLesson);
+  }
 });
-
-$("printButton").addEventListener("click", () => window.print());
-$("quizButton").addEventListener("click", showQuiz);
+$("printButton").addEventListener("click",()=>window.print());
+$("quizButton").addEventListener("click",showQuiz);
 
 renderClasses();
 chooseClass(1);
+chooseSubject("math");
 </script>
-    
-<!-- CLASS 1: HINDI, ENGLISH AND EVS -->
-<section id="class1-extra-subjects" style="max-width:900px;margin:24px auto;padding:20px;font-family:Arial,sans-serif;line-height:1.7">
-  <h2>कक्षा 1 — अन्य विषय / Other Subjects</h2>
-
-  <details open>
-    <summary><strong>हिंदी / Hindi</strong></summary>
-    <h3>पाठ 1: स्वर और व्यंजन</h3>
-    <p><strong>सीखने का लक्ष्य:</strong> हिंदी वर्णमाला की पहचान करना।</p>
-    <p>स्वर: अ, आ, इ, ई, उ, ऊ, ऋ, ए, ऐ, ओ, औ</p>
-    <p>व्यंजन: क, ख, ग, घ, च, छ, ज, झ, ट, ठ, ड, ढ, त, थ, द, ध, न, प, फ, ब, भ, म, य, र, ल, व, श, ष, स, ह</p>
-    <h3>पाठ 2: सरल शब्द</h3>
-    <p>कमल, जल, फल, घर, वन, नल।</p>
-    <p><strong>अभ्यास:</strong> अ से शुरू होने वाला एक शब्द लिखिए। “कमल” शब्द में कितने अक्षर हैं?</p>
-    <details><summary>उत्तर देखें</summary><p>उदाहरण: अनार। कमल में तीन अक्षर हैं।</p></details>
-  </details>
-
-  <hr>
-
-  <details>
-    <summary><strong>English</strong></summary>
-    <h3>Lesson 1: The Alphabet</h3>
-    <p><strong>Learning goal:</strong> Recognise English letters.</p>
-    <p>Capital letters: A B C D E F G H I J K L M N O P Q R S T U V W X Y Z</p>
-    <p>Small letters: a b c d e f g h i j k l m n o p q r s t u v w x y z</p>
-    <h3>Lesson 2: Simple Words</h3>
-    <p>Cat, bat, sun, pen, cup, dog.</p>
-    <p><strong>Practice:</strong> Write five letters and name two animals in English.</p>
-    <details><summary>Show sample answers</summary><p>Letters: A, B, C, D, E. Animals: cat, dog.</p></details>
-  </details>
-
-  <hr>
-
-  <details>
-    <summary><strong>EVS — Environmental Studies / पर्यावरण अध्ययन</strong></summary>
-    <h3>पाठ 1: मेरा परिवार / My Family</h3>
-    <p>परिवार के सदस्य एक-दूसरे की देखभाल करते हैं। परिवार में माता-पिता, भाई-बहन और अन्य सदस्य हो सकते हैं। हर परिवार अलग होता है।</p>
-    <p>A family is a group of people who care for one another. Every family may be different.</p>
-    <h3>पाठ 2: हमारा शरीर / Our Body</h3>
-    <p>हम आँखों से देखते हैं, कानों से सुनते हैं, नाक से सूँघते हैं और जीभ से स्वाद पहचानते हैं।</p>
-    <p>We see with our eyes, hear with our ears, smell with our nose and taste with our tongue.</p>
-    <h3>पाठ 3: पौधे और जानवर / Plants and Animals</h3>
-    <p>पौधों को बढ़ने के लिए पानी, हवा, प्रकाश और उचित देखभाल चाहिए। जानवरों को भोजन, पानी और सुरक्षित स्थान चाहिए।</p>
-    <p>Plants need water, air, light and care to grow. Animals need food, water and a safe place.</p>
-    <p><strong>अभ्यास / Practice:</strong> शरीर के दो अंग लिखिए। पौधों को बढ़ने के लिए किन चीज़ों की ज़रूरत होती है?</p>
-    <details><summary>उत्तर देखें / Show answers</summary><p>आँखें और कान। पौधों को पानी, हवा, प्रकाश और उचित देखभाल चाहिए।</p></details>
-  </details>
-
-  <p style="font-size:13px;color:#555">
-    नोट: ये शुरुआती अभ्यास नोट्स हैं, आधिकारिक RBSE पाठ्यपुस्तक का पूरा या हूबहू पाठ नहीं।
-  </p>
-  <button type="button" onclick="window.print()">नोट्स प्रिंट करें / Print Notes</button>
-</section>
-<!-- END CLASS 1 EXTRA SUBJECTS -->
 </body>
 </html>
