@@ -1,7 +1,8 @@
+
 # ============================================================
 # Ishwar Search
 # Owner: Ishwar Ghanchi
-# Version: 5.0.0
+# Version: 5.1.0
 # ============================================================
 
 import os
@@ -22,7 +23,7 @@ app = Flask(__name__)
 
 APP_NAME = "Ishwar Search"
 OWNER_NAME = "Ishwar Ghanchi"
-APP_VERSION = "5.0.0"
+APP_VERSION = "5.1.0"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("ishwar-search")
@@ -36,19 +37,18 @@ NEWS_CACHE_SECONDS = 300
 IMAGE_CACHE_SECONDS = 600
 PLACE_CACHE_SECONDS = 600
 
-# Wikimedia Commons supplies openly licensed media.
-# Place search uses OpenStreetMap Nominatim under its usage policy.
 USER_AGENT = (
-    "IshwarSearch/5.0 "
+    "IshwarSearch/5.1 "
     "(https://ishwar-search.onrender.com; public search application)"
 )
 
+
 # ------------------------------------------------------------
-# HTTP and text helpers
+# HTTP AND TEXT HELPERS
 # ------------------------------------------------------------
 
 def fetch_url(url, timeout=HTTP_TIMEOUT):
-    """Fetch HTTP/HTTPS text using an identifiable User-Agent."""
+    """Fetch an HTTP/HTTPS URL."""
     parsed = urllib.parse.urlparse(url)
 
     if parsed.scheme not in ("http", "https") or not parsed.netloc:
@@ -58,10 +58,7 @@ def fetch_url(url, timeout=HTTP_TIMEOUT):
         url,
         headers={
             "User-Agent": USER_AGENT,
-            "Accept": (
-                "application/json, application/xml, text/xml, "
-                "text/plain, */*"
-            ),
+            "Accept": "application/json, application/xml, text/xml, */*",
         },
     )
 
@@ -119,7 +116,7 @@ def bounded_limit(value, default=20, maximum=50):
 
 
 # ------------------------------------------------------------
-# Small in-memory cache
+# SMALL IN-MEMORY CACHE
 # ------------------------------------------------------------
 
 _cache = {}
@@ -130,7 +127,7 @@ def cache_get(key, max_age):
     with _cache_lock:
         entry = _cache.get(key)
 
-        if not entry:
+        if entry is None:
             return None
 
         created, value = entry
@@ -146,7 +143,6 @@ def cache_set(key, value):
     with _cache_lock:
         _cache[key] = (time.time(), value)
 
-        # Keep memory use bounded.
         if len(_cache) > 300:
             oldest = sorted(
                 _cache,
@@ -158,7 +154,7 @@ def cache_set(key, value):
 
 
 # ------------------------------------------------------------
-# Local service directory: service.json
+# LOCAL SERVICE DIRECTORY: service.json
 # ------------------------------------------------------------
 
 def load_services():
@@ -177,6 +173,7 @@ def load_services():
             return []
 
         services = []
+        seen_urls = set()
 
         for item in data:
             if not isinstance(item, dict):
@@ -187,21 +184,31 @@ def load_services():
                 or item.get("title")
                 or item.get("label")
             )
+
             url = safe_url(item.get("url") or item.get("link"))
 
             if not name or not url:
                 continue
 
             keywords = item.get("keywords", "")
+
             if isinstance(keywords, list):
                 keywords = " ".join(map(str, keywords))
+
+            url_key = url.rstrip("/").casefold()
+
+            if url_key in seen_urls:
+                continue
+
+            seen_urls.add(url_key)
 
             services.append({
                 "name": name,
                 "title": name,
                 "url": url,
+                "link": url,
                 "description": clean_text(item.get("description", "")),
-                "category": clean_text(item.get("category", "General")),
+                "category": clean_text(item.get("category", "general")).casefold(),
                 "keywords": clean_text(keywords),
             })
 
@@ -235,6 +242,7 @@ SEARCH_SYNONYMS = {
     "school": ["स्कूल", "विद्यालय"],
     "restaurant": ["रेस्टोरेंट", "खाना", "food"],
     "photo": ["image", "images", "फोटो", "तस्वीर"],
+    "image": ["photo", "photos", "फोटो", "तस्वीर"],
     "video": ["वीडियो", "clips"],
 }
 
@@ -246,6 +254,7 @@ def expand_search_words(query):
     for word in words:
         for synonym in SEARCH_SYNONYMS.get(word, []):
             normalized = normalize_text(synonym)
+
             if normalized and normalized not in expanded:
                 expanded.append(normalized)
 
@@ -266,11 +275,31 @@ def search_services(query, limit=30):
         description = normalize_text(service["description"])
         category = normalize_text(service["category"])
         keywords = normalize_text(service["keywords"])
-        searchable = " ".join([name, description, category, keywords])
 
-        score = 8 if query in searchable else 0
+        searchable = " ".join([
+            name, description, category, keywords
+        ])
+
+        score = 0
+
+        if query == name:
+            score += 100
+        elif query in name:
+            score += 50
+
+        if query in keywords:
+            score += 25
+
+        if query in category:
+            score += 15
+
+        if query in description:
+            score += 10
 
         for word in query_words:
+            if not word:
+                continue
+
             if word in name:
                 score += 5
             elif word in keywords:
@@ -283,16 +312,19 @@ def search_services(query, limit=30):
                 score += 1
 
         if score:
-            matches.append((score, service))
+            result = dict(service)
+            result["score"] = score
+            matches.append(result)
 
-    matches.sort(key=lambda pair: (-pair[0], pair[1]["name"].casefold()))
-    return [
-        service for _, service in matches[:bounded_limit(limit, 30, 100)]
-    ]
+    matches.sort(
+        key=lambda item: (-item["score"], item["name"].casefold())
+    )
+
+    return matches[:bounded_limit(limit, 30, 100)]
 
 
 # ------------------------------------------------------------
-# News feeds
+# NEWS FEEDS
 # ------------------------------------------------------------
 
 NEWS_FEEDS = [
@@ -319,6 +351,7 @@ def get_xml_text(element, names):
     for child in list(element):
         if child.tag.split("}")[-1].lower() in names:
             return "".join(child.itertext()).strip()
+
     return ""
 
 
@@ -331,35 +364,47 @@ def extract_news_items(xml_text, source_name):
             continue
 
         title = clean_text(get_xml_text(node, {"title"}))
+
         description = clean_text(
-            get_xml_text(node, {"description", "summary", "content", "encoded"})
+            get_xml_text(
+                node,
+                {"description", "summary", "content", "encoded"}
+            )
         )
+
         published = clean_text(
-            get_xml_text(node, {"pubdate", "published", "updated", "date"})
+            get_xml_text(
+                node,
+                {"pubdate", "published", "updated", "date"}
+            )
         )
+
         link = safe_url(get_xml_text(node, {"link"}))
 
         if not link:
             for child in list(node):
                 if child.tag.split("}")[-1].lower() == "link":
-                    if child.attrib.get("rel", "alternate") == "alternate":
+                    rel = child.attrib.get("rel", "alternate")
+
+                    if rel == "alternate":
                         link = safe_url(child.attrib.get("href", ""))
+
                         if link:
                             break
 
         if title and link:
             results.append({
                 "title": title,
-                "description": description,
+                "name": title,
+                "description": description[:1000],
                 "url": link,
+                "link": link,
                 "source": source_name,
                 "published": published,
             })
 
     return results
-    # ------------------------------------------------------------
-# News loading and caching
-# ------------------------------------------------------------
+
 
 def fetch_news(query="", force_refresh=False):
     global _news_cache, _news_cache_time
@@ -367,9 +412,12 @@ def fetch_news(query="", force_refresh=False):
     now = time.time()
 
     with _news_lock:
-        valid = bool(_news_cache) and now - _news_cache_time < NEWS_CACHE_SECONDS
+        cache_is_valid = (
+            bool(_news_cache)
+            and now - _news_cache_time < NEWS_CACHE_SECONDS
+        )
 
-        if valid and not force_refresh:
+        if cache_is_valid and not force_refresh:
             all_news = list(_news_cache)
         else:
             all_news = []
@@ -377,17 +425,27 @@ def fetch_news(query="", force_refresh=False):
             for feed in NEWS_FEEDS:
                 try:
                     xml_text = fetch_url(feed["url"], timeout=6)
-                    all_news.extend(extract_news_items(xml_text, feed["name"]))
+                    all_news.extend(
+                        extract_news_items(xml_text, feed["name"])
+                    )
                 except Exception as exc:
-                    logger.warning("News feed failed (%s): %s", feed["name"], exc)
+                    logger.warning(
+                        "News feed failed (%s): %s",
+                        feed["name"],
+                        exc
+                    )
 
             unique = []
             seen = set()
 
             for item in all_news:
-                if item["url"] not in seen:
-                    seen.add(item["url"])
-                    unique.append(item)
+                key = item["url"].rstrip("/").casefold()
+
+                if key in seen:
+                    continue
+
+                seen.add(key)
+                unique.append(item)
 
             all_news = unique
             _news_cache = list(unique)
@@ -397,28 +455,35 @@ def fetch_news(query="", force_refresh=False):
 
     if words:
         filtered = []
+
         for item in all_news:
             searchable = normalize_text(
-                item["title"] + " " + item["description"] + " " + item["source"]
+                item["title"] + " "
+                + item["description"] + " "
+                + item["source"]
             )
+
             if all(word in searchable for word in words):
                 filtered.append(item)
+
         return filtered[:MAX_NEWS_ITEMS]
 
     return all_news[:MAX_NEWS_ITEMS]
 
 
 # ------------------------------------------------------------
-# Weather: Open-Meteo
+# WEATHER: OPEN-METEO
 # ------------------------------------------------------------
 
 def get_location_details(place):
     place = clean_text(place)
+
     if not place:
         return None
 
     key = "geocode:" + normalize_text(place)
     cached = cache_get(key, 3600)
+
     if cached is not None:
         return cached
 
@@ -435,7 +500,9 @@ def get_location_details(place):
             "https://geocoding-api.open-meteo.com/v1/search?" + params,
             timeout=7,
         ))
+
         results = data.get("results", [])
+
         if not results:
             cache_set(key, None)
             return None
@@ -446,10 +513,13 @@ def get_location_details(place):
         ] or results
 
         exact = next(
-            (item for item in candidates
-             if item.get("name", "").casefold() == place.casefold()),
+            (
+                item for item in candidates
+                if item.get("name", "").casefold() == place.casefold()
+            ),
             candidates[0],
         )
+
         cache_set(key, exact)
         return exact
 
@@ -458,11 +528,45 @@ def get_location_details(place):
         return None
 
 
+def weather_description(code):
+    descriptions = {
+        0: "साफ आसमान",
+        1: "मुख्यतः साफ",
+        2: "कुछ बादल",
+        3: "बादल छाए हुए",
+        45: "कोहरा",
+        48: "जमा हुआ कोहरा",
+        51: "हल्की बूंदाबांदी",
+        53: "बूंदाबांदी",
+        55: "तेज बूंदाबांदी",
+        61: "हल्की बारिश",
+        63: "बारिश",
+        65: "तेज बारिश",
+        71: "हल्की बर्फबारी",
+        73: "बर्फबारी",
+        75: "तेज बर्फबारी",
+        80: "बारिश की बौछारें",
+        81: "तेज बारिश की बौछारें",
+        82: "बहुत तेज बौछारें",
+        95: "आंधी-तूफान",
+        96: "ओलों के साथ तूफान",
+        99: "तेज तूफान और ओले",
+    }
+
+    try:
+        return descriptions.get(int(code), "मौसम की जानकारी उपलब्ध")
+    except (ValueError, TypeError):
+        return "मौसम की जानकारी उपलब्ध"
+
+
 def get_weather(place):
     location = get_location_details(place)
 
     if not location:
-        return {"success": False, "error": "इस जगह का मौसम नहीं मिला।"}
+        return {
+            "success": False,
+            "error": "इस जगह का मौसम नहीं मिला।"
+        }
 
     params = urllib.parse.urlencode({
         "latitude": location["latitude"],
@@ -479,10 +583,18 @@ def get_weather(place):
             "https://api.open-meteo.com/v1/forecast?" + params,
             timeout=7,
         ))
+
         current = data.get("current", {})
 
         if "temperature_2m" not in current:
-            return {"success": False, "error": "मौसम डेटा उपलब्ध नहीं है।"}
+            return {
+                "success": False,
+                "error": "मौसम डेटा उपलब्ध नहीं है।"
+            }
+
+        code = current.get("weather_code")
+        condition = weather_description(code)
+        temperature = current.get("temperature_2m")
 
         return {
             "success": True,
@@ -492,34 +604,48 @@ def get_weather(place):
             "country": location.get("country", ""),
             "latitude": location.get("latitude"),
             "longitude": location.get("longitude"),
-            "temperature": current.get("temperature_2m"),
+            "temperature": temperature,
+            "temp": temperature,
+            "description": condition,
+            "condition": condition,
             "feels_like": current.get("apparent_temperature"),
+            "apparent_temperature": current.get("apparent_temperature"),
             "humidity": current.get("relative_humidity_2m"),
             "wind_speed": current.get("wind_speed_10m"),
             "precipitation": current.get("precipitation"),
-            "weather_code": current.get("weather_code"),
+            "weather_code": code,
             "is_day": current.get("is_day"),
+            "current": current,
+            "units": data.get("current_units", {}),
             "time": current.get("time"),
+            "updated_at": current.get("time"),
             "timezone": data.get("timezone", ""),
             "source": "Open-Meteo",
         }
 
     except Exception as exc:
         logger.warning("Weather request failed: %s", exc)
-        return {"success": False, "error": "मौसम सर्वर से संपर्क नहीं हो पाया।"}
+
+        return {
+            "success": False,
+            "error": "मौसम सर्वर से संपर्क नहीं हो पाया।"
+        }
 
 
 # ------------------------------------------------------------
-# Image search: Wikimedia Commons API
+# IMAGE SEARCH: WIKIMEDIA COMMONS
+# Results include image URLs and license information.
 # ------------------------------------------------------------
 
 def search_images(query, limit=12):
     query = clean_text(query)
+
     if not query:
         return []
 
     limit = bounded_limit(limit, 12, 30)
     key = "images:" + normalize_text(query) + ":" + str(limit)
+
     cached = cache_get(key, IMAGE_CACHE_SECONDS)
 
     if cached is not None:
@@ -547,13 +673,16 @@ def search_images(query, limit=12):
 
         for page in pages.values():
             info_list = page.get("imageinfo", [])
+
             if not info_list:
                 continue
 
             info = info_list[0]
             metadata = info.get("extmetadata", {})
 
-            image_url = safe_url(info.get("thumburl") or info.get("url"))
+            image_url = safe_url(
+                info.get("thumburl") or info.get("url")
+            )
             page_url = safe_url(info.get("descriptionurl"))
 
             if not image_url or not page_url:
@@ -561,15 +690,31 @@ def search_images(query, limit=12):
 
             def meta_value(name):
                 item = metadata.get(name, {})
-                return clean_text(item.get("value", "")) if isinstance(item, dict) else ""
+                if isinstance(item, dict):
+                    return clean_text(item.get("value", ""))
+                return ""
+
+            title = clean_text(
+                page.get("title", "").replace("File:", "")
+            )
+
+            artist = meta_value("Artist")
+            license_name = (
+                meta_value("LicenseShortName")
+                or "लाइसेंस विवरण स्रोत पेज पर देखें"
+            )
 
             results.append({
-                "title": clean_text(page.get("title", "").replace("File:", "")),
+                "title": title,
+                "alt": title,
+                "image": image_url,
+                "src": image_url,
                 "image_url": image_url,
                 "url": page_url,
+                "page_url": page_url,
                 "source": "Wikimedia Commons",
-                "license": meta_value("LicenseShortName") or "लाइसेंस पेज पर देखें",
-                "artist": meta_value("Artist"),
+                "license": license_name,
+                "artist": artist,
                 "credit": meta_value("Credit"),
                 "attribution_required": True,
             })
@@ -583,18 +728,19 @@ def search_images(query, limit=12):
 
 
 # ------------------------------------------------------------
-# Video search links
-# This creates a search link, not an invented video feed.
+# VIDEO SEARCH LINKS
+# These are search links, not a live video feed.
 # ------------------------------------------------------------
 
 def search_videos(query, limit=10):
     query = clean_text(query)
+
     if not query:
         return []
 
     encoded = urllib.parse.quote_plus(query)
 
-    return [
+    results = [
         {
             "title": "YouTube पर " + query + " खोजें",
             "url": "https://www.youtube.com/results?search_query=" + encoded,
@@ -607,12 +753,14 @@ def search_videos(query, limit=10):
             "source": "Bing Videos",
             "type": "search_link",
         },
-    ][:bounded_limit(limit, 10, 10)]
+    ]
+
+    return results[:bounded_limit(limit, 10, 10)]
 
 
 # ------------------------------------------------------------
-# Places search: OpenStreetMap Nominatim
-# Respect usage limits and cache results.
+# PLACES SEARCH: OPENSTREETMAP NOMINATIM
+# Uses caching and a minimum delay between requests.
 # ------------------------------------------------------------
 
 _place_cache = {}
@@ -624,6 +772,7 @@ def search_places(query, limit=10):
     global _last_place_request
 
     query = clean_text(query)
+
     if not query:
         return []
 
@@ -632,11 +781,13 @@ def search_places(query, limit=10):
 
     with _place_lock:
         cached = _place_cache.get(key)
+
         if cached and time.time() - cached[0] < PLACE_CACHE_SECONDS:
             return cached[1]
 
-        # Public Nominatim server limit: at most one request per second.
+        # Respect the public service's request rate.
         wait = 1.05 - (time.time() - _last_place_request)
+
         if wait > 0:
             time.sleep(wait)
 
@@ -648,7 +799,10 @@ def search_places(query, limit=10):
             "countrycodes": "in",
         })
 
-        endpoint = "https://nominatim.openstreetmap.org/search?" + params
+        endpoint = (
+            "https://nominatim.openstreetmap.org/search?" + params
+        )
+
         _last_place_request = time.time()
 
         try:
@@ -658,14 +812,18 @@ def search_places(query, limit=10):
             for item in data if isinstance(data, list) else []:
                 lat = item.get("lat")
                 lon = item.get("lon")
-                osm_type = item.get("osm_type", "")
-                osm_id = item.get("osm_id", "")
 
                 if not lat or not lon:
                     continue
 
+                osm_type = str(item.get("osm_type", ""))
+                osm_id = str(item.get("osm_id", ""))
+
                 results.append({
-                    "name": clean_text(item.get("name") or item.get("display_name", "")),
+                    "name": clean_text(
+                        item.get("name")
+                        or item.get("display_name", "")
+                    ),
                     "address": clean_text(item.get("display_name", "")),
                     "category": clean_text(item.get("category", "")),
                     "type": clean_text(item.get("type", "")),
@@ -673,7 +831,8 @@ def search_places(query, limit=10):
                     "longitude": lon,
                     "map_url": (
                         "https://www.openstreetmap.org/"
-                        + urllib.parse.quote(osm_type) + "/" + str(osm_id)
+                        + urllib.parse.quote(osm_type)
+                        + "/" + urllib.parse.quote(osm_id)
                     ),
                     "directions_url": (
                         "https://www.openstreetmap.org/directions?to="
@@ -688,8 +847,11 @@ def search_places(query, limit=10):
         except Exception as exc:
             logger.warning("Place search failed: %s", exc)
             return []
-            # ------------------------------------------------------------
-# Rate source directory (not actual live prices)
+
+
+# ------------------------------------------------------------
+# RATE SOURCES
+# These are source links, not verified live prices.
 # ------------------------------------------------------------
 
 RATE_SOURCES = {
@@ -710,7 +872,7 @@ RATE_SOURCES = {
     },
     "mandi": {
         "title": "मंडी भाव",
-        "description": "कृषि मंडी के उपलब्ध भाव देखें।",
+        "description": "कृषि मंडी के भाव के लिए Agmarknet देखें।",
         "url": "https://agmarknet.gov.in/",
     },
 }
@@ -722,6 +884,7 @@ def get_rates(place="Rajasthan"):
 
     for key, source in RATE_SOURCES.items():
         rates[key] = {
+            "title": source["title"],
             "value": "स्रोत पर देखें",
             "unit": "",
             "description": source["description"],
@@ -736,21 +899,23 @@ def get_rates(place="Rajasthan"):
         "updated_at": utc_now(),
         "live_prices_available": False,
         "rates": rates,
-        "message": "वास्तविक कीमतों का सीधा डेटा कनेक्शन अभी उपलब्ध नहीं है।",
+        "message": (
+            "वास्तविक कीमतों का सीधा डेटा कनेक्शन अभी उपलब्ध नहीं है।"
+        ),
     }
 
 
 # ------------------------------------------------------------
-# Main pages and health
+# MAIN PAGE AND HEALTH CHECK
 # ------------------------------------------------------------
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def home():
     return render_template("index.html")
 
 
-@app.route("/health")
-@app.route("/api/health")
+@app.route("/health", methods=["GET"])
+@app.route("/api/health", methods=["GET"])
 def health():
     return jsonify({
         "success": True,
@@ -758,11 +923,12 @@ def health():
         "owner": OWNER_NAME,
         "version": APP_VERSION,
         "status": "running",
+        "services_count": len(load_services()),
         "time": utc_now(),
     })
 
 
-@app.route("/api/about")
+@app.route("/api/about", methods=["GET"])
 def about():
     return jsonify({
         "success": True,
@@ -770,25 +936,37 @@ def about():
         "owner": OWNER_NAME,
         "version": APP_VERSION,
         "features": [
-            "Hindi and English local service search",
+            "Hindi and English service search",
+            "Website directory",
             "RSS news updates",
             "Open-Meteo weather",
             "Wikimedia Commons image search",
             "Video search links",
             "OpenStreetMap place search",
-            "Market rate source links",
+            "Market-rate source links",
         ],
+        "services_count": len(load_services()),
     })
 
 
 # ------------------------------------------------------------
-# Main search APIs
+# MAIN SEARCH API
 # ------------------------------------------------------------
 
-@app.route("/api/search")
+@app.route("/api/search", methods=["GET", "POST"])
 def api_search():
-    query = clean_text(request.args.get("q", ""))
-    limit = bounded_limit(request.args.get("limit", 30), 30, 100)
+    if request.method == "POST":
+        payload = request.get_json(silent=True) or {}
+        query = clean_text(payload.get("q") or payload.get("query") or "")
+        limit = payload.get("limit", 30)
+    else:
+        query = clean_text(request.args.get("q", ""))
+        limit = request.args.get("limit", 30)
+
+    if len(query) > 250:
+        return json_error("खोज का शब्द 250 अक्षरों से छोटा रखें।")
+
+    limit = bounded_limit(limit, 30, 100)
 
     if not query:
         return jsonify({
@@ -810,34 +988,58 @@ def api_search():
     })
 
 
-@app.route("/api/services")
-def api_services():
-    query = clean_text(request.args.get("q", ""))
-    services = search_services(query) if query else load_services()[:100]
-
-    return jsonify({
-        "success": True,
-        "count": len(services),
-        "services": services,
-    })
-
-
-@app.route("/api/search-services")
+@app.route("/api/search-services", methods=["GET"])
 def api_search_services():
     return api_search()
 
 
 # ------------------------------------------------------------
-# Image, video and place search APIs
+# WEBSITE DIRECTORY API
+# Compatible with the new index.html website section.
 # ------------------------------------------------------------
 
-@app.route("/api/images")
-def api_images():
+@app.route("/api/services", methods=["GET"])
+def api_services():
     query = clean_text(request.args.get("q", ""))
+    category = normalize_text(request.args.get("category", ""))
+
+    services = load_services()
+
+    if query:
+        services = search_services(query, limit=100)
+
+    if category and category != "all":
+        services = [
+            item for item in services
+            if normalize_text(item.get("category", "")) == category
+        ]
+
+    return jsonify({
+        "success": True,
+        "count": len(services),
+        "results": services[:100],
+        "services": services[:100],
+    })
+
+
+# ------------------------------------------------------------
+# IMAGE SEARCH API
+# Supports the new frontend route /api/images/search.
+# Wikimedia Commons results include source and license details.
+# ------------------------------------------------------------
+
+@app.route("/api/images/search", methods=["GET"])
+def api_images_search():
+    query = clean_text(request.args.get("q", ""))
+
     if not query:
         return json_error("फोटो खोजने के लिए कोई विषय लिखें।")
 
-    results = search_images(query, request.args.get("limit", 12))
+    if len(query) > 150:
+        return json_error("फोटो खोज का शब्द 150 अक्षरों से छोटा रखें।")
+
+    limit = bounded_limit(request.args.get("limit", 12), 12, 30)
+    results = search_images(query, limit)
 
     return jsonify({
         "success": True,
@@ -845,15 +1047,32 @@ def api_images():
         "count": len(results),
         "results": results,
         "source": "Wikimedia Commons",
-        "message": "" if results else "अभी फोटो परिणाम उपलब्ध नहीं हैं।",
+        "message": (
+            "" if results
+            else "अभी फोटो परिणाम नहीं मिले। दूसरा शब्द लिखकर देखें।"
+        ),
     })
 
 
-@app.route("/api/videos")
+@app.route("/api/images", methods=["GET"])
+def api_images():
+    return api_images_search()
+
+
+# ------------------------------------------------------------
+# VIDEO SEARCH API
+# Returns search links, not a live video feed.
+# ------------------------------------------------------------
+
+@app.route("/api/videos", methods=["GET"])
 def api_videos():
     query = clean_text(request.args.get("q", ""))
+
     if not query:
         return json_error("वीडियो खोजने के लिए कोई विषय लिखें।")
+
+    if len(query) > 150:
+        return json_error("वीडियो खोज का शब्द बहुत लंबा है।")
 
     results = search_videos(query)
 
@@ -862,19 +1081,28 @@ def api_videos():
         "query": query,
         "count": len(results),
         "results": results,
-        "message": (
-            "ये वीडियो खोज के लिंक हैं, वास्तविक वीडियो सूची नहीं।"
-        ),
+        "message": "ये वीडियो खोज के लिंक हैं, वास्तविक वीडियो सूची नहीं।",
     })
 
 
-@app.route("/api/places")
+# ------------------------------------------------------------
+# PLACES SEARCH API
+# ------------------------------------------------------------
+
+@app.route("/api/places", methods=["GET"])
 def api_places():
     query = clean_text(request.args.get("q", ""))
-    if not query:
-        return json_error("जगह, होटल, अस्पताल या पुलिस स्टेशन का नाम लिखें।")
 
-    results = search_places(query, request.args.get("limit", 10))
+    if not query:
+        return json_error(
+            "जगह, होटल, अस्पताल या पुलिस स्टेशन का नाम लिखें।"
+        )
+
+    if len(query) > 150:
+        return json_error("जगह की खोज का शब्द बहुत लंबा है।")
+
+    limit = bounded_limit(request.args.get("limit", 10), 10, 10)
+    results = search_places(query, limit)
 
     return jsonify({
         "success": True,
@@ -883,78 +1111,93 @@ def api_places():
         "results": results,
         "source": "OpenStreetMap contributors",
         "attribution": "© OpenStreetMap contributors",
-        "message": "" if results else "जगह के परिणाम नहीं मिले या सेवा उपलब्ध नहीं है।",
+        "message": (
+            "" if results
+            else "जगह के परिणाम नहीं मिले या सेवा उपलब्ध नहीं है।"
+        ),
     })
 
 
 # ------------------------------------------------------------
-# Combined search API
-# Returns local services and links to other search categories.
+# COMBINED SEARCH API
 # ------------------------------------------------------------
 
-@app.route("/api/search-all")
+@app.route("/api/search-all", methods=["GET"])
 def api_search_all():
     query = clean_text(request.args.get("q", ""))
 
     if not query:
         return json_error("खोजने के लिए कोई विषय लिखें।")
 
-    services = search_services(query, 20)
+    if len(query) > 150:
+        return json_error("खोज का शब्द बहुत लंबा है।")
+
+    encoded = urllib.parse.quote(query)
 
     return jsonify({
         "success": True,
         "query": query,
-        "services": services,
-        "images_api": "/api/images?q=" + urllib.parse.quote(query),
-        "videos_api": "/api/videos?q=" + urllib.parse.quote(query),
-        "places_api": "/api/places?q=" + urllib.parse.quote(query),
-        "news_api": "/api/news?q=" + urllib.parse.quote(query),
-        "weather_api": "/api/weather?place=" + urllib.parse.quote(query),
-        "message": (
-            "फोटो, वीडियो, जगहों और न्यूज़ के लिए संबंधित API खोलें।"
-        ),
+        "services": search_services(query, 20),
+        "images_api": "/api/images/search?q=" + encoded,
+        "videos_api": "/api/videos?q=" + encoded,
+        "places_api": "/api/places?q=" + encoded,
+        "news_api": "/api/news?q=" + encoded,
+        "weather_api": "/api/weather?place=" + encoded,
+        "message": "उपलब्ध खोज श्रेणियों के API लिंक तैयार हैं।",
     })
 
 
 # ------------------------------------------------------------
-# News APIs
+# NEWS API
 # ------------------------------------------------------------
 
-@app.route("/api/news")
+@app.route("/api/news", methods=["GET"])
 def api_news():
     query = clean_text(request.args.get("q", ""))
     refresh = request.args.get("refresh", "").casefold()
     force_refresh = refresh in ("1", "true", "yes")
 
+    if len(query) > 150:
+        return json_error("समाचार खोज का शब्द बहुत लंबा है।")
+
     news = fetch_news(query, force_refresh)
+    limit = bounded_limit(request.args.get("limit", MAX_NEWS_ITEMS),
+                          MAX_NEWS_ITEMS, MAX_NEWS_ITEMS)
+    news = news[:limit]
 
     return jsonify({
         "success": True,
         "count": len(news),
         "query": query,
         "updated_at": utc_now(),
+        "results": news,
         "news": news,
         "message": "" if news else "कोई खबर नहीं मिली।",
     })
 
 
-@app.route("/api/latest-news")
+@app.route("/api/latest-news", methods=["GET"])
 def api_latest_news():
     return api_news()
 
 
 # ------------------------------------------------------------
-# Weather APIs
+# WEATHER API
 # ------------------------------------------------------------
 
-@app.route("/api/weather")
+@app.route("/api/weather", methods=["GET"])
 def api_weather():
     place = clean_text(
-        request.args.get("place", "") or request.args.get("q", "")
+        request.args.get("place", "")
+        or request.args.get("city", "")
+        or request.args.get("q", "")
     )
 
     if not place:
         return json_error("शहर या गाँव का नाम लिखें।")
+
+    if len(place) > 100:
+        return json_error("शहर का नाम बहुत लंबा है।")
 
     result = get_weather(place)
 
@@ -964,23 +1207,45 @@ def api_weather():
     return jsonify(result)
 
 
-@app.route("/api/current-weather")
+@app.route("/api/current-weather", methods=["GET"])
 def api_current_weather():
     return api_weather()
 
 
 # ------------------------------------------------------------
-# Rate API
+# RATE SOURCES API
+# Does not claim to return live market prices.
 # ------------------------------------------------------------
 
-@app.route("/api/rates")
+@app.route("/api/rates", methods=["GET"])
 def api_rates():
     place = clean_text(request.args.get("place", "Rajasthan"))
     return jsonify(get_rates(place))
 
 
 # ------------------------------------------------------------
-# Error handlers
+# OPTIONAL EDUCATION PAGE
+# If education.html is not present, return a helpful response.
+# ------------------------------------------------------------
+
+@app.route("/education", methods=["GET"])
+def education():
+    try:
+        return render_template("education.html")
+    except Exception:
+        return (
+            "<!doctype html><html lang='hi'><meta charset='utf-8'>"
+            "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+            "<title>Ishwar Search - Education</title>"
+            "<h1>Ishwar Search</h1>"
+            "<p>Education पेज अभी तैयार नहीं है।</p>"
+            "<a href='/'>होम पेज पर जाएँ</a></html>",
+            200,
+        )
+
+
+# ------------------------------------------------------------
+# ERROR HANDLERS
 # ------------------------------------------------------------
 
 @app.errorhandler(404)
@@ -989,13 +1254,15 @@ def page_not_found(error):
         return jsonify({
             "success": False,
             "error": "यह API endpoint नहीं मिला।",
+            "path": request.path,
         }), 404
 
     return (
-        "<!DOCTYPE html><html lang='hi'><meta charset='utf-8'>"
+        "<!doctype html><html lang='hi'><meta charset='utf-8'>"
+        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
         "<title>404 | Ishwar Search</title>"
         "<h1>Ishwar Search</h1><p>यह पेज नहीं मिला।</p>"
-        "<a href='/'>Ishwar Search पर वापस जाएँ</a>",
+        "<a href='/'>Ishwar Search पर वापस जाएँ</a></html>",
         404,
     )
 
@@ -1006,6 +1273,14 @@ def method_not_allowed(error):
         "success": False,
         "error": "इस अनुरोध का तरीका उपलब्ध नहीं है।",
     }), 405
+
+
+@app.errorhandler(413)
+def request_too_large(error):
+    return jsonify({
+        "success": False,
+        "error": "अनुरोध बहुत बड़ा है।",
+    }), 413
 
 
 @app.errorhandler(500)
@@ -1023,21 +1298,35 @@ def internal_server_error(error):
         }), 500
 
     return (
-        "<!DOCTYPE html><html lang='hi'><meta charset='utf-8'>"
+        "<!doctype html><html lang='hi'><meta charset='utf-8'>"
         "<title>500 | Ishwar Search</title>"
         "<h1>Ishwar Search</h1>"
         "<p>सर्वर में समस्या आई। कृपया बाद में प्रयास करें।</p>"
-        "<a href='/'>होम पेज पर जाएँ</a>",
+        "<a href='/'>होम पेज पर जाएँ</a></html>",
         500,
     )
 
 
 # ------------------------------------------------------------
-# Run locally / Render
+# SECURITY HEADERS
 # ------------------------------------------------------------
-@app.route("/education", methods=["GET"])
-def education():
-    return render_template("education.html")
+
+@app.after_request
+def add_security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+    if request.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+
+    return response
+
+
+# ------------------------------------------------------------
+# RUN LOCALLY / RENDER
+# ------------------------------------------------------------
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
 
@@ -1046,3 +1335,5 @@ if __name__ == "__main__":
         port=port,
         debug=False,
     )
+
+
