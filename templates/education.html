@@ -1,0 +1,451 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ishwar Search Education - RBSE कक्षा 1 से 12 तक हिंदी और अंग्रेज़ी में अध्ययन सामग्री">
+    <title>Education | Ishwar Search</title>
+
+    <style>
+        :root {
+            --primary: #174ea6;
+            --primary-dark: #103778;
+            --background: #f4f7fc;
+            --card: #ffffff;
+            --text: #172033;
+            --muted: #667085;
+            --border: #e1e7f0;
+            --green: #16834a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, "Noto Sans Devanagari", sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #103778, #2878df);
+            color: white;
+            padding: 25px 16px 32px;
+            text-align: center;
+        }
+
+        .brand {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .owner {
+            margin: 4px 0 18px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .hero-title {
+            font-size: clamp(25px, 5vw, 38px);
+            margin: 12px 0 8px;
+        }
+
+        .hero-description {
+            max-width: 650px;
+            margin: auto;
+            font-size: 15px;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: auto;
+            padding: 22px 15px 40px;
+        }
+
+        .notice {
+            background: #fff8df;
+            border: 1px solid #f2d47b;
+            color: #674c00;
+            border-radius: 12px;
+            padding: 13px 15px;
+            margin-bottom: 22px;
+            font-size: 14px;
+        }
+
+        .section-title {
+            margin: 26px 0 14px;
+            font-size: 23px;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        select, input, button {
+            font: inherit;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            color: var(--text);
+        }
+
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+            gap: 12px;
+        }
+
+        .class-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            padding: 18px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .class-card:hover,
+        .class-card.active {
+            border-color: var(--primary);
+            box-shadow: 0 5px 18px #174ea61a;
+            transform: translateY(-2px);
+        }
+
+        .class-number {
+            display: block;
+            color: var(--primary);
+            font-size: 27px;
+            font-weight: 800;
+        }
+
+        .class-label {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+
+        .panel h3 {
+            margin-top: 0;
+        }
+
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .subject-button {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .subject-button:hover,
+        .subject-button.active {
+            background: #edf4ff;
+            border-color: var(--primary);
+        }
+
+        .note-content {
+            white-space: pre-line;
+            background: #f8faff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 17px;
+            margin-top: 14px;
+        }
+
+        .primary-button {
+            border: none;
+            background: var(--primary);
+            color: white;
+            border-radius: 9px;
+            padding: 11px 16px;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        .primary-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            border: 1px solid #ffffff80;
+            border-radius: 9px;
+            display: inline-block;
+            padding: 8px 13px;
+            font-size: 14px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 22px 12px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 480px) {
+            .brand {
+                font-size: 24px;
+            }
+
+            .panel {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <p class="brand">Ishwar Search</p>
+        <p class="owner">Owner: Ishwar Ghanchi</p>
+        <a class="back-link" href="/">← मुख्य वेबसाइट पर जाएँ</a>
+
+        <h1 class="hero-title">Ishwar Search Education</h1>
+        <p class="hero-description">
+            राजस्थान बोर्ड (RBSE) की पढ़ाई के लिए एक सरल अध्ययन केंद्र।
+            Study in Hindi and English.
+        </p>
+    </header>
+
+    <main class="container">
+        <div class="notice">
+            <strong>महत्वपूर्ण सूचना:</strong>
+            यह शुरुआती संस्करण है। नीचे दी गई सामग्री नमूना है,
+            आधिकारिक RBSE पाठ्यपुस्तक या प्रमाणित पाठ्यक्रम का विकल्प नहीं।
+            अध्यायों और पाठ्यक्रम को संबंधित कक्षा की नवीनतम आधिकारिक
+            पुस्तक से मिलाकर अपडेट किया जाएगा।
+        </div>
+
+        <h2 class="section-title">अपनी कक्षा चुनें / Select Class</h2>
+
+        <div class="filters">
+            <select id="languageSelect" aria-label="भाषा चुनें">
+                <option value="hi">हिंदी माध्यम</option>
+                <option value="en">English Medium</option>
+            </select>
+
+            <input
+                id="classSearch"
+                type="search"
+                placeholder="कक्षा खोजें / Search class"
+                aria-label="कक्षा खोजें"
+            >
+        </div>
+
+        <div class="class-grid" id="classGrid"></div>
+
+        <section class="panel" id="studyPanel" hidden>
+            <h2 id="selectedClassTitle">कक्षा चुनें</h2>
+            <p class="muted" id="selectedClassSubtitle"></p>
+
+            <h3>विषय चुनें / Select Subject</h3>
+            <div class="subject-grid" id="subjectGrid"></div>
+
+            <div id="noteArea" class="note-content" hidden></div>
+        </section>
+    </main>
+
+    <footer>
+        © <span id="year"></span> Ishwar Search Education
+        <br>
+        अध्ययन करें, अभ्यास करें और आगे बढ़ें।
+    </footer>
+
+    <script>
+        const classGrid = document.getElementById("classGrid");
+        const classSearch = document.getElementById("classSearch");
+        const languageSelect = document.getElementById("languageSelect");
+        const studyPanel = document.getElementById("studyPanel");
+        const selectedClassTitle = document.getElementById("selectedClassTitle");
+        const selectedClassSubtitle = document.getElementById("selectedClassSubtitle");
+        const subjectGrid = document.getElementById("subjectGrid");
+        const noteArea = document.getElementById("noteArea");
+
+        document.getElementById("year").textContent =
+            new Date().getFullYear();
+
+        let selectedClass = null;
+        let selectedSubject = null;
+
+        const classNames = {
+            hi: number => `कक्षा ${number}`,
+            en: number => `Class ${number}`
+        };
+
+        const subjects = {
+            junior: {
+                hi: ["हिंदी", "अंग्रेज़ी", "गणित", "पर्यावरण अध्ययन"],
+                en: ["Hindi", "English", "Mathematics", "Environmental Studies"]
+            },
+            middle: {
+                hi: ["हिंदी", "अंग्रेज़ी", "गणित", "विज्ञान", "सामाजिक विज्ञान", "संस्कृत"],
+                en: ["Hindi", "English", "Mathematics", "Science", "Social Science", "Sanskrit"]
+            },
+            secondary: {
+                hi: ["हिंदी", "अंग्रेज़ी", "गणित", "विज्ञान", "सामाजिक विज्ञान", "संस्कृत"],
+                en: ["Hindi", "English", "Mathematics", "Science", "Social Science", "Sanskrit"]
+            },
+            senior: {
+                hi: ["हिंदी", "अंग्रेज़ी", "गणित", "भौतिक विज्ञान", "रसायन विज्ञान", "जीव विज्ञान", "इतिहास", "भूगोल", "राजनीति विज्ञान", "अर्थशास्त्र"],
+                en: ["Hindi", "English", "Mathematics", "Physics", "Chemistry", "Biology", "History", "Geography", "Political Science", "Economics"]
+            }
+        };
+
+        function groupForClass(number) {
+            if (number <= 5) return "junior";
+            if (number <= 8) return "middle";
+            if (number <= 10) return "secondary";
+            return "senior";
+        }
+
+        function renderClasses() {
+            const language = languageSelect.value;
+            const filter = classSearch.value.trim().toLowerCase();
+
+            classGrid.innerHTML = "";
+
+            for (let number = 1; number <= 12; number++) {
+                const label = classNames[language](number);
+
+                if (
+                    filter &&
+                    !label.toLowerCase().includes(filter) &&
+                    !String(number).includes(filter)
+                ) {
+                    continue;
+                }
+
+                const card = document.createElement("button");
+                card.type = "button";
+                card.className = "class-card";
+                card.setAttribute("aria-pressed", String(selectedClass === number));
+                card.innerHTML = `
+                    <span class="class-number">${number}</span>
+                    <span class="class-label">${label}</span>
+                `;
+
+                if (selectedClass === number) {
+                    card.classList.add("active");
+                }
+
+                card.addEventListener("click", () => selectClass(number));
+                classGrid.appendChild(card);
+            }
+        }
+
+        function selectClass(number) {
+            selectedClass = number;
+            selectedSubject = null;
+
+            const language = languageSelect.value;
+            selectedClassTitle.textContent = classNames[language](number);
+            selectedClassSubtitle.textContent = language === "hi"
+                ? "अपना विषय चुनें। उपलब्ध नोट्स धीरे-धीरे जोड़े जाएँगे।"
+                : "Choose a subject. Study notes will be added progressively.";
+
+            studyPanel.hidden = false;
+            noteArea.hidden = true;
+            renderClasses();
+            renderSubjects();
+            studyPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        function renderSubjects() {
+            subjectGrid.innerHTML = "";
+            const language = languageSelect.value;
+            const group = groupForClass(selectedClass);
+            const subjectList = subjects[group][language];
+
+            subjectList.forEach(subject => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "subject-button";
+                button.textContent = subject;
+
+                if (selectedSubject === subject) {
+                    button.classList.add("active");
+                }
+
+                button.addEventListener("click", () => selectSubject(subject));
+                subjectGrid.appendChild(button);
+            });
+        }
+
+        function selectSubject(subject) {
+            selectedSubject = subject;
+            renderSubjects();
+
+            const language = languageSelect.value;
+            noteArea.hidden = false;
+
+            if (selectedClass === 1 && (
+                subject === "गणित" || subject === "Mathematics"
+            )) {
+                noteArea.textContent = language === "hi"
+                    ? `कक्षा 1 — गणित\n\nनमूना पाठ: संख्याओं की पहचान\n\n1. 1 से 9 तक की संख्याओं को पहचानें।\n2. गिनती करते समय प्रत्येक वस्तु को एक बार गिनें।\n3. संख्या लिखने का अभ्यास कॉपी में करें।\n\nअभ्यास प्रश्न:\n1. 1 के बाद कौन-सी संख्या आती है?\n2. 3 के बाद कौन-सी संख्या आती है?\n3. 5 से पहले कौन-सी संख्या आती है?\n\nउत्तर: 2, 4, 4\n\nयह सामान्य अभ्यास सामग्री है, आधिकारिक अध्याय नहीं।`
+                    : `Class 1 — Mathematics\n\nSample Lesson: Recognising Numbers\n\n1. Recognise numbers from 1 to 9.\n2. Count each object only once.\n3. Practise writing numbers in your notebook.\n\nPractice Questions:\n1. Which number comes after 1?\n2. Which number comes after 3?\n3. Which number comes before 5?\n\nAnswers: 2, 4, 4\n\nThis is general practice material, not an official textbook chapter.`;
+            } else {
+                noteArea.textContent = language === "hi"
+                    ? `कक्षा ${selectedClass} — ${subject}\n\nइस विषय के प्रमाणित नोट्स तैयार किए जा रहे हैं।\n\nअगला चरण: RBSE की नवीनतम पुस्तक और पाठ्यक्रम के अनुसार अध्याय, सरल व्याख्या, अभ्यास प्रश्न और उत्तर जोड़ना।\n\nअभी इस विषय के नोट्स उपलब्ध नहीं हैं।`
+                    : `Class ${selectedClass} — ${subject}\n\nVerified notes for this subject are being prepared.\n\nNext: Add chapters, simple explanations, practice questions and answers based on the latest RBSE textbook and syllabus.\n\nNotes are not available for this subject yet.`;
+
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "primary-button";
+                button.textContent = language === "hi"
+                    ? "नोट्स का नमूना फिर देखें"
+                    : "Show notes message again";
+                button.addEventListener("click", () => selectSubject(subject));
+                noteArea.appendChild(document.createElement("br"));
+                noteArea.appendChild(button);
+            }
+        }
+
+        classSearch.addEventListener("input", renderClasses);
+
+        languageSelect.addEventListener("change", () => {
+            renderClasses();
+
+            if (selectedClass !== null) {
+                const currentClass = selectedClass;
+                selectClass(currentClass);
+            }
+        });
+
+        renderClasses();
+    </script>
+</body>
+</html>
