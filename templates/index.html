@@ -85,12 +85,23 @@ main{padding:18px 0 35px}
 footer{background:#fff;border-top:1px solid var(--border);padding:20px 0;text-align:center;color:var(--muted);font-size:13px}
 footer strong{color:var(--text)}
 [hidden]{display:none!important}
+
+/* Popular Websites */
+.popular-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.popular-link{display:flex;align-items:center;gap:11px;min-width:0;padding:13px;border:1px solid var(--border);border-radius:13px;background:#fff;color:var(--text);transition:transform .15s,border-color .15s,box-shadow .15s}
+.popular-link:hover{transform:translateY(-2px);border-color:var(--primary);box-shadow:0 6px 18px #0f172a0d}
+.popular-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:12px;background:#eef3ff;font-size:23px}
+.popular-link strong,.popular-link small{display:block;overflow-wrap:anywhere}
+.popular-link strong{font-size:14px}
+.popular-link small{font-size:11px;color:var(--muted);margin-top:2px}
+
 @media(max-width:700px){
 .dashboard-grid{grid-template-columns:1fr}
 .header-tag{display:none}
 .image-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .shopping-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .video-grid{grid-template-columns:1fr}
+.popular-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .search-tab{padding:8px 12px;flex:1}
 }
 @media(max-width:430px){
@@ -102,6 +113,9 @@ footer strong{color:var(--text)}
 .logo{width:47px;height:47px}
 .image-card img{height:125px}
 .search-tab{font-size:13px;padding:8px 5px}
+.popular-link{padding:10px;gap:8px}
+.popular-icon{width:36px;height:36px;flex-basis:36px;font-size:20px}
+.popular-link strong{font-size:13px}
 }
 </style>
 </head>
@@ -143,6 +157,26 @@ footer strong{color:var(--text)}
       <div id="searchCategoryContent" class="search-category-content">
         <div id="searchResults"></div>
       </div>
+    </div>
+  </section>
+
+  <section class="results-section" aria-labelledby="popularHeading">
+    <div class="section-heading">
+      <h2 id="popularHeading">🌐 Popular Websites</h2>
+      <p>रोज़ काम आने वाली लोकप्रिय वेबसाइटें — खोलने के लिए किसी लिंक पर क्लिक करें।</p>
+    </div>
+    <div class="popular-grid">
+      <a class="popular-link" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer"><span class="popular-icon" aria-hidden="true">📸</span><span><strong>Instagram</strong><small>पोस्ट और Reels</small></span></a>
+      <a class="popular-link" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer"><span class="popular-icon" aria-hidden="true">▶️</span><span><strong>YouTube</strong><small>वीडियो देखें</small></span></a>
+      <a class="popular-link" href="https://web.whatsapp.com/" target="_blank" rel="noopener noreferrer"><span class="popular-icon" aria-hidden="true">💬</span><span><strong>WhatsApp Web</strong><small>मैसेजिंग</small></span></a>
+      <a class="popular-link" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer"><span class="popular-icon" aria-hidden="true">👥</span><span><strong>Facebook</strong><small>सोशल नेटवर्क</small></span></a>
+      <a class="popular-link" href="https://www.canva.com/" target="_blank" rel="noopener noreferrer"><span class="popular-icon" aria-hidden="true">🎨</span><span><strong>Canva</strong><small>पोस्टर और डिज़ाइन</small></span></a>
+      <a class="popular-link" href="https://drive.google.com/" target="_blank" rel="noopener noreferrer"><span class="popular-icon" aria-hidden="true">📁</span><span><strong>Google Drive</strong><small>फाइलें और दस्तावेज़</small></span></a>
+      <a class="popular-link" href="https://maps.google.com/" target="_blank" rel="noopener noreferrer"><span class="popular-icon" aria-hidden="true">📍</span><span><strong>Google Maps</strong><small>रास्ते और जगहें</small></span></a>
+      <a class="popular-link" href="https://mail.google.com/" target="_blank" rel="noopener noreferrer"><span class="popular-icon" aria-hidden="true">✉️</span><span><strong>Gmail</strong><small>ईमेल सेवा</small></span></a>
+      <a class="popular-link" href="https://www.digilocker.gov.in/" target="_blank" rel="noopener noreferrer"><span class="popular-icon" aria-hidden="true">🪪</span><span><strong>DigiLocker</strong><small>डिजिटल दस्तावेज़</small></span></a>
+      <a class="popular-link" href="https://translate.google.com/" target="_blank" rel="noopener noreferrer"><span class="popular-icon" aria-hidden="true">🌐</span><span><strong>Google Translate</strong><small>भाषा अनुवाद</small></span></a>
+      <a class="popular-link" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer"><span class="popular-icon" aria-hidden="true">🤖</span><span><strong>ChatGPT</strong><small>AI सहायक</small></span></a>
     </div>
   </section>
 
@@ -457,7 +491,6 @@ function renderSearchVideos(container, results) {
   container.appendChild(grid);
 }
 
-// Click handling for All, Images, Videos and News
 $("searchTabs").addEventListener("click", async event => {
   const button = event.target.closest(".search-tab");
   if (!button) return;
@@ -467,7 +500,6 @@ $("searchTabs").addEventListener("click", async event => {
 
   setActiveTab(tab);
 
-  // Fetch category data only when that tab is selected.
   if (tab !== "all" && !searchCache[tab + "_loaded"]) {
     await loadCategory(tab, currentQuery);
   }
@@ -489,7 +521,6 @@ async function loadCategory(tab, query) {
   } else if (tab === "news") {
     endpoint = "/api/news?q=" + encodeURIComponent(query);
   } else if (tab === "videos") {
-    // This endpoint must be implemented by the backend to return real results.
     endpoint = "/api/videos?q=" + encodeURIComponent(query);
   }
 
@@ -603,12 +634,8 @@ $("searchForm").addEventListener("submit", async event => {
     $("searchButton").disabled = false;
   }
 });
-</script>
 
-<script>
 // वीडियो टैब के लिए वैकल्पिक बाहरी सर्च लिंक
-// जब तक app.py में /api/videos API नहीं बनती, ये लिंक उपयोगी रहेंगे।
-
 function showVideoSearchLinks(query) {
   const container = $("searchCategoryContent");
   container.replaceChildren();
