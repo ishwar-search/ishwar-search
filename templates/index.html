@@ -5,727 +5,183 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#020817">
-<meta name="description" content="Ishwar Search — वेबसाइट, सरकारी सेवाएँ, समाचार और ऑनलाइन टूल्स खोजें।">
+<meta name="description" content="Ishwar Search — वेबसाइट, समाचार, इमेज और ऑनलाइन सेवाएँ खोजें।">
 <title>Ishwar Search</title>
 
 <style>
 :root {
-  --cyan: #00d9ff;
-  --blue: #0878ff;
-  --text: #edf6ff;
-  --muted: #a8c3e4;
-  --panel: #06152a;
-  --border: #075a9d;
-  --background: #020817;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-[hidden] {
-  display: none !important;
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  color: var(--text);
-  font-family: Inter, "Segoe UI", Arial, sans-serif;
-  background:
-    radial-gradient(ellipse at 55% 35%, #063778 0, transparent 45%),
-    linear-gradient(135deg, #020817, #03152c 55%, #010611);
-}
-
-a {
-  color: inherit;
-}
-
-button,
-input {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-.topbar {
-  min-height: 82px;
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  padding: 12px 28px;
-  border-bottom: 1px solid var(--cyan);
-  box-shadow: 0 4px 22px #007bff30;
-  background: #020b1bf2;
-  position: sticky;
-  top: 0;
-  z-index: 20;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  min-width: 250px;
-  text-decoration: none;
-}
-
-.logo {
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  object-fit: contain;
-  background: #fff;
-  padding: 4px;
-  box-shadow: 0 0 18px #078bff70;
-}
-
-.brand-title {
-  font-size: 27px;
-  font-weight: 800;
-  letter-spacing: -.8px;
-}
-
-.brand-title span,
-h1 span,
-.footer-brand strong span {
-  color: var(--blue);
-}
-
-.tagline {
-  font-size: 13px;
-  color: #d2e5ff;
-  margin-top: 3px;
-}
-
-.nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  flex: 1;
-}
-
-.nav a {
-  padding: 12px 10px;
-  text-decoration: none;
-  color: #d4e8ff;
-  white-space: nowrap;
-  border-bottom: 2px solid transparent;
-}
-
-.nav a:hover,
-.nav a.active {
-  color: var(--cyan);
-  border-color: var(--cyan);
-}
-
-.top-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.round-btn {
-  border: 1px solid #124e8e;
-  border-radius: 50%;
-  width: 42px;
-  height: 42px;
-  background: #061a35;
-  color: #d8edff;
-  font-size: 19px;
-}
-
-.layout {
-  display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  min-height: calc(100vh - 82px);
-}
-
-.sidebar {
-  border-right: 1px solid #07508b;
-  background: #020c1ce8;
-  padding: 28px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.sidebar a {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 15px 14px;
-  border-radius: 10px;
-  text-decoration: none;
-  color: #d7eaff;
-  font-size: 16px;
-  border: 1px solid transparent;
-}
-
-.sidebar a:hover,
-.sidebar a.active {
-  background: linear-gradient(100deg, #064db5, #031c42);
-  border-color: var(--blue);
-  box-shadow: 0 0 18px #008bff42;
-  color: var(--cyan);
-}
-
-.side-icon {
-  font-size: 22px;
-  width: 24px;
-  text-align: center;
-}
-
-main {
-  min-width: 0;
-}
-
-.hero {
-  min-height: calc(100vh - 190px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  position: relative;
-  padding: 45px 30px;
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse at center 42%, #073e82aa, transparent 48%),
-    repeating-linear-gradient(
-      120deg,
-      transparent 0 80px,
-      #087dff08 81px 82px
-    );
-}
-
-.hero::before {
-  content: "";
-  position: absolute;
-  width: min(47vw, 490px);
-  aspect-ratio: 1;
-  border: 1px solid #00aaff9c;
-  border-radius: 50%;
-  box-shadow: 0 0 30px #0077ff50, inset 0 0 45px #0077ff35;
-  background:
-    repeating-radial-gradient(
-      circle,
-      transparent 0 30px,
-      #078bff22 31px 32px
-    ),
-    radial-gradient(circle, #053c7a55, transparent 68%);
-  animation: pulse 5s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes pulse {
-  50% {
-    transform: scale(1.035);
-    box-shadow: 0 0 50px #0077ff75, inset 0 0 55px #0077ff55;
-  }
-}
-
-.hero-content {
-  position: relative;
-  z-index: 1;
-  width: min(850px, 100%);
-}
-
-.hero-logo {
-  width: 82px;
-  height: 82px;
-  object-fit: contain;
-  background: #fff;
-  border-radius: 50%;
-  padding: 5px;
-  box-shadow: 0 0 30px #087dffad;
-  margin-bottom: 12px;
-}
-
-h1 {
-  font-size: clamp(36px, 5vw, 58px);
-  margin: 0;
-  font-weight: 850;
-  letter-spacing: -1.8px;
-  text-shadow: 0 0 25px #067dff4a;
-}
-
-.hero-subtitle {
-  font-size: clamp(16px, 2vw, 22px);
-  margin: 7px 0 30px;
-  color: #d9eaff;
-}
-
-.search-form {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #020d20;
-  border: 2px solid var(--blue);
-  border-radius: 60px;
-  padding: 9px 10px 9px 24px;
-  box-shadow: 0 0 12px #00aaff, 0 0 36px #0077ff65;
-}
-
-.search-symbol {
-  font-size: 29px;
-}
-
-.search-form input {
-  flex: 1;
-  min-width: 0;
-  background: transparent;
-  border: 0;
-  outline: 0;
-  color: white;
-  font-size: 18px;
-  padding: 12px;
-}
-
-.search-form input::placeholder {
-  color: #b8d2f1;
-}
-
-.search-form button {
-  border: 0;
-  border-radius: 50%;
-  width: 54px;
-  height: 54px;
-  background: var(--blue);
-  color: white;
-  font-size: 30px;
-  box-shadow: 0 0 20px #007bff8a;
-}
-
-.system-console {
-  position: absolute;
-  right: 24px;
-  top: 35px;
-  text-align: left;
-  width: 260px;
-  padding: 18px;
-  border: 1px solid var(--blue);
-  border-radius: 12px;
-  background: #020b1bed;
-  box-shadow: 0 0 24px #006dff30;
-  font: 14px/1.9 Consolas, monospace;
-  color: #00ff8c;
-}
-
-.console-top {
-  color: #c34cff;
-  border-bottom: 1px solid #12385b;
-  padding-bottom: 5px;
-  margin-bottom: 10px;
-}
-
-.results {
-  display: none;
-  padding: 24px;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.results.show {
-  display: block;
-}
-
-.results h2,
-.tool-panel h2 {
-  color: var(--cyan);
-}
-
-.result-list {
-  display: grid;
-  gap: 10px;
-}
-
-.result-card {
-  display: block;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--panel);
-  text-decoration: none;
-  overflow-wrap: anywhere;
-}
-
-.result-card:hover {
-  border-color: var(--cyan);
-  background: #082448;
-}
-
-.result-card small {
-  display: block;
-  color: var(--muted);
-  margin-top: 6px;
-}
-
-.empty,
-.panel-status {
-  color: #b9d4f4;
-  padding: 15px 0;
-}
-
-.tool-panel {
-  max-width: 1200px;
-  margin: 25px auto;
-  padding: 24px;
-  color: var(--text);
-}
-
-.tool-panel p {
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.panel-search {
-  width: 100%;
-  min-width: 0;
-  padding: 13px 15px;
-  margin: 12px 0 18px;
-  border: 1px solid var(--blue);
-  border-radius: 10px;
-  background: #020d20;
-  color: white;
-  font-size: 16px;
-}
-
-.panel-form {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.panel-form .panel-search {
-  flex: 1;
-}
-
-.panel-form button,
-.action-button {
-  padding: 13px 17px;
-  border: 0;
-  border-radius: 10px;
-  background: var(--blue);
-  color: white;
-  font-weight: 700;
-}
-
-.directory-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 13px;
-}
-
-.directory-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  padding: 16px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  text-decoration: none;
-  overflow-wrap: anywhere;
-  transition: transform .18s ease, border-color .18s ease;
-}
-
-.directory-card:hover {
-  border-color: var(--cyan);
-  transform: translateY(-2px);
-  box-shadow: 0 0 15px #007bff40;
-}
-
-.site-logo {
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-  border-radius: 10px;
-  object-fit: contain;
-  background: white;
-  padding: 3px;
-}
-
-.card-copy {
-  min-width: 0;
-}
-
-.card-copy strong {
-  display: block;
-}
-
-.card-copy small {
-  display: block;
-  color: var(--muted);
-  margin-top: 6px;
-  line-height: 1.4;
-}
-
-.category-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 15px 0;
-}
-
-.category-button {
-  border: 1px solid #075a9d;
-  background: #06152a;
-  color: var(--text);
-  border-radius: 20px;
-  padding: 9px 13px;
-}
-
-.category-button:hover,
-.category-button.active {
-  background: #064db5;
-  border-color: var(--cyan);
-}
-
-footer {
-  min-height: 110px;
-  border-top: 1px solid var(--blue);
-  box-shadow: 0 -5px 22px #007bff20;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  align-items: center;
-  gap: 15px;
-  padding: 20px 35px;
-  background: #020b1bf5;
-}
-
-.footer-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.footer-brand .logo {
-  width: 55px;
-  height: 55px;
-}
-
-.footer-brand strong {
-  font-size: 21px;
-}
-
-.footer-brand small {
-  display: block;
-  color: #b7d3f3;
-  margin-top: 4px;
-}
-
-.founder {
-  text-align: center;
-  line-height: 1.7;
-}
-
-.founder span {
-  color: var(--cyan);
-  display: block;
-}
-
-.footer-right {
-  text-align: right;
-  color: #00bfff;
-  font-size: 14px;
-}
-
-.copyright {
-  color: #b7cce4;
-  font-size: 12px;
-  margin-top: 12px;
-}
-
-body.light-mode {
-  background: #eef5ff;
-  color: #10213a;
-}
-
-body.light-mode .tool-panel,
-body.light-mode .results {
-  color: #10213a;
-}
-
-body.light-mode .directory-card,
-body.light-mode .result-card {
-  background: #fff;
-  color: #10213a;
-}
-
-@media (max-width: 1100px) {
-  .brand {
-    min-width: auto;
-  }
-
-  .nav {
-    gap: 0;
-  }
-
-  .nav a {
-    padding: 10px 7px;
-  }
-
-  .system-console {
-    width: 220px;
-    right: 16px;
-  }
-
-  .layout {
-    grid-template-columns: 180px minmax(0, 1fr);
-  }
-
-  .directory-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 800px) {
-  .topbar {
-    height: auto;
-    padding: 10px 14px;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .brand-title {
-    font-size: 22px;
-  }
-
-  .logo {
-    width: 48px;
-    height: 48px;
-  }
-
-  .tagline {
-    font-size: 11px;
-  }
-
-  .nav {
-    order: 3;
-    flex-basis: 100%;
-    overflow-x: auto;
-    justify-content: flex-start;
-  }
-
-  .nav a {
-    font-size: 13px;
-    padding: 8px;
-  }
-
-  .top-actions {
-    margin-left: auto;
-  }
-
-  .layout {
-    display: block;
-  }
-
-  .sidebar {
-    display: none;
-  }
-
-  .hero {
-    min-height: calc(100vh - 180px);
-    padding: 120px 18px 55px;
-  }
-
-  .hero::before {
-    width: 75vw;
-  }
-
-  .system-console {
-    top: 12px;
-    right: 12px;
-    width: auto;
-    font-size: 10px;
-    line-height: 1.5;
-    padding: 8px 12px;
-  }
-
-  .console-top {
-    margin-bottom: 4px;
-  }
-
-  .hero-logo {
-    width: 64px;
-    height: 64px;
-  }
-
-  footer {
-    grid-template-columns: 1fr;
-    text-align: center;
-    padding: 22px 16px;
-  }
-
-  .footer-brand {
-    justify-content: center;
-  }
-
-  .footer-right,
-  .founder {
-    text-align: center;
-  }
-
-  .panel-form {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .panel-form button {
-    width: 100%;
-  }
-}
-
-@media (max-width: 420px) {
-  .brand-title {
-    font-size: 19px;
-  }
-
-  .brand {
-    gap: 8px;
-  }
-
-  .search-form {
-    padding: 6px 7px 6px 14px;
-    gap: 5px;
-  }
-
-  .search-form input {
-    font-size: 15px;
-    padding: 8px;
-  }
-
-  .search-form button {
-    width: 44px;
-    height: 44px;
-    font-size: 24px;
-  }
-
-  .search-symbol {
-    font-size: 23px;
-  }
-
-  .directory-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .tool-panel {
-    padding: 16px;
-  }
+  --cyan:#00d9ff;
+  --blue:#0878ff;
+  --text:#edf6ff;
+  --muted:#a8c3e4;
+  --panel:#06152a;
+  --border:#075a9d;
+  --bg:#020817;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:Inter,"Segoe UI",Arial,sans-serif;
+  background:radial-gradient(ellipse at 55% 35%,#063778,transparent 45%),
+  linear-gradient(135deg,#020817,#03152c 55%,#010611)
+}
+button,input{font:inherit}
+button{cursor:pointer}
+a{color:inherit}
+.topbar{
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  padding:12px 22px;border-bottom:1px solid var(--cyan);
+  background:#020b1bf5;position:sticky;top:0;z-index:20
+}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo{
+  width:52px;height:52px;object-fit:contain;border-radius:50%;
+  background:white;padding:3px;box-shadow:0 0 18px #078bff70
+}
+.brand-title{font-size:25px;font-weight:800}
+.brand-title span,h1 span,.footer-brand strong span{color:var(--cyan)}
+.tagline{font-size:12px;color:#d2e5ff;margin-top:3px}
+.nav{display:flex;gap:5px;flex:1;overflow-x:auto}
+.nav a{
+  padding:11px 9px;text-decoration:none;white-space:nowrap;
+  border-bottom:2px solid transparent;color:#d4e8ff
+}
+.nav a:hover,.nav a.active{color:var(--cyan);border-color:var(--cyan)}
+.top-actions{display:flex;gap:8px}
+.round-btn{
+  border:1px solid #124e8e;border-radius:50%;width:42px;height:42px;
+  background:#061a35;color:white;font-size:19px
+}
+.layout{display:grid;grid-template-columns:200px minmax(0,1fr);min-height:75vh}
+.sidebar{
+  border-right:1px solid #07508b;background:#020c1ce8;padding:22px 12px;
+  display:flex;flex-direction:column;gap:8px
+}
+.sidebar a{
+  padding:13px;border-radius:9px;text-decoration:none;color:#d7eaff;
+  border:1px solid transparent
+}
+.sidebar a:hover,.sidebar a.active{background:#063b80;border-color:var(--blue);color:var(--cyan)}
+main{min-width:0}
+.hero{
+  min-height:570px;display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:55px 22px;position:relative;overflow:hidden;
+  background:radial-gradient(ellipse at center 42%,#073e82aa,transparent 48%)
+}
+.hero:before{
+  content:"";position:absolute;width:min(45vw,460px);aspect-ratio:1;
+  border:1px solid #00aaff9c;border-radius:50%;
+  box-shadow:0 0 30px #0077ff50,inset 0 0 45px #0077ff35;
+  pointer-events:none
+}
+.hero-content{position:relative;width:min(800px,100%)}
+.hero-logo{
+  width:78px;height:78px;object-fit:contain;background:white;
+  border-radius:50%;padding:4px;box-shadow:0 0 28px #087dffad
+}
+h1{font-size:clamp(36px,5vw,58px);margin:12px 0 0;letter-spacing:-1px}
+.hero-subtitle{font-size:clamp(16px,2vw,22px);color:#d9eaff;margin:8px 0 28px}
+.search-form{
+  display:flex;align-items:center;gap:8px;background:#020d20;
+  border:2px solid var(--blue);border-radius:60px;padding:8px 9px 8px 20px;
+  box-shadow:0 0 12px #00aaff,0 0 36px #0077ff65
+}
+.search-form input{
+  flex:1;min-width:0;background:transparent;border:0;outline:0;
+  color:white;font-size:17px;padding:12px
+}
+.search-form input::placeholder{color:#b8d2f1}
+.search-form button{
+  border:0;border-radius:50%;width:48px;height:48px;background:var(--blue);
+  color:white;font-size:25px
+}
+.status-line{color:#00ff9c;font-size:13px;margin:17px 0}
+.quick-links{display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
+.quick-links button,.category-button{
+  border:1px solid #075a9d;background:#06152a;color:var(--text);
+  border-radius:20px;padding:9px 12px
+}
+.quick-links button:hover,.category-button:hover,.category-button.active{
+  background:#064db5;border-color:var(--cyan)
+}
+.results,.tool-panel{max-width:1200px;margin:20px auto;padding:22px}
+.results h2,.tool-panel h2{color:var(--cyan)}
+.result-list,.directory-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px
+}
+.result-card,.directory-card{
+  display:flex;align-items:center;gap:12px;min-width:0;padding:15px;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:11px;text-decoration:none;overflow-wrap:anywhere
+}
+.result-card:hover,.directory-card:hover{border-color:var(--cyan);background:#082448}
+.site-logo{width:38px;height:38px;flex:0 0 38px;object-fit:contain;background:white;border-radius:8px;padding:3px}
+.card-copy{min-width:0}
+.card-copy strong{display:block}
+.card-copy small{display:block;color:var(--muted);margin-top:5px;line-height:1.4}
+.panel-search{
+  width:100%;padding:13px 15px;margin:12px 0 16px;
+  border:1px solid var(--blue);border-radius:9px;background:#020d20;color:white
+}
+.category-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px}
+.panel-form{display:flex;gap:10px;align-items:center}
+.panel-form .panel-search{flex:1}
+.panel-form button,.action-button{
+  padding:13px 16px;border:0;border-radius:9px;background:var(--blue);
+  color:white;font-weight:700
+}
+.panel-status,.empty{padding:12px 0;color:var(--muted)}
+.news-item{display:block}
+.news-meta{font-size:12px;color:var(--muted);margin-top:8px}
+.notification-box{
+  border:1px solid var(--border);border-radius:12px;background:var(--panel);
+  padding:16px;margin:16px 0
+}
+.notification-box p{color:var(--muted);line-height:1.6}
+footer{
+  border-top:1px solid var(--blue);display:grid;
+  grid-template-columns:1fr 1fr 1fr;align-items:center;gap:15px;
+  padding:22px;background:#020b1bf5
+}
+.footer-brand{display:flex;align-items:center;gap:10px}
+.footer-brand strong{font-size:20px}
+.footer-brand small{display:block;color:var(--muted);margin-top:4px}
+.founder{text-align:center;line-height:1.7}
+.founder span{display:block;color:var(--cyan)}
+.footer-right{text-align:right;color:#00bfff;font-size:13px}
+.copyright{color:#b7cce4;font-size:12px;margin-top:10px}
+body.light-mode{background:#eef5ff;color:#10213a}
+body.light-mode .tool-panel,body.light-mode .results{color:#10213a}
+body.light-mode .directory-card,body.light-mode .result-card,
+body.light-mode .notification-box{background:white;color:#10213a}
+@media(max-width:1050px){
+  .layout{grid-template-columns:160px minmax(0,1fr)}
+  .result-list,.directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .topbar{padding:10px 12px;gap:10px}
+  .brand-title{font-size:21px}
+  .logo{width:44px;height:44px}
+  .nav{order:3;flex-basis:100%}
+  .nav a{font-size:13px;padding:8px}
+  .layout{display:block}
+  .sidebar{display:none}
+  .hero{min-height:510px;padding:40px 15px}
+  .hero:before{width:80vw}
+  .result-list,.directory-grid{grid-template-columns:1fr}
+  .panel-form{flex-direction:column;align-items:stretch}
+  .panel-form button{width:100%}
+  footer{grid-template-columns:1fr;text-align:center}
+  .footer-brand{justify-content:center}
+  .founder,.footer-right{text-align:center}
 }
 </style>
 </head>
-<body>
 
+<body>
 <header class="topbar">
-  <a class="brand" href="/" data-view="home" aria-label="Ishwar Search Home">
+  <a class="brand" href="#home" data-view="home">
     <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Ishwar Search logo">
     <div>
       <div class="brand-title">Ishwar <span>Search</span></div>
@@ -733,618 +189,378 @@ body.light-mode .result-card {
     </div>
   </a>
 
-  <nav class="nav" aria-label="Main navigation">
-    <a href="#home" class="active" data-view="home">⌂ Home</a>
+  <nav class="nav" aria-label="मुख्य मेनू">
+    <a href="#home" data-view="home" class="active">⌂ Home</a>
     <a href="#websites" data-view="websites">🌐 Websites</a>
     <a href="#tools" data-view="tools">🔧 Tools</a>
     <a href="#images" data-view="images">🖼️ Images</a>
     <a href="#news" data-view="news">📰 News</a>
+    <a href="#notifications" data-view="notifications">🔔 Notifications</a>
   </nav>
 
   <div class="top-actions">
-    <button class="round-btn" id="themeButton" type="button" aria-label="Toggle theme">☾</button>
+    <button class="round-btn" id="themeButton" type="button" aria-label="थीम बदलें">☾</button>
+    <button class="round-btn" id="notificationButton" type="button" aria-label="नोटिफिकेशन चालू करें" title="न्यूज़ नोटिफिकेशन">🔔</button>
   </div>
 </header>
 
 <div class="layout">
-  <aside class="sidebar" aria-label="Sidebar navigation">
-    <a href="#home" class="active" data-view="home">
-      <span class="side-icon">⌂</span> Home
-    </a>
-    <a href="#websites" data-view="websites">
-      <span class="side-icon">🌐</span> Websites
-    </a>
-    <a href="#tools" data-view="tools">
-      <span class="side-icon">🔧</span> Tools
-    </a>
-    <a href="#images" data-view="images">
-      <span class="side-icon">🖼️</span> Images
-    </a>
-    <a href="#news" data-view="news">
-      <span class="side-icon">📰</span> News
-    </a>
-  </aside>
+<aside class="sidebar">
+  <a href="#home" data-view="home" class="active">⌂ Home</a>
+  <a href="#websites" data-view="websites">🌐 Websites</a>
+  <a href="#tools" data-view="tools">🔧 Tools</a>
+  <a href="#images" data-view="images">🖼️ Images</a>
+  <a href="#news" data-view="news">📰 News</a>
+  <a href="#notifications" data-view="notifications">🔔 Notifications</a>
+</aside>
 
-  <main id="mainContent">
+<main>
+  <section class="hero" id="homePanel">
+    <div class="hero-content">
+      <img class="hero-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Ishwar Search logo">
+      <h1>Ishwar <span>Search</span></h1>
+      <p class="hero-subtitle">Search Smarter, Live Better</p>
 
-    <!-- HOME / MAIN SEARCH -->
-    <section class="hero" id="homePanel" aria-label="Ishwar Search">
-      <div class="system-console" aria-live="polite">
-        <div class="console-top">● ● ● ●</div>
-        <div>&gt; System Online...</div>
-        <div>&gt; Searching Faster...</div>
-        <div>&gt; Connecting to World...</div>
-        <div>&gt; Ishwar Search Ready...</div>
-      </div>
-
-      <div class="hero-content">
-        <img class="hero-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Ishwar Search logo">
-        <h1>Ishwar <span>Search</span></h1>
-        <p class="hero-subtitle">Search Smarter, Live Better</p>
-
-        <form class="search-form" id="searchForm">
-          <span class="search-symbol" aria-hidden="true">⌕</span>
-          <input
-            id="searchInput"
-            name="q"
-            type="search"
-            maxlength="250"
-            placeholder="वेबसाइट, PAN Card, Railway या कुछ भी खोजें..."
-            autocomplete="off"
-            aria-label="Search anything"
-            required
-          >
-          <button type="submit" aria-label="Search">➜</button>
-        </form>
-      </div>
-    </section>
-
-    <!-- MAIN SEARCH RESULTS -->
-    <section class="results" id="searchResults" aria-live="polite" hidden>
-      <h2 id="resultsHeading">Search Results</h2>
-      <div id="resultsStatus" class="empty">अपना सवाल या शब्द लिखकर खोजें।</div>
-      <div id="resultsList" class="directory-grid"></div>
-    </section>
-
-    <!-- WEBSITES DIRECTORY -->
-    <section class="tool-panel" id="websitesPanel" hidden>
-      <h2>🌐 Websites Directory</h2>
-      <p>वेबसाइट का नाम खोजें या किसी category से सीधे वेबसाइट खोलें।</p>
-
-      <input
-        class="panel-search"
-        id="websiteFilter"
-        type="search"
-        placeholder="Instagram, PAN Card, Aadhaar, Railway..."
-        autocomplete="off"
-        aria-label="Search websites"
-      >
-
-      <div class="category-row" id="websiteCategories">
-        <button type="button" class="category-button active" data-category="all">सभी</button>
-        <button type="button" class="category-button" data-category="social">Social Media</button>
-        <button type="button" class="category-button" data-category="government">सरकारी सेवाएँ</button>
-        <button type="button" class="category-button" data-category="jobs">नौकरी और भर्ती</button>
-        <button type="button" class="category-button" data-category="education">Education</button>
-        <button type="button" class="category-button" data-category="finance">Banking और Finance</button>
-        <button type="button" class="category-button" data-category="shopping">Shopping</button>
-        <button type="button" class="category-button" data-category="news">News</button>
-        <button type="button" class="category-button" data-category="technology">Technology</button>
-        <button type="button" class="category-button" data-category="travel">Travel</button>
-        <button type="button" class="category-button" data-category="health">Health</button>
-      </div>
-
-      <div class="panel-status" id="websiteStatus" aria-live="polite">
-        वेबसाइटों की सूची लोड हो रही है...
-      </div>
-      <div class="directory-grid" id="websiteList"></div>
-    </section>
-
-    <!-- ONLINE TOOLS -->
-    <section class="tool-panel" id="toolsPanel" hidden>
-      <h2>🔧 Online Tools</h2>
-      <p>फोटो एडिटिंग, डिजाइन, पढ़ाई और तकनीक के उपयोगी टूल खोजें।</p>
-
-      <input
-        class="panel-search"
-        id="toolFilter"
-        type="search"
-        placeholder="टूल का नाम खोजें..."
-        autocomplete="off"
-        aria-label="Search online tools"
-      >
-
-      <div class="directory-grid" id="toolList"></div>
-    </section>
-
-    <!-- IMAGE SEARCH -->
-    <section class="tool-panel" id="imagesPanel" hidden>
-      <h2>🖼️ Image Search</h2>
-      <p>अपनी पसंद की तस्वीरें खोजें। परिणाम इस पेज पर दिखाने के लिए backend image API जुड़ा होना चाहिए।</p>
-
-      <form id="imageSearchForm" class="panel-form">
-        <input
-          id="imageQuery"
-          class="panel-search"
-          type="search"
-          maxlength="150"
-          placeholder="Nature, car, village, animals..."
-          aria-label="Search images"
-          required
-        >
-        <button type="submit">फोटो खोजें</button>
+      <form class="search-form" id="searchForm">
+        <span class="search-symbol" aria-hidden="true">⌕</span>
+        <input id="searchInput" name="q" type="search" maxlength="250"
+          placeholder="वेबसाइट, PAN Card, Railway या कुछ भी खोजें..."
+          autocomplete="off" aria-label="कुछ खोजें" required>
+        <button type="submit" aria-label="खोजें">➜</button>
       </form>
 
-      <div class="category-row" id="imageCategories">
-        <button type="button" class="category-button" data-image-query="Nature">Nature</button>
-        <button type="button" class="category-button" data-image-query="Animals">Animals</button>
-        <button type="button" class="category-button" data-image-query="Birds">Birds</button>
-        <button type="button" class="category-button" data-image-query="Village India">Village</button>
-        <button type="button" class="category-button" data-image-query="City">City</button>
-        <button type="button" class="category-button" data-image-query="Cars">Cars</button>
-        <button type="button" class="category-button" data-image-query="Bikes">Bikes</button>
-        <button type="button" class="category-button" data-image-query="Technology">Technology</button>
-        <button type="button" class="category-button" data-image-query="Festivals India">Festivals</button>
-        <button type="button" class="category-button" data-image-query="Sports">Sports</button>
+      <div class="status-line" id="systemStatus" aria-live="polite">● Ishwar Search Ready</div>
+      <div class="quick-links">
+        <button type="button" data-quick-search="Railway recruitment">Railway Jobs</button>
+        <button type="button" data-quick-search="Aadhaar">Aadhaar</button>
+        <button type="button" data-quick-search="Scholarship">Scholarship</button>
+        <button type="button" data-quick-search="Rajasthan jobs">Rajasthan Jobs</button>
       </div>
+    </div>
+  </section>
 
-      <div class="panel-status" id="imageStatus" aria-live="polite">
-        तस्वीरें खोजने के लिए ऊपर शब्द लिखें।
-      </div>
+  <section class="results" id="searchResults" hidden>
+    <h2 id="resultsHeading">Search Results</h2>
+    <div id="resultsStatus" class="empty" aria-live="polite">खोजने के लिए शब्द लिखें।</div>
+    <div id="resultsList" class="result-list"></div>
+  </section>
 
-      <div class="directory-grid" id="imageResults"></div>
-    </section>
+  <section class="tool-panel" id="websitesPanel" hidden>
+    <h2>🌐 Websites Directory</h2>
+    <p>किसी वेबसाइट को खोजें या category चुनें।</p>
+    <input class="panel-search" id="websiteFilter" type="search" placeholder="Instagram, PAN Card, Aadhaar, Railway...">
+    <div class="category-row" id="websiteCategories">
+      <button class="category-button active" data-category="all">सभी</button>
+      <button class="category-button" data-category="social">Social Media</button>
+      <button class="category-button" data-category="government">सरकारी सेवाएँ</button>
+      <button class="category-button" data-category="jobs">नौकरी और भर्ती</button>
+      <button class="category-button" data-category="education">Education</button>
+      <button class="category-button" data-category="finance">Finance</button>
+      <button class="category-button" data-category="shopping">Shopping</button>
+      <button class="category-button" data-category="news">News</button>
+      <button class="category-button" data-category="technology">Technology</button>
+      <button class="category-button" data-category="travel">Travel</button>
+      <button class="category-button" data-category="health">Health</button>
+    </div>
+    <div id="websiteStatus" class="panel-status" aria-live="polite">वेबसाइटें लोड हो रही हैं...</div>
+    <div class="directory-grid" id="websiteList"></div>
+  </section>
 
-    <!-- NEWS -->
-    <section class="tool-panel" id="newsPanel" hidden>
-      <h2>📰 Latest News</h2>
-      <p>उपलब्ध RSS स्रोतों से समाचार प्राप्त होंगे।</p>
+  <section class="tool-panel" id="toolsPanel" hidden>
+    <h2>🔧 Online Tools</h2>
+    <p>फोटो एडिटिंग, डिजाइन, पढ़ाई और कोडिंग के टूल।</p>
+    <input class="panel-search" id="toolFilter" type="search" placeholder="टूल का नाम खोजें...">
+    <div class="directory-grid" id="toolList"></div>
+  </section>
 
-      <button type="button" class="action-button" id="refreshNews">
-        खबरें फिर से लोड करें ↻
-      </button>
+  <section class="tool-panel" id="imagesPanel" hidden>
+    <h2>🖼️ Image Search</h2>
+    <p>तस्वीरों को इसी वेबसाइट पर देखो। फोटो के लाइसेंस और स्रोत की शर्तें जाँचें।</p>
+    <form id="imageSearchForm" class="panel-form">
+      <input id="imageQuery" class="panel-search" type="search" maxlength="150" placeholder="Nature, cars, birds, village..." required>
+      <button type="submit">फोटो खोजें</button>
+    </form>
+    <div class="category-row" id="imageCategories">
+      <button class="category-button" data-image-query="Nature">Nature</button>
+      <button class="category-button" data-image-query="Animals">Animals</button>
+      <button class="category-button" data-image-query="Birds">Birds</button>
+      <button class="category-button" data-image-query="Village India">Village</button>
+      <button class="category-button" data-image-query="Technology">Technology</button>
+      <button class="category-button" data-image-query="Sports">Sports</button>
+    </div>
+    <div id="imageStatus" class="panel-status" aria-live="polite">तस्वीर खोजने के लिए शब्द लिखें।</div>
+    <div class="directory-grid" id="imageResults"></div>
+  </section>
 
-      <div class="panel-status" id="newsStatus" aria-live="polite">
-        खबरें लोड करने के लिए News खोलें।
-      </div>
+  <section class="tool-panel" id="newsPanel" hidden>
+    <h2>📰 Latest News</h2>
+    <p>उपलब्ध RSS स्रोतों से समाचार। खबर की तारीख और स्रोत जाँचकर पढ़ें।</p>
+    <button class="action-button" id="refreshNews" type="button">खबरें फिर से लोड करें ↻</button>
+    <div id="newsStatus" class="panel-status" aria-live="polite">खबरें लोड करने के लिए News खोलें।</div>
+    <div class="directory-grid" id="newsList"></div>
+  </section>
 
-      <div class="directory-grid" id="newsList"></div>
-    </section>
-
-  </main>
+  <section class="tool-panel" id="notificationsPanel" hidden>
+    <h2>🔔 Ishwar Search News Notifications</h2>
+    <div class="notification-box">
+      <strong>ब्राउज़र नोटिफिकेशन</strong>
+      <p>अनुमति देने पर यह वेबसाइट ब्राउज़र नोटिफिकेशन दिखा सकती है। फोन पर नोटिफिकेशन की उपलब्धता ब्राउज़र और साइट की HTTPS सेटिंग पर निर्भर करती है।</p>
+      <button class="action-button" id="enableNotifications" type="button">नोटिफिकेशन चालू करें</button>
+      <p id="notificationStatus" aria-live="polite">नोटिफिकेशन अभी चालू नहीं किए गए हैं।</p>
+    </div>
+    <div class="notification-box">
+      <strong>न्यूज़ अपडेट</strong>
+      <p>वेबसाइट खोलने पर नई खबरें जाँची जाएँगी। बैकग्राउंड में लगातार खबरें भेजने के लिए बाद में HTTPS, service worker और push server जोड़ना होगा।</p>
+      <button class="action-button" id="checkNewsNotification" type="button">नई खबरें जाँचें</button>
+    </div>
+  </section>
+</main>
 </div>
 
-<!-- FOOTER -->
-<footer id="footer">
+<footer>
   <div class="footer-brand">
     <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Ishwar Search logo">
-    <div>
-      <strong>Ishwar <span>Search</span></strong>
-      <small>Search Smarter, Live Better</small>
-    </div>
+    <div><strong>Ishwar <span>Search</span></strong><small>Search Smarter, Live Better</small></div>
   </div>
-
-  <div class="founder">
-    <span>Founder</span>
-    <strong>Ishwar Ghanchi</strong>
-  </div>
-
-  <div class="footer-right">
-    ♢ Fast &nbsp; • &nbsp; Secure &nbsp; • &nbsp; Reliable
-    <div class="copyright">
-      © <span id="year"></span> Ishwar Search. All rights reserved.
-    </div>
-  </div>
+  <div class="founder"><span>Founder</span><strong>Ishwar Ghanchi</strong></div>
+  <div class="footer-right">Fast • Secure • Reliable<div class="copyright">© <span id="year"></span> Ishwar Search</div></div>
 </footer>
 
 <script>
-
 (() => {
   "use strict";
-
   const $ = id => document.getElementById(id);
-
-  const panels = {
-    websites: $("websitesPanel"),
-    tools: $("toolsPanel"),
-    images: $("imagesPanel"),
-    news: $("newsPanel")
-  };
-
-  let activeView = "home";
+  const panelNames = ["websites","tools","images","news","notifications"];
+  const panels = Object.fromEntries(panelNames.map(name => [name,$(name+"Panel")]));
   let allWebsites = [];
   let selectedCategory = "all";
   let newsLoaded = false;
+  let latestNews = [];
+  let notificationPermission = "default";
 
   $("year").textContent = new Date().getFullYear();
 
-  // --------------------------------------------------
-  // WEBSITE DIRECTORY DATA
-  // These cards supplement the entries returned by app.py.
-  // --------------------------------------------------
-
   const builtInWebsites = [
-    {name:"Instagram",url:"https://www.instagram.com/",category:"social",description:"फोटो, Reels और सोशल मीडिया"},
-    {name:"Facebook",url:"https://www.facebook.com/",category:"social",description:"दोस्तों और परिवार से जुड़ें"},
-    {name:"YouTube",url:"https://www.youtube.com/",category:"social",description:"वीडियो और चैनल"},
-    {name:"WhatsApp",url:"https://www.whatsapp.com/",category:"social",description:"मैसेज और कॉल"},
-    {name:"WhatsApp Web",url:"https://web.whatsapp.com/",category:"social",description:"ब्राउज़र में WhatsApp"},
-    {name:"Telegram",url:"https://web.telegram.org/",category:"social",description:"मैसेज और चैनल"},
-    {name:"Threads",url:"https://www.threads.net/",category:"social",description:"सोशल बातचीत"},
-    {name:"LinkedIn",url:"https://www.linkedin.com/",category:"social",description:"प्रोफेशनल नेटवर्क"},
-    {name:"Snapchat",url:"https://www.snapchat.com/",category:"social",description:"फोटो और वीडियो शेयरिंग"},
-    {name:"X",url:"https://x.com/",category:"social",description:"पोस्ट और अपडेट"},
+    ["Instagram","https://www.instagram.com/","social","फोटो और Reels"],
+    ["Facebook","https://www.facebook.com/","social","सोशल मीडिया"],
+    ["YouTube","https://www.youtube.com/","social","वीडियो और चैनल"],
+    ["WhatsApp","https://www.whatsapp.com/","social","मैसेज और कॉल"],
+    ["Telegram","https://web.telegram.org/","social","मैसेज और चैनल"],
+    ["LinkedIn","https://www.linkedin.com/","social","प्रोफेशनल नेटवर्क"],
+    ["PAN Services","https://www.protean-tinpan.com/","government","PAN सेवाएँ"],
+    ["UIDAI Aadhaar","https://uidai.gov.in/","government","आधार की आधिकारिक वेबसाइट"],
+    ["DigiLocker","https://www.digilocker.gov.in/","government","डिजिटल दस्तावेज़"],
+    ["Rajasthan SSO","https://sso.rajasthan.gov.in/","government","राजस्थान ऑनलाइन सेवाएँ"],
+    ["Cyber Crime Portal","https://cybercrime.gov.in/","government","साइबर शिकायत"],
+    ["National Consumer Helpline","https://consumerhelpline.gov.in/","government","उपभोक्ता शिकायत"],
+    ["Indian Railways","https://indianrailways.gov.in/","jobs","रेलवे"],
+    ["IRCTC","https://www.irctc.co.in/","travel","रेल टिकट"],
+    ["RRB","https://www.rrbcdg.gov.in/","jobs","रेलवे भर्ती"],
+    ["SSC","https://ssc.gov.in/","jobs","सरकारी भर्ती"],
+    ["RPSC","https://rpsc.rajasthan.gov.in/","jobs","राजस्थान भर्ती"],
+    ["National Career Service","https://www.ncs.gov.in/","jobs","नौकरी"],
+    ["Scholarship Portal","https://scholarships.gov.in/","education","छात्रवृत्ति"],
+    ["NTA","https://nta.ac.in/","education","परीक्षा"],
+    ["SWAYAM","https://swayam.gov.in/","education","ऑनलाइन पढ़ाई"],
+    ["RBI","https://www.rbi.org.in/","finance","रिजर्व बैंक"],
+    ["SBI","https://sbi.co.in/","finance","बैंकिंग"],
+    ["Amazon India","https://www.amazon.in/","shopping","ऑनलाइन खरीदारी"],
+    ["Flipkart","https://www.flipkart.com/","shopping","ऑनलाइन खरीदारी"],
+    ["Google News","https://news.google.com/","news","समाचार"],
+    ["PIB India","https://pib.gov.in/","news","सरकारी प्रेस रिलीज़"],
+    ["GitHub","https://github.com/","technology","कोड और प्रोजेक्ट"],
+    ["Python","https://www.python.org/","technology","Python programming"],
+    ["MDN Web Docs","https://developer.mozilla.org/","technology","वेब डेवलपमेंट"],
+    ["Photopea","https://www.photopea.com/","technology","फोटो एडिटिंग"],
+    ["Canva","https://www.canva.com/","technology","पोस्टर डिजाइन"],
+    ["Pexels","https://www.pexels.com/","technology","फोटो और वीडियो"],
+    ["Google Maps","https://maps.google.com/","travel","मैप और रास्ते"],
+    ["RSRTC","https://rsrtconline.rajasthan.gov.in/","travel","राजस्थान रोडवेज"],
+    ["Ayushman Bharat","https://pmjay.gov.in/","health","स्वास्थ्य योजना"],
+    ["ABHA","https://abha.abdm.gov.in/","health","स्वास्थ्य खाता"]
+  ].map(([name,url,category,description]) => ({name,url,category,description}));
 
-    {name:"PAN Services - Protean",url:"https://www.protean-tinpan.com/",category:"government",description:"PAN कार्ड सेवाएँ"},
-    {name:"Income Tax India",url:"https://www.incometax.gov.in/",category:"finance",description:"आयकर और ITR सेवाएँ"},
-    {name:"UTIITSL PAN",url:"https://www.pan.utiitsl.com/",category:"government",description:"PAN से संबंधित सेवाएँ"},
-    {name:"UIDAI Aadhaar",url:"https://uidai.gov.in/",category:"government",description:"आधार की आधिकारिक वेबसाइट"},
-    {name:"DigiLocker",url:"https://www.digilocker.gov.in/",category:"government",description:"डिजिटल दस्तावेज़"},
-    {name:"National Portal of India",url:"https://www.india.gov.in/",category:"government",description:"भारत सरकार की सेवाएँ"},
-    {name:"Rajasthan SSO",url:"https://sso.rajasthan.gov.in/",category:"government",description:"राजस्थान की ऑनलाइन सेवाएँ"},
-    {name:"Rajasthan Government",url:"https://rajasthan.gov.in/",category:"government",description:"राजस्थान सरकार"},
-    {name:"National Consumer Helpline",url:"https://consumerhelpline.gov.in/",category:"government",description:"उपभोक्ता शिकायत"},
-    {name:"Cyber Crime Portal",url:"https://cybercrime.gov.in/",category:"government",description:"साइबर अपराध की शिकायत"},
-
-    {name:"Indian Railways",url:"https://indianrailways.gov.in/",category:"jobs",description:"भारतीय रेलवे"},
-    {name:"IRCTC",url:"https://www.irctc.co.in/",category:"travel",description:"रेल टिकट और यात्रा"},
-    {name:"Railway Recruitment Board",url:"https://www.rrbcdg.gov.in/",category:"jobs",description:"रेलवे भर्ती जानकारी"},
-    {name:"SSC",url:"https://ssc.gov.in/",category:"jobs",description:"Staff Selection Commission"},
-    {name:"UPSC",url:"https://upsc.gov.in/",category:"jobs",description:"संघ लोक सेवा आयोग"},
-    {name:"RPSC",url:"https://rpsc.rajasthan.gov.in/",category:"jobs",description:"राजस्थान भर्ती और परीक्षाएँ"},
-    {name:"National Career Service",url:"https://www.ncs.gov.in/",category:"jobs",description:"रोजगार और नौकरी सेवाएँ"},
-    {name:"Employment News",url:"https://www.employmentnews.gov.in/",category:"jobs",description:"रोजगार समाचार"},
-
-    {name:"National Scholarship Portal",url:"https://scholarships.gov.in/",category:"education",description:"छात्रवृत्ति पोर्टल"},
-    {name:"National Testing Agency",url:"https://nta.ac.in/",category:"education",description:"परीक्षा और प्रवेश"},
-    {name:"SWAYAM",url:"https://swayam.gov.in/",category:"education",description:"ऑनलाइन पढ़ाई"},
-    {name:"University of Rajasthan",url:"https://www.uniraj.ac.in/",category:"education",description:"राजस्थान विश्वविद्यालय"},
-    {name:"MDS University Ajmer",url:"https://www.mdsuajmer.ac.in/",category:"education",description:"महर्षि दयानंद सरस्वती विश्वविद्यालय"},
-
-    {name:"Reserve Bank of India",url:"https://www.rbi.org.in/",category:"finance",description:"भारतीय रिजर्व बैंक"},
-    {name:"State Bank of India",url:"https://sbi.co.in/",category:"finance",description:"SBI बैंक"},
-    {name:"HDFC Bank",url:"https://www.hdfcbank.com/",category:"finance",description:"बैंकिंग सेवाएँ"},
-    {name:"ICICI Bank",url:"https://www.icicibank.com/",category:"finance",description:"बैंकिंग सेवाएँ"},
-
-    {name:"Amazon India",url:"https://www.amazon.in/",category:"shopping",description:"ऑनलाइन खरीदारी"},
-    {name:"Flipkart",url:"https://www.flipkart.com/",category:"shopping",description:"ऑनलाइन शॉपिंग"},
-    {name:"Meesho",url:"https://www.meesho.com/",category:"shopping",description:"ऑनलाइन शॉपिंग"},
-    {name:"Google Maps",url:"https://maps.google.com/",category:"travel",description:"मैप और रास्ते"},
-    {name:"RSRTC",url:"https://rsrtconline.rajasthan.gov.in/",category:"travel",description:"राजस्थान रोडवेज"},
-
-    {name:"Google News",url:"https://news.google.com/",category:"news",description:"ताजा खबरें"},
-    {name:"Press Information Bureau",url:"https://pib.gov.in/",category:"news",description:"भारत सरकार की प्रेस रिलीज़"},
-    {name:"BBC Hindi",url:"https://www.bbc.com/hindi",category:"news",description:"हिंदी समाचार"},
-
-    {name:"GitHub",url:"https://github.com/",category:"technology",description:"कोड और प्रोजेक्ट"},
-    {name:"Python",url:"https://www.python.org/",category:"technology",description:"Python programming"},
-    {name:"MDN Web Docs",url:"https://developer.mozilla.org/",category:"technology",description:"वेब डेवलपमेंट सीखें"},
-    {name:"Photopea",url:"https://www.photopea.com/",category:"technology",description:"ऑनलाइन फोटो एडिटिंग"},
+  const tools = [
+    {name:"Photopea",url:"https://www.photopea.com/",category:"technology",description:"फोटो एडिटिंग"},
     {name:"Canva",url:"https://www.canva.com/",category:"technology",description:"पोस्टर और डिजाइन"},
     {name:"Pexels",url:"https://www.pexels.com/",category:"technology",description:"फोटो और वीडियो"},
-    {name:"Pixabay",url:"https://pixabay.com/",category:"technology",description:"फोटो और चित्र"},
-    {name:"Google Translate",url:"https://translate.google.com/",category:"technology",description:"भाषा अनुवाद"},
-    {name:"freeCodeCamp",url:"https://www.freecodecamp.org/",category:"technology",description:"मुफ्त कोडिंग सीखें"},
+    {name:"Pixabay",url:"https://pixabay.com/",category:"technology",description:"चित्र और फोटो"},
+    {name:"freeCodeCamp",url:"https://www.freecodecamp.org/",category:"education",description:"मुफ्त कोडिंग"},
+    {name:"CodePen",url:"https://codepen.io/",category:"technology",description:"HTML, CSS और JavaScript"},
     {name:"Stack Overflow",url:"https://stackoverflow.com/",category:"technology",description:"प्रोग्रामिंग सवाल-जवाब"},
-
-    {name:"Ayushman Bharat",url:"https://pmjay.gov.in/",category:"health",description:"आयुष्मान भारत योजना"},
-    {name:"ABHA Health Account",url:"https://abha.abdm.gov.in/",category:"health",description:"ABHA स्वास्थ्य खाता"}
+    {name:"Google Translate",url:"https://translate.google.com/",category:"technology",description:"भाषा अनुवाद"}
   ];
-
-  // --------------------------------------------------
-  // SAFE WEBSITE LOGOS
-  // Google favicon service returns site icons where available.
-  // The card remains usable if an icon fails to load.
-  // --------------------------------------------------
-
-  function getDomain(url) {
-    try {
-      return new URL(url).hostname.replace(/^www\./, "");
-    } catch {
-      return "";
-    }
-  }
-
-  function makeLogo(url, name) {
-    const img = document.createElement("img");
-    img.className = "site-logo";
-    img.alt = "";
-    img.loading = "lazy";
-    img.referrerPolicy = "no-referrer";
-
-    const domain = getDomain(url);
-
-    if (domain) {
-      img.src =
-        "https://www.google.com/s2/favicons?domain=" +
-        encodeURIComponent(domain) + "&sz=128";
-    }
-
-    img.addEventListener("error", () => {
-      img.hidden = true;
-    }, {once:true});
-
-    return img;
-  }
 
   function validUrl(value) {
     try {
       const url = new URL(value);
       return url.protocol === "https:" || url.protocol === "http:";
-    } catch {
-      return false;
-    }
+    } catch { return false; }
   }
 
-  function normalizeWebsite(item) {
+  function normalizeSite(item) {
     const name = String(item.name || item.title || "").trim();
     const url = String(item.url || item.link || "").trim();
-
     if (!name || !validUrl(url)) return null;
-
     return {
-      name,
-      url,
-      category: String(item.category || "general").toLowerCase(),
-      description: String(item.description || item.category || "वेबसाइट खोलें")
+      name,url,
+      category:String(item.category || "general").toLowerCase(),
+      description:String(item.description || item.category || "वेबसाइट खोलें")
     };
   }
 
-  // --------------------------------------------------
-  // RENDER CARDS
-  // --------------------------------------------------
+  function logoFor(url) {
+    const img = document.createElement("img");
+    img.className = "site-logo";
+    img.alt = "";
+    img.loading = "lazy";
+    img.referrerPolicy = "no-referrer";
+    try {
+      const host = new URL(url).hostname;
+      img.src = "https://www.google.com/s2/favicons?domain=" +
+        encodeURIComponent(host) + "&sz=128";
+      img.addEventListener("error", () => img.hidden = true, {once:true});
+    } catch { img.hidden = true; }
+    return img;
+  }
 
-  function renderCards(container, items, options = {}) {
+  function renderCards(container,items,options={}) {
     container.replaceChildren();
+    let shown = 0;
 
-    if (!items.length) {
-      const message = document.createElement("p");
-      message.className = "empty";
-      message.textContent = options.emptyMessage || "कोई परिणाम नहीं मिला।";
-      container.appendChild(message);
-      return;
-    }
-
-    for (const rawItem of items) {
-      const item = normalizeWebsite(rawItem);
-      if (!item) continue;
+    items.forEach(raw => {
+      const item = normalizeSite(raw);
+      if (!item) return;
+      shown++;
 
       const card = document.createElement("a");
       card.className = options.resultCard ? "result-card" : "directory-card";
       card.href = item.url;
       card.target = "_blank";
       card.rel = "noopener noreferrer";
-      card.title = item.name + " खोलें";
 
-      if (options.showLogo) {
-        card.appendChild(makeLogo(item.url, item.name));
-      }
+      if (options.logo) card.appendChild(logoFor(item.url));
 
       const copy = document.createElement("span");
       copy.className = "card-copy";
-
       const title = document.createElement("strong");
       title.textContent = item.name;
-
       const description = document.createElement("small");
-      description.textContent = item.description || "";
-
-      copy.append(title, description);
+      description.textContent = item.description;
+      copy.append(title,description);
       card.appendChild(copy);
       container.appendChild(card);
+    });
+
+    if (!shown) {
+      const empty = document.createElement("p");
+      empty.className = "empty";
+      empty.textContent = options.empty || "कोई परिणाम नहीं मिला।";
+      container.appendChild(empty);
     }
   }
 
-  // --------------------------------------------------
-  // NAVIGATION
-  // --------------------------------------------------
-
   function showView(name) {
-    activeView = name;
-
-    document.querySelectorAll("[data-view]").forEach(link => {
-      link.classList.toggle("active", link.dataset.view === name);
-    });
-
     $("homePanel").hidden = name !== "home";
-    $("searchResults").hidden = name !== "home";
-    $("searchResults").classList.remove("show");
-
-    Object.entries(panels).forEach(([key, panel]) => {
-      panel.hidden = key !== name;
-    });
-
-    if (name === "websites" && allWebsites.length === 0) {
-      loadWebsites();
-    }
-
+    $("searchResults").hidden = true;
+    panelNames.forEach(key => panels[key].hidden = key !== name);
+    document.querySelectorAll("[data-view]").forEach(link =>
+      link.classList.toggle("active",link.dataset.view === name)
+    );
+    if (name === "websites" && !allWebsites.length) loadWebsites();
     if (name === "tools") renderTools();
-
     if (name === "news" && !newsLoaded) loadNews();
-
-    if (name === "images") {
-      $("imageStatus").textContent =
-        "फोटो खोजने के लिए शब्द लिखें। Live image results के लिए app.py में image API जरूरी है।";
-    }
-
-    window.scrollTo({top:0, behavior:"smooth"});
+    window.scrollTo({top:0,behavior:"smooth"});
   }
 
   document.querySelectorAll("[data-view]").forEach(link => {
-    link.addEventListener("click", event => {
+    link.addEventListener("click",event => {
       event.preventDefault();
       showView(link.dataset.view);
+      history.replaceState(null,"","#"+link.dataset.view);
     });
   });
 
-  // --------------------------------------------------
-  // WEBSITE DIRECTORY + CATEGORY FILTER
-  // --------------------------------------------------
-
   async function loadWebsites() {
-    const status = $("websiteStatus");
-    status.textContent = "वेबसाइटें लोड हो रही हैं...";
-
+    $("websiteStatus").textContent = "वेबसाइटें लोड हो रही हैं...";
     try {
-      const response = await fetch("/api/services", {
-        headers: {"Accept":"application/json"}
-      });
-
-      if (!response.ok) throw new Error("API " + response.status);
-
+      const response = await fetch("/api/services");
+      if (!response.ok) throw new Error("HTTP "+response.status);
       const data = await response.json();
-      const apiSites = Array.isArray(data.results) ? data.results : [];
-
-      const combined = [...builtInWebsites, ...apiSites]
-        .map(normalizeWebsite)
-        .filter(Boolean);
-
+      const combined = [...builtInWebsites,...(Array.isArray(data.results)?data.results:[])]
+        .map(normalizeSite).filter(Boolean);
       const seen = new Set();
       allWebsites = combined.filter(item => {
-        const key = item.url.replace(/\/+$/, "").toLowerCase();
+        const key = item.url.replace(/\/+$/,"").toLowerCase();
         if (seen.has(key)) return false;
         seen.add(key);
         return true;
       });
-
       renderWebsites();
-      status.textContent =
-        `${allWebsites.length} वेबसाइटें उपलब्ध हैं। किसी कार्ड पर क्लिक करके वेबसाइट खोलें।`;
-
-    } catch (error) {
-      console.error("Website directory error:", error);
-
-      // Built-in websites still work if the API is unavailable.
-      allWebsites = builtInWebsites.map(normalizeWebsite).filter(Boolean);
+      $("websiteStatus").textContent = allWebsites.length+" वेबसाइटें उपलब्ध हैं।";
+    } catch(error) {
+      console.error(error);
+      allWebsites = builtInWebsites;
       renderWebsites();
-
-      status.textContent =
-        `स्थानीय सूची से ${allWebsites.length} वेबसाइटें दिखाई जा रही हैं। Backend API उपलब्ध नहीं है।`;
+      $("websiteStatus").textContent = "स्थानीय वेबसाइट सूची दिखाई जा रही है।";
     }
   }
 
   function renderWebsites() {
-    const query = $("websiteFilter").value.trim().toLocaleLowerCase("hi");
+    const query = $("websiteFilter").value.trim().toLowerCase();
     const items = allWebsites.filter(site => {
-      const matchesQuery =
-        !query ||
-        `${site.name} ${site.url} ${site.category} ${site.description}`
-          .toLocaleLowerCase("hi").includes(query);
-
-      const matchesCategory =
-        selectedCategory === "all" ||
+      const text = (site.name+" "+site.url+" "+site.category+" "+site.description).toLowerCase();
+      const categoryMatch = selectedCategory === "all" ||
         site.category === selectedCategory ||
         (selectedCategory === "government" &&
-          ["documents", "rajasthan", "legal", "government"].includes(site.category));
-
-      return matchesQuery && matchesCategory;
+         ["documents","legal","rajasthan"].includes(site.category));
+      return categoryMatch && (!query || text.includes(query));
     });
-
-    renderCards($("websiteList"), items, {
-      showLogo:true,
-      emptyMessage:"इस खोज से कोई वेबसाइट नहीं मिली। दूसरा नाम लिखकर देखें।"
-    });
+    renderCards($("websiteList"),items,{logo:true,empty:"कोई वेबसाइट नहीं मिली।"});
   }
 
-  $("websiteFilter").addEventListener("input", renderWebsites);
-
-  $("websiteCategories").addEventListener("click", event => {
+  $("websiteFilter").addEventListener("input",renderWebsites);
+  $("websiteCategories").addEventListener("click",event => {
     const button = event.target.closest("[data-category]");
     if (!button) return;
-
     selectedCategory = button.dataset.category;
-
-    $("websiteCategories").querySelectorAll("[data-category]").forEach(item => {
-      item.classList.toggle("active", item === button);
-    });
-
+    $("websiteCategories").querySelectorAll("[data-category]").forEach(item =>
+      item.classList.toggle("active",item===button)
+    );
     renderWebsites();
   });
 
-  // --------------------------------------------------
-  // ONLINE TOOLS
-  // --------------------------------------------------
-
-  const tools = [
-    {name:"Photopea",url:"https://www.photopea.com/",category:"technology",description:"ऑनलाइन फोटो एडिटिंग"},
-    {name:"Canva",url:"https://www.canva.com/",category:"technology",description:"पोस्टर और ग्राफिक्स"},
-    {name:"Remove.bg",url:"https://www.remove.bg/",category:"technology",description:"फोटो बैकग्राउंड हटाने का टूल"},
-    {name:"Pexels",url:"https://www.pexels.com/",category:"technology",description:"फोटो और वीडियो"},
-    {name:"Pixabay",url:"https://pixabay.com/",category:"technology",description:"फोटो और चित्र"},
-    {name:"Figma",url:"https://www.figma.com/",category:"technology",description:"UI और डिजाइन"},
-    {name:"CodePen",url:"https://codepen.io/",category:"technology",description:"HTML, CSS और JavaScript"},
-    {name:"freeCodeCamp",url:"https://www.freecodecamp.org/",category:"education",description:"मुफ्त कोडिंग सीखें"},
-    {name:"Stack Overflow",url:"https://stackoverflow.com/",category:"technology",description:"प्रोग्रामिंग सवाल-जवाब"},
-    {name:"Google Translate",url:"https://translate.google.com/",category:"technology",description:"भाषा अनुवाद"},
-    {name:"Google Maps",url:"https://maps.google.com/",category:"travel",description:"मैप और रास्ते"},
-    {name:"Internet Archive",url:"https://archive.org/",category:"education",description:"डिजिटल लाइब्रेरी"}
-  ];
-
   function renderTools() {
     const query = $("toolFilter").value.trim().toLowerCase();
-    const items = tools.filter(item =>
-      `${item.name} ${item.description} ${item.category}`
-        .toLowerCase().includes(query)
-    );
-
-    renderCards($("toolList"), items, {
-      showLogo:true,
-      emptyMessage:"कोई टूल नहीं मिला।"
-    });
+    renderCards($("toolList"),tools.filter(item =>
+      (item.name+" "+item.description).toLowerCase().includes(query)
+    ),{logo:true});
   }
-
-  $("toolFilter").addEventListener("input", renderTools);
-
-  // --------------------------------------------------
-  // IMAGE SEARCH
-  // The frontend calls /api/images/search.
-  // The endpoint must be added to app.py for live images.
-  // --------------------------------------------------
+  $("toolFilter").addEventListener("input",renderTools);
 
   async function searchImages(query) {
-    const status = $("imageStatus");
-    const container = $("imageResults");
-
-    status.textContent = "तस्वीरें खोजी जा रही हैं...";
-    container.replaceChildren();
-
+    $("imageStatus").textContent = "तस्वीरें खोजी जा रही हैं...";
+    $("imageResults").replaceChildren();
     try {
-      const response = await fetch(
-        "/api/images/search?q=" + encodeURIComponent(query),
-        {headers: {"Accept":"application/json"}}
-      );
-
-      if (!response.ok) throw new Error("Image API " + response.status);
-
+      const response = await fetch("/api/images/search?q="+encodeURIComponent(query));
+      if (!response.ok) throw new Error("HTTP "+response.status);
       const data = await response.json();
+      const items = Array.isArray(data.results)?data.results:[];
+      const container = $("imageResults");
+      container.style.gridTemplateColumns = "repeat(auto-fit,minmax(180px,1fr))";
 
-      if (!data.success) {
-        throw new Error(data.error || "Image search failed");
-      }
-
-      const images = Array.isArray(data.results) ? data.results : [];
-
-      if (!images.length) {
-        status.textContent = "इस शब्द के लिए तस्वीरें नहीं मिलीं।";
-        return;
-      }
-
-      container.className = "directory-grid image-grid";
-      container.replaceChildren();
-
-      images.forEach(item => {
-        const imageUrl = item.image || item.src || item.url || item.thumbnail;
-        if (!validUrl(imageUrl)) return;
-
+      items.forEach(item => {
+        const src = item.image_url || item.image || item.src || item.thumbnail;
+        if (!validUrl(src)) return;
         const card = document.createElement("a");
         card.className = "directory-card";
-        card.href = validUrl(item.page_url) ? item.page_url : imageUrl;
+        card.href = validUrl(item.page_url)?item.page_url:src;
         card.target = "_blank";
         card.rel = "noopener noreferrer";
         card.style.display = "block";
 
         const img = document.createElement("img");
-        img.src = imageUrl;
+        img.src = src;
         img.alt = String(item.alt || item.title || query);
         img.loading = "lazy";
         img.style.width = "100%";
@@ -1353,191 +569,195 @@ body.light-mode .result-card {
         img.style.borderRadius = "8px";
 
         const caption = document.createElement("small");
-        caption.textContent = String(item.title || item.photographer || query);
-
-        img.addEventListener("error", () => card.remove(), {once:true});
-        card.append(img, caption);
+        caption.textContent = String(item.title || query);
+        img.addEventListener("error",()=>card.remove(),{once:true});
+        card.append(img,caption);
         container.appendChild(card);
       });
 
-      status.textContent =
-        `${container.children.length} तस्वीरें मिलीं। तस्वीर या कार्ड पर क्लिक करके खोलें।`;
-
-    } catch (error) {
-      console.error("Image search error:", error);
-      status.textContent =
-        "Live image search अभी उपलब्ध नहीं है। app.py में /api/images/search endpoint जोड़ना बाकी है।";
+      $("imageStatus").textContent = items.length
+        ? items.length+" तस्वीरें मिलीं। स्रोत और लाइसेंस की शर्तें देखें।"
+        : "कोई तस्वीर नहीं मिली।";
+    } catch(error) {
+      console.error(error);
+      $("imageStatus").textContent = "Image API उपलब्ध नहीं है। app.py का अगला अपडेट जरूरी हो सकता है।";
     }
   }
 
-  $("imageSearchForm").addEventListener("submit", event => {
+  $("imageSearchForm").addEventListener("submit",event => {
     event.preventDefault();
     const query = $("imageQuery").value.trim();
     if (query) searchImages(query);
   });
 
-  $("imageCategories").addEventListener("click", event => {
+  $("imageCategories").addEventListener("click",event => {
     const button = event.target.closest("[data-image-query]");
     if (!button) return;
-
     $("imageQuery").value = button.dataset.imageQuery;
     searchImages(button.dataset.imageQuery);
   });
 
-  // --------------------------------------------------
-  // NEWS
-  // --------------------------------------------------
-
   async function loadNews() {
-    const status = $("newsStatus");
-    const container = $("newsList");
-
-    status.textContent = "खबरें लोड हो रही हैं...";
-    container.replaceChildren();
+    $("newsStatus").textContent = "नई खबरें लोड हो रही हैं...";
+    $("newsList").replaceChildren();
 
     try {
-      const response = await fetch("/api/news?limit=15", {
-        headers: {"Accept":"application/json"}
-      });
-
-      if (!response.ok) throw new Error("News API " + response.status);
-
+      const response = await fetch("/api/news?limit=15");
+      if (!response.ok) throw new Error("HTTP "+response.status);
       const data = await response.json();
-      const items = Array.isArray(data.results) ? data.results : [];
-
-      const news = items.map(item => ({
-        name: item.title || item.name || "समाचार",
-        url: item.url || item.link,
+      latestNews = Array.isArray(data.results)?data.results:[];
+      const items = latestNews.map(item => ({
+        name:item.title || item.name || "समाचार",
+        url:item.url || item.link,
         category:"news",
-        description:[
-          item.source,
-          item.published,
-          item.description
-        ].filter(Boolean).join(" • ")
+        description:[item.source,item.published,item.description].filter(Boolean).join(" • ")
       }));
-
-      renderCards(container, news, {
-        emptyMessage:"अभी खबरें नहीं मिलीं। बाद में फिर कोशिश करें।"
-      });
-
-      status.textContent = items.length
-        ? `${items.length} खबरें मिलीं। पूरी खबर खोलने के लिए कार्ड पर क्लिक करें।`
-        : "अभी कोई खबर उपलब्ध नहीं है।";
-
+      renderCards($("newsList"),items,{empty:"अभी खबरें उपलब्ध नहीं हैं।"});
+      $("newsStatus").textContent = latestNews.length+" खबरें मिलीं।";
       newsLoaded = true;
-
-    } catch (error) {
-      console.error("News loading error:", error);
-      status.textContent =
-        "खबरें लोड नहीं हुईं। app.py का /api/news endpoint जाँचें।";
+    } catch(error) {
+      console.error(error);
+      $("newsStatus").textContent = "खबरें लोड नहीं हुईं। app.py का news endpoint जाँचें।";
     }
   }
-
-  $("refreshNews").addEventListener("click", loadNews);
+  $("refreshNews").addEventListener("click",loadNews);
 
   // --------------------------------------------------
   // MAIN SEARCH
-  // Uses the existing /api/search endpoint.
   // --------------------------------------------------
 
-  $("searchForm").addEventListener("submit", async event => {
-    event.preventDefault();
-
-    const query = $("searchInput").value.trim();
-    if (!query) return;
-
+  async function performSearch(query) {
     showView("home");
-
-    const section = $("searchResults");
-    const status = $("resultsStatus");
-    const list = $("resultsList");
-
-    section.hidden = false;
-    section.classList.add("show");
-    $("resultsHeading").textContent = `“${query}” के परिणाम`;
-    status.textContent = "खोज रहे हैं...";
-    list.replaceChildren();
-
-    // First show matching built-in links, so popular websites
-    // can still be found if the backend is temporarily unavailable.
-    const q = query.toLocaleLowerCase("hi");
-
-    const localMatches = allWebsites.length
-      ? allWebsites.filter(site =>
-          `${site.name} ${site.url} ${site.category} ${site.description}`
-            .toLocaleLowerCase("hi").includes(q)
-        )
-      : builtInWebsites.filter(site =>
-          `${site.name} ${site.url} ${site.category} ${site.description}`
-            .toLocaleLowerCase("hi").includes(q)
-        );
+    $("searchResults").hidden = false;
+    $("resultsHeading").textContent = "“"+query+"” के परिणाम";
+    $("resultsStatus").textContent = "खोज रहे हैं...";
+    $("resultsList").replaceChildren();
 
     try {
-      const response = await fetch(
-        "/api/search?q=" + encodeURIComponent(query) + "&limit=30",
-        {headers: {"Accept":"application/json"}}
-      );
-
-      if (!response.ok) throw new Error("Search API " + response.status);
-
+      const response = await fetch("/api/search?q="+encodeURIComponent(query)+"&limit=30");
+      if (!response.ok) throw new Error("HTTP "+response.status);
       const data = await response.json();
-      const apiResults = Array.isArray(data.results) ? data.results : [];
+      const results = Array.isArray(data.results)?data.results:[];
+      renderCards($("resultsList"),results,{logo:true,resultCard:true});
+      $("resultsStatus").textContent = results.length
+        ? results.length+" परिणाम मिले। कार्ड पर क्लिक करके वेबसाइट खोलें।"
+        : "कोई परिणाम नहीं मिला। Websites सेक्शन भी देखें।";
+    } catch(error) {
+      console.error(error);
+      $("resultsStatus").textContent = "सर्च सेवा उपलब्ध नहीं है। बाद में कोशिश करें।";
+    }
+    $("searchResults").scrollIntoView({behavior:"smooth",block:"start"});
+  }
 
-      const combined = [...localMatches, ...apiResults]
-        .map(normalizeWebsite)
-        .filter(Boolean);
+  $("searchForm").addEventListener("submit",event => {
+    event.preventDefault();
+    const query = $("searchInput").value.trim();
+    if (query) performSearch(query);
+  });
 
-      const seen = new Set();
-      const unique = combined.filter(item => {
-        const key = item.url.replace(/\/+$/, "").toLowerCase();
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
+  document.querySelectorAll("[data-quick-search]").forEach(button => {
+    button.addEventListener("click",() => {
+      const query = button.dataset.quickSearch;
+      $("searchInput").value = query;
+      performSearch(query);
+    });
+  });
 
-      renderCards(list, unique, {
-        showLogo:true,
-        emptyMessage:"कोई परिणाम नहीं मिला। दूसरा शब्द लिखकर देखें।"
-      });
+  // --------------------------------------------------
+  // NEWS NOTIFICATIONS
+  // Browser notification permission requires HTTPS or localhost.
+  // A page-open check is not the same as background push.
+  // --------------------------------------------------
 
-      status.textContent = unique.length
-        ? `${unique.length} परिणाम मिले। वेबसाइट खोलने के लिए कार्ड पर क्लिक करें।`
-        : "कोई परिणाम नहीं मिला। Websites सेक्शन में सभी वेबसाइटें देख सकते हैं।";
+  function notificationStatus(message) {
+    $("notificationStatus").textContent = message;
+  }
 
-    } catch (error) {
-      console.error("Search API error:", error);
-
-      renderCards(list, localMatches, {
-        showLogo:true,
-        emptyMessage:"स्थानीय सूची में परिणाम नहीं मिला। Backend search API जाँचें।"
-      });
-
-      status.textContent =
-        "Backend search अभी उपलब्ध नहीं है। उपलब्ध स्थानीय वेबसाइटों के परिणाम दिखाए गए हैं।";
+  async function enableNotifications() {
+    if (!("Notification" in window)) {
+      notificationStatus("इस ब्राउज़र में notifications समर्थित नहीं हैं।");
+      return;
     }
 
-    section.scrollIntoView({behavior:"smooth", block:"start"});
+    if (!window.isSecureContext) {
+      notificationStatus("Notifications के लिए HTTPS वेबसाइट खोलें।");
+      return;
+    }
+
+    try {
+      notificationPermission = await Notification.requestPermission();
+
+      if (notificationPermission === "granted") {
+        notificationStatus("नोटिफिकेशन की अनुमति मिल गई। अब नई खबर जाँच सकते हैं।");
+        new Notification("Ishwar Search",{
+          body:"News notifications चालू हैं।",
+          icon:"/static/logo.png"
+        });
+      } else if (notificationPermission === "denied") {
+        notificationStatus("अनुमति अस्वीकार हुई। ब्राउज़र साइट सेटिंग्स में इसे बदल सकते हैं।");
+      } else {
+        notificationStatus("अनुमति नहीं दी गई।");
+      }
+    } catch(error) {
+      console.error(error);
+      notificationStatus("नोटिफिकेशन चालू नहीं हो पाए।");
+    }
+  }
+
+  $("enableNotifications").addEventListener("click",enableNotifications);
+  $("notificationButton").addEventListener("click",() => {
+    showView("notifications");
+    enableNotifications();
   });
 
+  async function checkNewsNotification() {
+    if (!("Notification" in window) || Notification.permission !== "granted") {
+      notificationStatus("पहले नोटिफिकेशन चालू करें।");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/news?limit=5&refresh=1");
+      if (!response.ok) throw new Error("News API "+response.status);
+      const data = await response.json();
+      const news = Array.isArray(data.results)?data.results:[];
+
+      if (!news.length) {
+        notificationStatus("अभी नई खबरें उपलब्ध नहीं हैं।");
+        return;
+      }
+
+      new Notification("Ishwar Search — News Update",{
+        body:String(news[0].title || "नई खबर उपलब्ध है।").slice(0,180),
+        icon:"/static/logo.png"
+      });
+
+      notificationStatus("ताजा खबर का नोटिफिकेशन भेजा गया।");
+      latestNews = news;
+    } catch(error) {
+      console.error(error);
+      notificationStatus("खबर जाँच नहीं पाए। News API उपलब्ध है या नहीं देखें।");
+    }
+  }
+
+  $("checkNewsNotification").addEventListener("click",checkNewsNotification);
+
+  // Browser notification on opening the page, if permission is already granted.
+  if ("Notification" in window && Notification.permission === "granted") {
+    notificationPermission = "granted";
+    notificationStatus("नोटिफिकेशन की अनुमति पहले से मिली हुई है।");
+  }
+
   // --------------------------------------------------
-  // THEME BUTTON
+  // THEME
   // --------------------------------------------------
 
-  $("themeButton").addEventListener("click", () => {
+  $("themeButton").addEventListener("click",() => {
     const light = document.body.classList.toggle("light-mode");
-    $("themeButton").textContent = light ? "☀" : "☾";
-    $("themeButton").setAttribute(
-      "aria-label",
-      light ? "Switch to dark theme" : "Switch to light theme"
-    );
+    $("themeButton").textContent = light?"☀":"☾";
   });
-
-  // --------------------------------------------------
-  // INITIALIZE
-  // --------------------------------------------------
 
   showView("home");
-
 })();
 </script>
 </body>
