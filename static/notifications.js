@@ -115,3 +115,108 @@
   };
 })();
 
+"use strict";
+
+(() => {
+  const button = document.getElementById("enableNotifications");
+  const status = document.getElementById("notificationStatus");
+
+  if (!button || !status) return;
+
+  const setStatus = message => {
+    status.textContent = message;
+  };
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const raw = atob(base64);
+    return Uint8Array.from(raw, char => char.charCodeAt(0));
+  }
+
+  async function enableNotifications() {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      setStatus("इस ब्राउज़र में Push Notification समर्थित नहीं है।");
+      return;
+    }
+
+    if (!window.isSecureContext) {
+      setStatus("Push Notification के लिए HTTPS वेबसाइट खोलें।");
+      return;
+    }
+
+    if (!("Notification" in window)) {
+      setStatus("इस ब्राउज़र में Notification उपलब्ध नहीं है।");
+      return;
+    }
+
+    button.disabled = true;
+    setStatus("Notification सेवा तैयार हो रही है...");
+
+    try {
+      const keyResponse = await fetch("/api/notifications/public-key");
+      const keyData = await keyResponse.json();
+
+      if (!keyResponse.ok || !keyData.publicKey) {
+        throw new Error(keyData.error || "Push public key सेट नहीं है।");
+      }
+
+      let permission = Notification.permission;
+
+      if (permission === "default") {
+        permission = await Notification.requestPermission();
+      }
+
+      if (permission !== "granted") {
+        setStatus("Notification की अनुमति नहीं मिली। Browser settings में अनुमति दें।");
+        return;
+      }
+
+      const registration = await navigator.serviceWorker.register("/static/sw.js");
+      await navigator.serviceWorker.ready;
+
+      let subscription = await registration.pushManager.getSubscription();
+
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(keyData.publicKey)
+        });
+      }
+
+      const response = await fetch("/api/notifications/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(subscription)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Subscription सेव नहीं हो पाया।");
+      }
+
+      setStatus("✅ Ishwar Search की Push Notification चालू हो गई!");
+      button.textContent = "🔔 Notifications चालू हैं";
+
+    } catch (error) {
+      console.error("Notification setup failed:", error);
+      setStatus("Notification चालू नहीं हुई: " + error.message);
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  button.addEventListener("click", enableNotifications);
+
+  if ("Notification" in window && Notification.permission === "granted") {
+    setStatus("आपके ब्राउज़र में Notification की अनुमति पहले से है।");
+  } else {
+    setStatus("ताज़ा खबरें और जरूरी अलर्ट पाने के लिए Notification चालू करें।");
+  }
+})();
+
+
