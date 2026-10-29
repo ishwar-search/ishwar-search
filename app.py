@@ -1327,6 +1327,74 @@ def add_security_headers(response):
 # RUN LOCALLY / RENDER
 # ------------------------------------------------------------
 
+# ------------------------------------------------------------
+# PUSH NOTIFICATION SUBSCRIPTION API
+# यह endpoint browser subscription को स्वीकार करता है।
+# वास्तविक push notification के लिए Web Push configuration
+# और subscription को सुरक्षित रूप से save करना जरूरी है।
+# ------------------------------------------------------------
+
+@app.route("/api/notifications/status", methods=["GET"])
+def notification_status():
+    return jsonify({
+        "success": True,
+        "app": APP_NAME,
+        "notifications_available": True,
+        "push_configured": False,
+        "message": (
+            "Notification API उपलब्ध है। "
+            "वास्तविक push notification अभी configure करना बाकी है।"
+        )
+    })
+
+
+@app.route("/api/notifications/subscribe", methods=["POST"])
+def notification_subscribe():
+    payload = request.get_json(silent=True)
+
+    if not isinstance(payload, dict):
+        return jsonify({
+            "success": False,
+            "error": "सही JSON subscription भेजें।"
+        }), 400
+
+    subscription = payload.get("subscription")
+
+    if not isinstance(subscription, dict):
+        return jsonify({
+            "success": False,
+            "error": "Browser subscription नहीं मिला।"
+        }), 400
+
+    endpoint = subscription.get("endpoint")
+    keys = subscription.get("keys")
+
+    if (
+        not isinstance(endpoint, str)
+        or not endpoint.startswith("https://")
+        or not isinstance(keys, dict)
+        or not keys.get("p256dh")
+        or not keys.get("auth")
+    ):
+        return jsonify({
+            "success": False,
+            "error": "Browser subscription का प्रारूप सही नहीं है।"
+        }), 400
+
+    # अभी subscription को save या इस्तेमाल नहीं किया जा रहा।
+    # अगला चरण: इसे सुरक्षित database में save करना और
+    # Web Push service से खबरों के notifications भेजना।
+
+    return jsonify({
+        "success": True,
+        "saved": False,
+        "push_configured": False,
+        "message": (
+            "Subscription प्राप्त हुआ, लेकिन अभी save नहीं हुआ। "
+            "Push notification के लिए अगला चरण बाकी है।"
+        )
+    })
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
 
