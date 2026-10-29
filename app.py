@@ -1403,5 +1403,272 @@ if __name__ == "__main__":
         port=port,
         debug=False,
     )
+    
+# ============================================================
+# ISHWAR SEARCH PUSH NOTIFICATIONS
+# Add this block BEFORE: if __name__ == "__main__":
+# ============================================================
+
+import base64
+import json
+from pathlib import Path
+from flask import current_app
+
+PUSH_DATA_FILE = os.path.join(BASE_DIR, "push_subscriptions.json")
+
+PUSH_CATEGORIES = {
+    "news",
+    "jobs",
+    "updates",
+    "schemes",
+    "fraud",
+}
+
+
+def load_push_subscriptions():
+    try:
+        with open(PUSH_DATA_FILE, "r", encoding="utf-8") as file:
+            data = json.load(file)
+        return data if isinstance(data, list) else []
+    except (OSError, json.JSONDecodeError):
+        return []
+
+
+def save_push_subscriptions(items):
+    temp_file = PUSH_DATA_FILE + ".tmp"
+
+    with open(temp_file, "w", encoding="utf-8") as file:
+        json.dump(items, file, ensure_ascii=False, indent=2)
+
+    os.replace(temp_file, PUSH_DATA_FILE)
+
+
+def get_vapid_public_key():
+    return os.environ.get("VAPID_PUBLIC_KEY", "").strip()
+
+
+@app.route("/api/notifications/public-key", methods=["GET"])
+def notification_public_key():
+    public_key = get_vapid_public_key()
+
+    if not public_key:
+        return jsonify({
+            "success": False,
+            "error": "Push Notification की public key अभी सेट नहीं है।"
+        }), 503
+
+    return jsonify({
+        "success": True,
+        "publicKey": public_key
+    })
+
+
+@app.route("/api/notifications/subscribe", methods=["POST"])
+def notification_subscribe():
+    payload = request.get_json(silent=True)
+
+    if not isinstance(payload, dict):
+        return json_error("Subscription का JSON सही नहीं है।")
+
+    endpoint = payload.get("endpoint")
+    keys = payload.get("keys")
+
+    if (
+        not isinstance(endpoint, str)
+        or not endpoint.startswith("https://")
+        or not isinstance(keys, dict)
+        or not isinstance(keys.get("p256dh"), str)
+        or not isinstance(keys.get("auth"), str)
+    ):
+        return json_error("Push subscription अधूरा या गलत है।")
+
+    subscriptions = load_push_subscriptions()
+
+    new_item = {
+        "endpoint": endpoint,
+        "keys": {
+            "p256dh": keys["p256dh"],
+            "auth": keys["auth"]
+        }
+    }
+
+    # एक ही endpoint को बार-बार सेव न करें
+    subscriptions = [
+        item for item in subscriptions
+        if item.get("endpoint") != endpoint
+    ]
+    subscriptions.append(new_item)
+
+    try:
+        save_push_subscriptions(subscriptions)
+    except OSError:
+        logger.exception("Push subscription save failed")
+        return jsonify({
+            "success": False,
+            "error": "Subscription सेव नहीं हो पाया।"
+        }), 500
+
+    return jsonify({
+        "success": True,
+        "message": "Push subscription सेव हो गया।"
+    })
+
+
+@app.route("/api/notifications/unsubscribe", methods=["POST"])
+def notification_unsubscribe():
+    payload = request.get_json(silent=True) or {}
+    endpoint = payload.get("endpoint")
+
+    if not isinstance(endpoint, str):
+        return json_error("Subscription endpoint नहीं मिला।")
+
+    subscriptions = load_push_subscriptions()
+    remaining = [
+        item for item in subscriptions
+        if item.get("endpoint") != endpoint
+    ]
+
+    try:
+        save_push_subscriptions(remaining)
+    except OSError:
+        logger.exception("Push unsubscribe save failed")
+        return jsonify({
+            "success": False,
+            "error": "Subscription हटाया नहीं जा सका।"
+        }), 500
+
+    return jsonify({"success": True})
+
+
+@app.route("/api/notifications/send", methods=["POST"])
+def notification_send():
+    # केवल secret admin token वाला अनुरोध notification भेज सकता है।
+    admin_secret = os.environ.get("NOTIFICATION_ADMIN_TOKEN", "")
+    supplied_token = request.headers.get("X-Admin-Token", "")
+
+    if not admin_secret or not supplied_token:
+        return jsonify({
+            "success": False,
+            "error": "Admin authorization सेट नहीं है।"
+        }), 403
+
+    import hmac
+    if not hmac.compare_digest(supplied_token, admin_secret):
+        return jsonify({
+            "success": False,
+            "error": "Admin authorization गलत है।"
+        }), 403
+
+    payload = request.get_json(silent=True)
+
+    if not isinstance(payload, dict):
+        return json_error("Notification का JSON सही नहीं है।")
+
+    category = str(payload.get("category", "")).strip().lower()
+    title = clean_text(payload.get("title", ""))
+    body = clean_text(payload.get("body", ""))
+    target_url = str(payload.get("url", "/")).strip()
+
+    if category not in PUSH_CATEGORIES:
+        return json_error("Category news, jobs, updates, schemes या fraud होनी चाहिए।")
+
+    if not title or not body:
+        return json_error("Title और body दोनों जरूरी हैं।")
+
+    if len(title) > 100 or len(body) > 300:
+        return json_error("Title 100 और body 300 अक्षरों तक रखें।")
+
+    # Notifications केवल अपनी वेबसाइट के URLs खोलें।
+    from urllib.parse import urlparse
+    parsed = urlparse(target_url)
+
+    if target_url.startswith("/") and not target_url.startswith("//"):
+        safe_target_url = target_url
+    elif parsed.scheme == "https" and parsed.netloc == request.host:
+        safe_target_url = target_url
+    else:
+        return json_error("Notification URL अपनी वेबसाइट का relative path होना चाहिए।")
+
+    private_key = os.environ.get("VAPID_PRIVATE_KEY", "").strip()
+    public_key = get_vapid_public_key()
+
+    if not private_key or not public_key:
+        return jsonify({
+            "success": False,
+            "error": "VAPID keys सेट नहीं हैं।"
+        }), 503
+
+    try:
+        from pywebpush import webpush, WebPushException
+    except ImportError:
+        return jsonify({
+            "success": False,
+            "error": "pywebpush dependency इंस्टॉल नहीं है।"
+        }), 503
+
+    subscriptions = load_push_subscriptions()
+    delivered = 0
+    failed = 0
+    expired_endpoints = set()
+
+    message = {
+        "title": title,
+        "body": body,
+        "url": safe_target_url,
+        "tag": "ishwar-" + category
+    }
+
+    for subscription in subscriptions:
+        try:
+            webpush(
+                subscription_info=subscription,
+                data=json.dumps(message, ensure_ascii=False),
+                vapid_private_key=private_key,
+                vapid_claims={
+                    "sub": os.environ.get(
+                        "VAPID_SUBJECT",
+                        "mailto:admin@example.com"
+                    )
+                },
+                ttl=3600,
+            )
+            delivered += 1
+
+        except WebPushException as exc:
+            failed += 1
+
+            response = getattr(exc, "response", None)
+            status_code = getattr(response, "status_code", None)
+
+            # 404/410 usually means the subscription has expired.
+            if status_code in (404, 410):
+                expired_endpoints.add(subscription.get("endpoint"))
+
+            logger.warning("Push delivery failed: %s", exc)
+
+        except Exception:
+            failed += 1
+            logger.exception("Unexpected Push delivery error")
+
+    if expired_endpoints:
+        subscriptions = [
+            item for item in subscriptions
+            if item.get("endpoint") not in expired_endpoints
+        ]
+        try:
+            save_push_subscriptions(subscriptions)
+        except OSError:
+            logger.exception("Could not clean expired subscriptions")
+
+    return jsonify({
+        "success": True,
+        "category": category,
+        "attempted": len(subscriptions) + len(expired_endpoints),
+        "sent": delivered,
+        "failed": failed,
+        "message": "Push भेजने का प्रयास पूरा हुआ।"
+    })
+
+    if __name__ == "__main__":
 
 
