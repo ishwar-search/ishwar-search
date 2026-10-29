@@ -7,7 +7,8 @@
 <meta name="theme-color" content="#020817">
 <meta name="description" content="Ishwar Search — वेबसाइट, समाचार, इमेज और ऑनलाइन सेवाएँ खोजें।">
 <title>Ishwar Search</title>
-
+<link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#020817">
 <style>
 :root {
   --cyan:#00d9ff;
@@ -758,7 +759,28 @@ body.light-mode .notification-box{background:white;color:#10213a}
   });
 
   showView("home");
+  // Notification controls for Ishwar Search
+const notificationButton = document.createElement("button");
+notificationButton.type = "button";
+notificationButton.textContent = "🔔 Notifications चालू करें";
+notificationButton.className = "action-button";
+notificationButton.style.margin = "12px";
+notificationButton.addEventListener("click", async () => {
+  try {
+    await window.IshwarNotifications.enable();
+    await window.IshwarNotifications.test();
+    notificationButton.textContent = "✓ Test Notification भेजा गया";
+  } catch (error) {
+    alert(error.message || "Notification चालू नहीं हो सका।");
+  }
+});
+
+const footer = document.getElementById("footer");
+if (footer) {
+  footer.appendChild(notificationButton);
+}
 })();
 </script>
+  <script src="/static/notifications.js"></script>
 </body>
 </html>
