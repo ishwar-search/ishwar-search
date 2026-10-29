@@ -298,6 +298,19 @@ body.light-mode .notification-box{background:white;color:#10213a}
     <p>उपलब्ध RSS स्रोतों से समाचार। खबर की तारीख और स्रोत जाँचकर पढ़ें।</p>
     <button class="action-button" id="refreshNews" type="button">खबरें फिर से लोड करें ↻</button>
     <div id="newsStatus" class="panel-status" aria-live="polite">खबरें लोड करने के लिए News खोलें।</div>
+    
+<!-- ISHWAR SEARCH NOTIFICATION SETTINGS -->
+<section class="notification-box" aria-label="Notification settings">
+  <h3>🔔 Ishwar Search Alerts</h3>
+  <p>News, Jobs, Updates, Schemes और Fraud Alerts पाने के लिए अनुमति दें।</p>
+  <button type="button" class="action-button" id="enableNotifications">
+    🔔 Notification चालू करें
+  </button>
+  <p id="notificationStatus" class="panel-status" aria-live="polite">
+    Notification की स्थिति जाँची जा रही है...
+  </p>
+</section>
+
     <div class="directory-grid" id="newsList"></div>
   </section>
 
@@ -782,5 +795,8 @@ if (footer) {
 })();
 </script>
   <script src="/static/notifications.js"></script>
+  
+<link rel="manifest" href="/static/manifest.json">
+<script src="/static/notifications.js" defer></script>
 </body>
 </html>
