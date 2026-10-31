@@ -1,8 +1,7 @@
-
 # ============================================================
-# Ishwar Search
+# ISHWAR SEARCH 5.2.0
 # Owner: Ishwar Ghanchi
-# Version: 5.1.0
+# Professional Search & Services Platform
 # ============================================================
 
 import os
@@ -10,45 +9,58 @@ import re
 import json
 import html
 import time
+import hmac
 import logging
 import threading
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 
+from pathlib import Path
 from datetime import datetime, timezone
 from flask import Flask, request, jsonify, render_template
+
+# ------------------------------------------------------------
+# APP CONFIGURATION
+# ------------------------------------------------------------
 
 app = Flask(__name__)
 
 APP_NAME = "Ishwar Search"
 OWNER_NAME = "Ishwar Ghanchi"
-APP_VERSION = "5.1.0"
+APP_VERSION = "5.2.0"
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("ishwar-search")
+BASE_DIR = Path(__file__).resolve().parent
+SERVICES_FILE = BASE_DIR / "service.json"
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SERVICES_FILE = os.path.join(BASE_DIR, "service.json")
+# Render Persistent Disk के लिए /var/data सेट कर सकते हैं।
+DATA_DIR = Path(os.environ.get("DATA_DIR", str(BASE_DIR)))
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+PUSH_DATA_FILE = DATA_DIR / "push_subscriptions.json"
 
 HTTP_TIMEOUT = 8
 MAX_NEWS_ITEMS = 20
+
 NEWS_CACHE_SECONDS = 300
 IMAGE_CACHE_SECONDS = 600
 PLACE_CACHE_SECONDS = 600
 
+app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("ishwar-search")
+
 USER_AGENT = (
-    "IshwarSearch/5.1 "
+    "IshwarSearch/5.2 "
     "(https://ishwar-search.onrender.com; public search application)"
 )
 
-
 # ------------------------------------------------------------
-# HTTP AND TEXT HELPERS
+# HTTP HELPERS
 # ------------------------------------------------------------
 
 def fetch_url(url, timeout=HTTP_TIMEOUT):
-    """Fetch an HTTP/HTTPS URL."""
     parsed = urllib.parse.urlparse(url)
 
     if parsed.scheme not in ("http", "https") or not parsed.netloc:
@@ -58,28 +70,40 @@ def fetch_url(url, timeout=HTTP_TIMEOUT):
         url,
         headers={
             "User-Agent": USER_AGENT,
-            "Accept": "application/json, application/xml, text/xml, */*",
-        },
+            "Accept": "application/json, application/xml, text/xml, */*"
+        }
     )
 
     with urllib.request.urlopen(req, timeout=timeout) as response:
         raw = response.read()
+
+        if len(raw) > 5 * 1024 * 1024:
+            raise ValueError("Response too large")
+
         charset = response.headers.get_content_charset() or "utf-8"
         return raw.decode(charset, errors="replace")
 
+
+# ------------------------------------------------------------
+# TEXT HELPERS
+# ------------------------------------------------------------
 
 def clean_text(value):
     if value is None:
         return ""
 
     value = html.unescape(str(value))
-    value = re.sub(r"<[^>]+>", " ", value)
-    return re.sub(r"\s+", " ", value).strip()
+    value = re.sub(r"<[^>]*>", " ", value)
+    value = re.sub(r"\s+", " ", value)
+
+    return value.strip()
 
 
 def normalize_text(value):
-    value = clean_text(value).casefold().replace("&", " and ")
+    value = clean_text(value).casefold()
+    value = value.replace("&", " and ")
     value = re.sub(r"[^\w\s]", " ", value, flags=re.UNICODE)
+
     return re.sub(r"\s+", " ", value).strip()
 
 
@@ -88,22 +112,33 @@ def safe_url(value):
         return ""
 
     try:
-        parsed = urllib.parse.urlparse(str(value).strip())
-    except ValueError:
+        value = str(value).strip()
+        parsed = urllib.parse.urlparse(value)
+
+        if parsed.scheme not in ("http", "https"):
+            return ""
+
+        if not parsed.hostname:
+            return ""
+
+        if parsed.username or parsed.password:
+            return ""
+
+        return value
+
+    except (ValueError, TypeError):
         return ""
-
-    if parsed.scheme not in ("http", "https") or not parsed.netloc:
-        return ""
-
-    return str(value).strip()
-
-
-def json_error(message, status=400):
-    return jsonify({"success": False, "error": message}), status
 
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat()
+
+
+def json_error(message, status=400):
+    return jsonify({
+        "success": False,
+        "error": message
+    }), status
 
 
 def bounded_limit(value, default=20, maximum=50):
@@ -115,8 +150,26 @@ def bounded_limit(value, default=20, maximum=50):
     return max(1, min(value, maximum))
 
 
+def get_request_query():
+    if request.method == "POST":
+        payload = request.get_json(silent=True) or {}
+
+        if not isinstance(payload, dict):
+            return "", 30
+
+        return (
+            clean_text(payload.get("q") or payload.get("query") or ""),
+            payload.get("limit", 30)
+        )
+
+    return (
+        clean_text(request.args.get("q", "")),
+        request.args.get("limit", 30)
+    )
+
+
 # ------------------------------------------------------------
-# SMALL IN-MEMORY CACHE
+# MEMORY CACHE
 # ------------------------------------------------------------
 
 _cache = {}
@@ -154,16 +207,16 @@ def cache_set(key, value):
 
 
 # ------------------------------------------------------------
-# LOCAL SERVICE DIRECTORY: service.json
+# SERVICE DIRECTORY
 # ------------------------------------------------------------
 
 def load_services():
-    if not os.path.isfile(SERVICES_FILE):
-        logger.warning("service.json missing: %s", SERVICES_FILE)
+    if not SERVICES_FILE.is_file():
+        logger.warning("service.json not found")
         return []
 
     try:
-        with open(SERVICES_FILE, "r", encoding="utf-8") as file:
+        with SERVICES_FILE.open("r", encoding="utf-8") as file:
             data = json.load(file)
 
         if isinstance(data, dict):
@@ -173,7 +226,7 @@ def load_services():
             return []
 
         services = []
-        seen_urls = set()
+        seen = set()
 
         for item in data:
             if not isinstance(item, dict):
@@ -185,7 +238,9 @@ def load_services():
                 or item.get("label")
             )
 
-            url = safe_url(item.get("url") or item.get("link"))
+            url = safe_url(
+                item.get("url") or item.get("link")
+            )
 
             if not name or not url:
                 continue
@@ -195,36 +250,44 @@ def load_services():
             if isinstance(keywords, list):
                 keywords = " ".join(map(str, keywords))
 
-            url_key = url.rstrip("/").casefold()
+            key = url.rstrip("/").casefold()
 
-            if url_key in seen_urls:
+            if key in seen:
                 continue
 
-            seen_urls.add(url_key)
+            seen.add(key)
 
             services.append({
                 "name": name,
                 "title": name,
                 "url": url,
                 "link": url,
-                "description": clean_text(item.get("description", "")),
-                "category": clean_text(item.get("category", "general")).casefold(),
-                "keywords": clean_text(keywords),
+                "description": clean_text(
+                    item.get("description", "")
+                ),
+                "category": clean_text(
+                    item.get("category", "general")
+                ).casefold(),
+                "keywords": clean_text(keywords)
             })
 
         return services
 
-    except (OSError, json.JSONDecodeError) as exc:
-        logger.exception("service.json read failed: %s", exc)
+    except (OSError, json.JSONDecodeError):
+        logger.exception("Service directory loading failed")
         return []
 
+
+# ------------------------------------------------------------
+# SEARCH SYNONYMS
+# ------------------------------------------------------------
 
 SEARCH_SYNONYMS = {
     "railway": ["rrb", "rail", "रेलवे", "रेल", "ट्रेन"],
     "rrb": ["railway", "रेलवे"],
     "job": ["jobs", "recruitment", "vacancy", "नौकरी", "भर्ती"],
     "jobs": ["job", "recruitment", "vacancy", "नौकरी", "भर्ती"],
-    "recruitment": ["job", "jobs", "vacancy", "भर्ती", "नौकरी"],
+    "recruitment": ["job", "jobs", "vacancy", "भर्ती"],
     "scholarship": ["छात्रवृत्ति", "स्कॉलरशिप", "छात्र"],
     "aadhaar": ["aadhar", "आधार", "uidai"],
     "aadhar": ["aadhaar", "आधार", "uidai"],
@@ -237,13 +300,13 @@ SEARCH_SYNONYMS = {
     "news": ["खबर", "समाचार", "ताजा खबर"],
     "cyber": ["cybercrime", "साइबर", "फ्रॉड", "fraud"],
     "hospital": ["अस्पताल", "clinic", "चिकित्सालय"],
-    "police": ["पुलिस", "थाना", "police station"],
+    "police": ["पुलिस", "थाना"],
     "hotel": ["होटल", "stay", "accommodation"],
     "school": ["स्कूल", "विद्यालय"],
     "restaurant": ["रेस्टोरेंट", "खाना", "food"],
     "photo": ["image", "images", "फोटो", "तस्वीर"],
     "image": ["photo", "photos", "फोटो", "तस्वीर"],
-    "video": ["वीडियो", "clips"],
+    "video": ["वीडियो", "clips"]
 }
 
 
@@ -261,6 +324,10 @@ def expand_search_words(query):
     return expanded
 
 
+# ------------------------------------------------------------
+# SMART LOCAL SEARCH
+# ------------------------------------------------------------
+
 def search_services(query, limit=30):
     query = normalize_text(query)
 
@@ -271,19 +338,24 @@ def search_services(query, limit=30):
     query_words = expand_search_words(query)
 
     for service in load_services():
+
         name = normalize_text(service["name"])
         description = normalize_text(service["description"])
         category = normalize_text(service["category"])
         keywords = normalize_text(service["keywords"])
 
         searchable = " ".join([
-            name, description, category, keywords
+            name,
+            description,
+            category,
+            keywords
         ])
 
         score = 0
 
         if query == name:
             score += 100
+
         elif query in name:
             score += 50
 
@@ -302,44 +374,50 @@ def search_services(query, limit=30):
 
             if word in name:
                 score += 5
+
             elif word in keywords:
                 score += 4
+
             elif word in category:
                 score += 3
+
             elif word in description:
                 score += 2
+
             elif word in searchable:
                 score += 1
 
-        if score:
+        if score > 0:
             result = dict(service)
             result["score"] = score
             matches.append(result)
 
     matches.sort(
-        key=lambda item: (-item["score"], item["name"].casefold())
+        key=lambda item: (
+            -item["score"],
+            item["name"].casefold()
+        )
     )
 
     return matches[:bounded_limit(limit, 30, 100)]
 
-
-# ------------------------------------------------------------
-# NEWS FEEDS
-# ------------------------------------------------------------
+# ============================================================
+# NEWS SYSTEM
+# ============================================================
 
 NEWS_FEEDS = [
     {
         "name": "Google News Hindi",
-        "url": "https://news.google.com/rss?hl=hi&gl=IN&ceid=IN:hi",
+        "url": "https://news.google.com/rss?hl=hi&gl=IN&ceid=IN:hi"
     },
     {
         "name": "Google News India",
-        "url": "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en",
+        "url": "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en"
     },
     {
         "name": "BBC Hindi",
-        "url": "https://feeds.bbci.co.uk/hindi/rss.xml",
-    },
+        "url": "https://feeds.bbci.co.uk/hindi/rss.xml"
+    }
 ]
 
 _news_cache = []
@@ -384,13 +462,11 @@ def extract_news_items(xml_text, source_name):
         if not link:
             for child in list(node):
                 if child.tag.split("}")[-1].lower() == "link":
-                    rel = child.attrib.get("rel", "alternate")
-
-                    if rel == "alternate":
+                    if child.attrib.get("rel", "alternate") == "alternate":
                         link = safe_url(child.attrib.get("href", ""))
 
-                        if link:
-                            break
+                    if link:
+                        break
 
         if title and link:
             results.append({
@@ -400,7 +476,7 @@ def extract_news_items(xml_text, source_name):
                 "url": link,
                 "link": link,
                 "source": source_name,
-                "published": published,
+                "published": published
             })
 
     return results
@@ -412,22 +488,25 @@ def fetch_news(query="", force_refresh=False):
     now = time.time()
 
     with _news_lock:
-        cache_is_valid = (
+        valid = (
             bool(_news_cache)
             and now - _news_cache_time < NEWS_CACHE_SECONDS
         )
 
-        if cache_is_valid and not force_refresh:
+        if valid and not force_refresh:
             all_news = list(_news_cache)
+
         else:
             all_news = []
 
             for feed in NEWS_FEEDS:
                 try:
-                    xml_text = fetch_url(feed["url"], timeout=6)
+                    xml_text = fetch_url(feed["url"], timeout=7)
+
                     all_news.extend(
                         extract_news_items(xml_text, feed["name"])
                     )
+
                 except Exception as exc:
                     logger.warning(
                         "News feed failed (%s): %s",
@@ -471,9 +550,9 @@ def fetch_news(query="", force_refresh=False):
     return all_news[:MAX_NEWS_ITEMS]
 
 
-# ------------------------------------------------------------
-# WEATHER: OPEN-METEO
-# ------------------------------------------------------------
+# ============================================================
+# WEATHER SYSTEM - OPEN METEO
+# ============================================================
 
 def get_location_details(place):
     place = clean_text(place)
@@ -492,13 +571,14 @@ def get_location_details(place):
         "count": 10,
         "language": "en",
         "format": "json",
-        "countryCode": "IN",
+        "countryCode": "IN"
     })
 
     try:
         data = json.loads(fetch_url(
-            "https://geocoding-api.open-meteo.com/v1/search?" + params,
-            timeout=7,
+            "https://geocoding-api.open-meteo.com/v1/search?"
+            + params,
+            timeout=7
         ))
 
         results = data.get("results", [])
@@ -515,9 +595,10 @@ def get_location_details(place):
         exact = next(
             (
                 item for item in candidates
-                if item.get("name", "").casefold() == place.casefold()
+                if item.get("name", "").casefold()
+                == place.casefold()
             ),
-            candidates[0],
+            candidates[0]
         )
 
         cache_set(key, exact)
@@ -550,11 +631,14 @@ def weather_description(code):
         82: "बहुत तेज बौछारें",
         95: "आंधी-तूफान",
         96: "ओलों के साथ तूफान",
-        99: "तेज तूफान और ओले",
+        99: "तेज तूफान और ओले"
     }
 
     try:
-        return descriptions.get(int(code), "मौसम की जानकारी उपलब्ध")
+        return descriptions.get(
+            int(code),
+            "मौसम की जानकारी उपलब्ध"
+        )
     except (ValueError, TypeError):
         return "मौसम की जानकारी उपलब्ध"
 
@@ -572,16 +656,18 @@ def get_weather(place):
         "latitude": location["latitude"],
         "longitude": location["longitude"],
         "current": (
-            "temperature_2m,relative_humidity_2m,apparent_temperature,"
-            "is_day,precipitation,weather_code,wind_speed_10m"
+            "temperature_2m,relative_humidity_2m,"
+            "apparent_temperature,is_day,precipitation,"
+            "weather_code,wind_speed_10m"
         ),
-        "timezone": "auto",
+        "timezone": "auto"
     })
 
     try:
         data = json.loads(fetch_url(
-            "https://api.open-meteo.com/v1/forecast?" + params,
-            timeout=7,
+            "https://api.open-meteo.com/v1/forecast?"
+            + params,
+            timeout=7
         ))
 
         current = data.get("current", {})
@@ -593,14 +679,18 @@ def get_weather(place):
             }
 
         code = current.get("weather_code")
-        condition = weather_description(code)
         temperature = current.get("temperature_2m")
+        condition = weather_description(code)
 
         return {
             "success": True,
             "place": location.get("name", place),
             "city": location.get("name", place),
-            "region": location.get("admin2") or location.get("admin1") or "",
+            "region": (
+                location.get("admin2")
+                or location.get("admin1")
+                or ""
+            ),
             "country": location.get("country", ""),
             "latitude": location.get("latitude"),
             "longitude": location.get("longitude"),
@@ -620,7 +710,7 @@ def get_weather(place):
             "time": current.get("time"),
             "updated_at": current.get("time"),
             "timezone": data.get("timezone", ""),
-            "source": "Open-Meteo",
+            "source": "Open-Meteo"
         }
 
     except Exception as exc:
@@ -632,10 +722,9 @@ def get_weather(place):
         }
 
 
-# ------------------------------------------------------------
-# IMAGE SEARCH: WIKIMEDIA COMMONS
-# Results include image URLs and license information.
-# ------------------------------------------------------------
+# ============================================================
+# IMAGE SEARCH - WIKIMEDIA COMMONS
+# ============================================================
 
 def search_images(query, limit=12):
     query = clean_text(query)
@@ -644,7 +733,13 @@ def search_images(query, limit=12):
         return []
 
     limit = bounded_limit(limit, 12, 30)
-    key = "images:" + normalize_text(query) + ":" + str(limit)
+
+    key = (
+        "images:"
+        + normalize_text(query)
+        + ":"
+        + str(limit)
+    )
 
     cached = cache_get(key, IMAGE_CACHE_SECONDS)
 
@@ -660,14 +755,17 @@ def search_images(query, limit=12):
         "prop": "imageinfo",
         "iiprop": "url|extmetadata",
         "iiurlwidth": 500,
-        "format": "json",
-        "origin": "*",
+        "format": "json"
     })
 
-    endpoint = "https://commons.wikimedia.org/w/api.php?" + params
+    endpoint = (
+        "https://commons.wikimedia.org/w/api.php?"
+        + params
+    )
 
     try:
         data = json.loads(fetch_url(endpoint, timeout=8))
+
         pages = data.get("query", {}).get("pages", {})
         results = []
 
@@ -683,6 +781,7 @@ def search_images(query, limit=12):
             image_url = safe_url(
                 info.get("thumburl") or info.get("url")
             )
+
             page_url = safe_url(info.get("descriptionurl"))
 
             if not image_url or not page_url:
@@ -690,8 +789,10 @@ def search_images(query, limit=12):
 
             def meta_value(name):
                 item = metadata.get(name, {})
+
                 if isinstance(item, dict):
                     return clean_text(item.get("value", ""))
+
                 return ""
 
             title = clean_text(
@@ -699,6 +800,7 @@ def search_images(query, limit=12):
             )
 
             artist = meta_value("Artist")
+
             license_name = (
                 meta_value("LicenseShortName")
                 or "लाइसेंस विवरण स्रोत पेज पर देखें"
@@ -716,7 +818,7 @@ def search_images(query, limit=12):
                 "license": license_name,
                 "artist": artist,
                 "credit": meta_value("Credit"),
-                "attribution_required": True,
+                "attribution_required": True
             })
 
         cache_set(key, results)
@@ -727,10 +829,9 @@ def search_images(query, limit=12):
         return []
 
 
-# ------------------------------------------------------------
+# ============================================================
 # VIDEO SEARCH LINKS
-# These are search links, not a live video feed.
-# ------------------------------------------------------------
+# ============================================================
 
 def search_videos(query, limit=10):
     query = clean_text(query)
@@ -743,25 +844,30 @@ def search_videos(query, limit=10):
     results = [
         {
             "title": "YouTube पर " + query + " खोजें",
-            "url": "https://www.youtube.com/results?search_query=" + encoded,
+            "url": (
+                "https://www.youtube.com/results?search_query="
+                + encoded
+            ),
             "source": "YouTube",
-            "type": "search_link",
+            "type": "search_link"
         },
         {
             "title": "Bing Videos पर " + query + " खोजें",
-            "url": "https://www.bing.com/videos/search?q=" + encoded,
+            "url": (
+                "https://www.bing.com/videos/search?q="
+                + encoded
+            ),
             "source": "Bing Videos",
-            "type": "search_link",
-        },
+            "type": "search_link"
+        }
     ]
 
     return results[:bounded_limit(limit, 10, 10)]
 
 
-# ------------------------------------------------------------
-# PLACES SEARCH: OPENSTREETMAP NOMINATIM
-# Uses caching and a minimum delay between requests.
-# ------------------------------------------------------------
+# ============================================================
+# PLACES SEARCH - OPENSTREETMAP
+# ============================================================
 
 _place_cache = {}
 _place_lock = threading.Lock()
@@ -777,6 +883,7 @@ def search_places(query, limit=10):
         return []
 
     limit = bounded_limit(limit, 10, 10)
+
     key = normalize_text(query) + ":" + str(limit)
 
     with _place_lock:
@@ -785,7 +892,6 @@ def search_places(query, limit=10):
         if cached and time.time() - cached[0] < PLACE_CACHE_SECONDS:
             return cached[1]
 
-        # Respect the public service's request rate.
         wait = 1.05 - (time.time() - _last_place_request)
 
         if wait > 0:
@@ -796,17 +902,21 @@ def search_places(query, limit=10):
             "format": "jsonv2",
             "limit": limit,
             "addressdetails": 1,
-            "countrycodes": "in",
+            "countrycodes": "in"
         })
 
         endpoint = (
-            "https://nominatim.openstreetmap.org/search?" + params
+            "https://nominatim.openstreetmap.org/search?"
+            + params
         )
 
         _last_place_request = time.time()
 
         try:
-            data = json.loads(fetch_url(endpoint, timeout=8))
+            data = json.loads(
+                fetch_url(endpoint, timeout=8)
+            )
+
             results = []
 
             for item in data if isinstance(data, list) else []:
@@ -824,24 +934,32 @@ def search_places(query, limit=10):
                         item.get("name")
                         or item.get("display_name", "")
                     ),
-                    "address": clean_text(item.get("display_name", "")),
-                    "category": clean_text(item.get("category", "")),
-                    "type": clean_text(item.get("type", "")),
+                    "address": clean_text(
+                        item.get("display_name", "")
+                    ),
+                    "category": clean_text(
+                        item.get("category", "")
+                    ),
+                    "type": clean_text(
+                        item.get("type", "")
+                    ),
                     "latitude": lat,
                     "longitude": lon,
                     "map_url": (
                         "https://www.openstreetmap.org/"
                         + urllib.parse.quote(osm_type)
-                        + "/" + urllib.parse.quote(osm_id)
+                        + "/"
+                        + urllib.parse.quote(osm_id)
                     ),
                     "directions_url": (
                         "https://www.openstreetmap.org/directions?to="
                         + urllib.parse.quote(str(lat) + "," + str(lon))
                     ),
-                    "source": "© OpenStreetMap contributors",
+                    "source": "© OpenStreetMap contributors"
                 })
 
             _place_cache[key] = (time.time(), results)
+
             return results
 
         except Exception as exc:
@@ -849,37 +967,37 @@ def search_places(query, limit=10):
             return []
 
 
-# ------------------------------------------------------------
-# RATE SOURCES
-# These are source links, not verified live prices.
-# ------------------------------------------------------------
+# ============================================================
+# MARKET RATE SOURCE LINKS
+# ============================================================
 
 RATE_SOURCES = {
     "gold": {
         "title": "सोना",
         "description": "सोने का भाव स्रोत वेबसाइट पर देखें।",
-        "url": "https://www.goodreturns.in/gold-rates/",
+        "url": "https://www.goodreturns.in/gold-rates/"
     },
     "silver": {
         "title": "चाँदी",
         "description": "चाँदी का भाव स्रोत वेबसाइट पर देखें।",
-        "url": "https://www.goodreturns.in/silver-rates/",
+        "url": "https://www.goodreturns.in/silver-rates/"
     },
     "stock_market": {
         "title": "शेयर बाजार",
         "description": "शेयर बाजार के लिए NSE वेबसाइट देखें।",
-        "url": "https://www.nseindia.com/",
+        "url": "https://www.nseindia.com/"
     },
     "mandi": {
         "title": "मंडी भाव",
         "description": "कृषि मंडी के भाव के लिए Agmarknet देखें।",
-        "url": "https://agmarknet.gov.in/",
-    },
+        "url": "https://agmarknet.gov.in/"
+    }
 }
 
 
 def get_rates(place="Rajasthan"):
     place = clean_text(place) or "Rajasthan"
+
     rates = {}
 
     for key, source in RATE_SOURCES.items():
@@ -890,7 +1008,7 @@ def get_rates(place="Rajasthan"):
             "description": source["description"],
             "source": source["url"],
             "updated_at": None,
-            "is_live_value": False,
+            "is_live_value": False
         }
 
     return {
@@ -901,18 +1019,22 @@ def get_rates(place="Rajasthan"):
         "rates": rates,
         "message": (
             "वास्तविक कीमतों का सीधा डेटा कनेक्शन अभी उपलब्ध नहीं है।"
-        ),
+        )
     }
 
 
-# ------------------------------------------------------------
-# MAIN PAGE AND HEALTH CHECK
-# ------------------------------------------------------------
+# ============================================================
+# MAIN PAGE
+# ============================================================
 
 @app.route("/", methods=["GET"])
 def home():
     return render_template("index.html")
 
+
+# ============================================================
+# HEALTH CHECK
+# ============================================================
 
 @app.route("/health", methods=["GET"])
 @app.route("/api/health", methods=["GET"])
@@ -924,9 +1046,13 @@ def health():
         "version": APP_VERSION,
         "status": "running",
         "services_count": len(load_services()),
-        "time": utc_now(),
+        "time": utc_now()
     })
 
+
+# ============================================================
+# ABOUT API
+# ============================================================
 
 @app.route("/api/about", methods=["GET"])
 def about():
@@ -944,27 +1070,24 @@ def about():
             "Video search links",
             "OpenStreetMap place search",
             "Market-rate source links",
+            "Push notification API"
         ],
-        "services_count": len(load_services()),
+        "services_count": len(load_services())
     })
 
 
-# ------------------------------------------------------------
+# ============================================================
 # MAIN SEARCH API
-# ------------------------------------------------------------
+# ============================================================
 
 @app.route("/api/search", methods=["GET", "POST"])
 def api_search():
-    if request.method == "POST":
-        payload = request.get_json(silent=True) or {}
-        query = clean_text(payload.get("q") or payload.get("query") or "")
-        limit = payload.get("limit", 30)
-    else:
-        query = clean_text(request.args.get("q", ""))
-        limit = request.args.get("limit", 30)
+    query, limit = get_request_query()
 
     if len(query) > 250:
-        return json_error("खोज का शब्द 250 अक्षरों से छोटा रखें।")
+        return json_error(
+            "खोज का शब्द 250 अक्षरों से छोटा रखें।"
+        )
 
     limit = bounded_limit(limit, 30, 100)
 
@@ -974,7 +1097,7 @@ def api_search():
             "query": "",
             "count": 0,
             "results": [],
-            "message": "खोजने के लिए कुछ लिखें।",
+            "message": "खोजने के लिए कुछ लिखें।"
         })
 
     results = search_services(query, limit)
@@ -984,7 +1107,9 @@ def api_search():
         "query": query,
         "count": len(results),
         "results": results,
-        "message": "" if results else "कोई स्थानीय लिंक नहीं मिला।",
+        "message": (
+            "" if results else "कोई स्थानीय लिंक नहीं मिला।"
+        )
     })
 
 
@@ -993,20 +1118,24 @@ def api_search_services():
     return api_search()
 
 
-# ------------------------------------------------------------
+# ============================================================
 # WEBSITE DIRECTORY API
-# Compatible with the new index.html website section.
-# ------------------------------------------------------------
+# ============================================================
 
 @app.route("/api/services", methods=["GET"])
 def api_services():
     query = clean_text(request.args.get("q", ""))
-    category = normalize_text(request.args.get("category", ""))
+    category = normalize_text(
+        request.args.get("category", "")
+    )
+
+    if len(query) > 250:
+        return json_error("खोज का शब्द बहुत लंबा है।")
 
     services = load_services()
 
     if query:
-        services = search_services(query, limit=100)
+        services = search_services(query, 100)
 
     if category and category != "all":
         services = [
@@ -1018,17 +1147,16 @@ def api_services():
         "success": True,
         "count": len(services),
         "results": services[:100],
-        "services": services[:100],
+        "services": services[:100]
     })
 
 
-# ------------------------------------------------------------
+# ============================================================
 # IMAGE SEARCH API
-# Supports the new frontend route /api/images/search.
-# Wikimedia Commons results include source and license details.
-# ------------------------------------------------------------
+# ============================================================
 
 @app.route("/api/images/search", methods=["GET"])
+@app.route("/api/images", methods=["GET"])
 def api_images_search():
     query = clean_text(request.args.get("q", ""))
 
@@ -1036,9 +1164,14 @@ def api_images_search():
         return json_error("फोटो खोजने के लिए कोई विषय लिखें।")
 
     if len(query) > 150:
-        return json_error("फोटो खोज का शब्द 150 अक्षरों से छोटा रखें।")
+        return json_error("फोटो खोज का शब्द बहुत लंबा है।")
 
-    limit = bounded_limit(request.args.get("limit", 12), 12, 30)
+    limit = bounded_limit(
+        request.args.get("limit", 12),
+        12,
+        30
+    )
+
     results = search_images(query, limit)
 
     return jsonify({
@@ -1050,19 +1183,13 @@ def api_images_search():
         "message": (
             "" if results
             else "अभी फोटो परिणाम नहीं मिले। दूसरा शब्द लिखकर देखें।"
-        ),
+        )
     })
 
 
-@app.route("/api/images", methods=["GET"])
-def api_images():
-    return api_images_search()
-
-
-# ------------------------------------------------------------
+# ============================================================
 # VIDEO SEARCH API
-# Returns search links, not a live video feed.
-# ------------------------------------------------------------
+# ============================================================
 
 @app.route("/api/videos", methods=["GET"])
 def api_videos():
@@ -1081,13 +1208,13 @@ def api_videos():
         "query": query,
         "count": len(results),
         "results": results,
-        "message": "ये वीडियो खोज के लिंक हैं, वास्तविक वीडियो सूची नहीं।",
+        "message": "ये वीडियो खोज के लिंक हैं, वास्तविक वीडियो सूची नहीं।"
     })
 
 
-# ------------------------------------------------------------
-# PLACES SEARCH API
-# ------------------------------------------------------------
+# ============================================================
+# PLACES API
+# ============================================================
 
 @app.route("/api/places", methods=["GET"])
 def api_places():
@@ -1101,7 +1228,12 @@ def api_places():
     if len(query) > 150:
         return json_error("जगह की खोज का शब्द बहुत लंबा है।")
 
-    limit = bounded_limit(request.args.get("limit", 10), 10, 10)
+    limit = bounded_limit(
+        request.args.get("limit", 10),
+        10,
+        10
+    )
+
     results = search_places(query, limit)
 
     return jsonify({
@@ -1114,13 +1246,13 @@ def api_places():
         "message": (
             "" if results
             else "जगह के परिणाम नहीं मिले या सेवा उपलब्ध नहीं है।"
-        ),
+        )
     })
 
 
-# ------------------------------------------------------------
+# ============================================================
 # COMBINED SEARCH API
-# ------------------------------------------------------------
+# ============================================================
 
 @app.route("/api/search-all", methods=["GET"])
 def api_search_all():
@@ -1143,26 +1275,33 @@ def api_search_all():
         "places_api": "/api/places?q=" + encoded,
         "news_api": "/api/news?q=" + encoded,
         "weather_api": "/api/weather?place=" + encoded,
-        "message": "उपलब्ध खोज श्रेणियों के API लिंक तैयार हैं।",
+        "message": "उपलब्ध खोज श्रेणियों के API लिंक तैयार हैं।"
     })
 
 
-# ------------------------------------------------------------
+# ============================================================
 # NEWS API
-# ------------------------------------------------------------
+# ============================================================
 
 @app.route("/api/news", methods=["GET"])
+@app.route("/api/latest-news", methods=["GET"])
 def api_news():
     query = clean_text(request.args.get("q", ""))
-    refresh = request.args.get("refresh", "").casefold()
-    force_refresh = refresh in ("1", "true", "yes")
 
     if len(query) > 150:
         return json_error("समाचार खोज का शब्द बहुत लंबा है।")
 
+    refresh = request.args.get("refresh", "").casefold()
+    force_refresh = refresh in ("1", "true", "yes")
+
     news = fetch_news(query, force_refresh)
-    limit = bounded_limit(request.args.get("limit", MAX_NEWS_ITEMS),
-                          MAX_NEWS_ITEMS, MAX_NEWS_ITEMS)
+
+    limit = bounded_limit(
+        request.args.get("limit", MAX_NEWS_ITEMS),
+        MAX_NEWS_ITEMS,
+        MAX_NEWS_ITEMS
+    )
+
     news = news[:limit]
 
     return jsonify({
@@ -1172,20 +1311,16 @@ def api_news():
         "updated_at": utc_now(),
         "results": news,
         "news": news,
-        "message": "" if news else "कोई खबर नहीं मिली।",
+        "message": "" if news else "कोई खबर नहीं मिली।"
     })
 
 
-@app.route("/api/latest-news", methods=["GET"])
-def api_latest_news():
-    return api_news()
-
-
-# ------------------------------------------------------------
+# ============================================================
 # WEATHER API
-# ------------------------------------------------------------
+# ============================================================
 
 @app.route("/api/weather", methods=["GET"])
+@app.route("/api/current-weather", methods=["GET"])
 def api_weather():
     place = clean_text(
         request.args.get("place", "")
@@ -1207,261 +1342,141 @@ def api_weather():
     return jsonify(result)
 
 
-@app.route("/api/current-weather", methods=["GET"])
-def api_current_weather():
-    return api_weather()
-
-
-# ------------------------------------------------------------
+# ============================================================
 # RATE SOURCES API
-# Does not claim to return live market prices.
-# ------------------------------------------------------------
+# ============================================================
 
 @app.route("/api/rates", methods=["GET"])
 def api_rates():
-    place = clean_text(request.args.get("place", "Rajasthan"))
+    place = clean_text(
+        request.args.get("place", "Rajasthan")
+    )
+
     return jsonify(get_rates(place))
 
 
-# ------------------------------------------------------------
-# OPTIONAL EDUCATION PAGE
-# If education.html is not present, return a helpful response.
-# ------------------------------------------------------------
+# ============================================================
+# EDUCATION PAGE
+# ============================================================
 
 @app.route("/education", methods=["GET"])
 def education():
     try:
         return render_template("education.html")
+
     except Exception:
         return (
-            "<!doctype html><html lang='hi'><meta charset='utf-8'>"
+            "<!doctype html><html lang='hi'>"
+            "<meta charset='utf-8'>"
             "<meta name='viewport' content='width=device-width,initial-scale=1'>"
             "<title>Ishwar Search - Education</title>"
             "<h1>Ishwar Search</h1>"
             "<p>Education पेज अभी तैयार नहीं है।</p>"
             "<a href='/'>होम पेज पर जाएँ</a></html>",
-            200,
+            200
         )
 
 
-# ------------------------------------------------------------
-# ERROR HANDLERS
-# ------------------------------------------------------------
-
-@app.errorhandler(404)
-def page_not_found(error):
-    if request.path.startswith("/api/"):
-        return jsonify({
-            "success": False,
-            "error": "यह API endpoint नहीं मिला।",
-            "path": request.path,
-        }), 404
-
-    return (
-        "<!doctype html><html lang='hi'><meta charset='utf-8'>"
-        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
-        "<title>404 | Ishwar Search</title>"
-        "<h1>Ishwar Search</h1><p>यह पेज नहीं मिला।</p>"
-        "<a href='/'>Ishwar Search पर वापस जाएँ</a></html>",
-        404,
-    )
-
-
-@app.errorhandler(405)
-def method_not_allowed(error):
-    return jsonify({
-        "success": False,
-        "error": "इस अनुरोध का तरीका उपलब्ध नहीं है।",
-    }), 405
-
-
-@app.errorhandler(413)
-def request_too_large(error):
-    return jsonify({
-        "success": False,
-        "error": "अनुरोध बहुत बड़ा है।",
-    }), 413
-
-
-@app.errorhandler(500)
-def internal_server_error(error):
-    logger.error(
-        "Internal server error on %s",
-        request.path,
-        exc_info=True,
-    )
-
-    if request.path.startswith("/api/"):
-        return jsonify({
-            "success": False,
-            "error": "सर्वर में समस्या आई। बाद में प्रयास करें।",
-        }), 500
-
-    return (
-        "<!doctype html><html lang='hi'><meta charset='utf-8'>"
-        "<title>500 | Ishwar Search</title>"
-        "<h1>Ishwar Search</h1>"
-        "<p>सर्वर में समस्या आई। कृपया बाद में प्रयास करें।</p>"
-        "<a href='/'>होम पेज पर जाएँ</a></html>",
-        500,
-    )
-
-
-# ------------------------------------------------------------
-# SECURITY HEADERS
-# ------------------------------------------------------------
-
-@app.after_request
-def add_security_headers(response):
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-Frame-Options"] = "SAMEORIGIN"
-    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-
-    if request.path.startswith("/api/"):
-        response.headers["Cache-Control"] = "no-store"
-
-    return response
-
-
-# ------------------------------------------------------------
-# RUN LOCALLY / RENDER
-# ------------------------------------------------------------
-
-# ------------------------------------------------------------
-# PUSH NOTIFICATION SUBSCRIPTION API
-# यह endpoint browser subscription को स्वीकार करता है।
-# वास्तविक push notification के लिए Web Push configuration
-# और subscription को सुरक्षित रूप से save करना जरूरी है।
-# ------------------------------------------------------------
-
-@app.route("/api/notifications/status", methods=["GET"])
-def notification_status():
-    return jsonify({
-        "success": True,
-        "app": APP_NAME,
-        "notifications_available": True,
-        "push_configured": False,
-        "message": (
-            "Notification API उपलब्ध है। "
-            "वास्तविक push notification अभी configure करना बाकी है।"
-        )
-    })
-
-
-@app.route("/api/notifications/subscribe", methods=["POST"])
-def notification_subscribe():
-    payload = request.get_json(silent=True)
-
-    if not isinstance(payload, dict):
-        return jsonify({
-            "success": False,
-            "error": "सही JSON subscription भेजें।"
-        }), 400
-
-    subscription = payload.get("subscription")
-
-    if not isinstance(subscription, dict):
-        return jsonify({
-            "success": False,
-            "error": "Browser subscription नहीं मिला।"
-        }), 400
-
-    endpoint = subscription.get("endpoint")
-    keys = subscription.get("keys")
-
-    if (
-        not isinstance(endpoint, str)
-        or not endpoint.startswith("https://")
-        or not isinstance(keys, dict)
-        or not keys.get("p256dh")
-        or not keys.get("auth")
-    ):
-        return jsonify({
-            "success": False,
-            "error": "Browser subscription का प्रारूप सही नहीं है।"
-        }), 400
-
-    # अभी subscription को save या इस्तेमाल नहीं किया जा रहा।
-    # अगला चरण: इसे सुरक्षित database में save करना और
-    # Web Push service से खबरों के notifications भेजना।
-
-    return jsonify({
-        "success": True,
-        "saved": False,
-        "push_configured": False,
-        "message": (
-            "Subscription प्राप्त हुआ, लेकिन अभी save नहीं हुआ। "
-            "Push notification के लिए अगला चरण बाकी है।"
-        )
-    })
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", "5000"))
-
-    app.run(
-        host="0.0.0.0",
-        port=port,
-        debug=False,
-    )
-    
 # ============================================================
-# ISHWAR SEARCH PUSH NOTIFICATIONS
-# Add this block BEFORE: if __name__ == "__main__":
+# PUSH NOTIFICATION STORAGE
 # ============================================================
-
-import base64
-import json
-from pathlib import Path
-from flask import current_app
-
-PUSH_DATA_FILE = os.path.join(BASE_DIR, "push_subscriptions.json")
 
 PUSH_CATEGORIES = {
     "news",
     "jobs",
     "updates",
     "schemes",
-    "fraud",
+    "fraud"
 }
+
+_push_lock = threading.Lock()
 
 
 def load_push_subscriptions():
-    try:
-        with open(PUSH_DATA_FILE, "r", encoding="utf-8") as file:
-            data = json.load(file)
-        return data if isinstance(data, list) else []
-    except (OSError, json.JSONDecodeError):
-        return []
+    with _push_lock:
+        try:
+            if not PUSH_DATA_FILE.exists():
+                return []
+
+            with PUSH_DATA_FILE.open(
+                "r",
+                encoding="utf-8"
+            ) as file:
+                data = json.load(file)
+
+            return data if isinstance(data, list) else []
+
+        except (OSError, json.JSONDecodeError):
+            logger.exception("Push subscription loading failed")
+            return []
 
 
 def save_push_subscriptions(items):
-    temp_file = PUSH_DATA_FILE + ".tmp"
+    temp_file = PUSH_DATA_FILE.with_suffix(".tmp")
 
-    with open(temp_file, "w", encoding="utf-8") as file:
-        json.dump(items, file, ensure_ascii=False, indent=2)
+    with _push_lock:
+        with temp_file.open("w", encoding="utf-8") as file:
+            json.dump(
+                items,
+                file,
+                ensure_ascii=False,
+                indent=2
+            )
 
-    os.replace(temp_file, PUSH_DATA_FILE)
+        os.replace(temp_file, PUSH_DATA_FILE)
 
 
 def get_vapid_public_key():
-    return os.environ.get("VAPID_PUBLIC_KEY", "").strip()
+    return os.environ.get(
+        "VAPID_PUBLIC_KEY", ""
+    ).strip()
 
+
+# ============================================================
+# NOTIFICATION STATUS
+# ============================================================
+
+@app.route("/api/notifications/status", methods=["GET"])
+def notification_status():
+    public_key = get_vapid_public_key()
+
+    return jsonify({
+        "success": True,
+        "app": APP_NAME,
+        "notifications_available": True,
+        "push_configured": bool(public_key),
+        "subscription_count": len(load_push_subscriptions()),
+        "message": (
+            "Push configuration उपलब्ध है।"
+            if public_key
+            else "Push Notification configuration बाकी है।"
+        )
+    })
+
+
+# ============================================================
+# NOTIFICATION PUBLIC KEY
+# ============================================================
 
 @app.route("/api/notifications/public-key", methods=["GET"])
 def notification_public_key():
     public_key = get_vapid_public_key()
 
     if not public_key:
-        return jsonify({
-            "success": False,
-            "error": "Push Notification की public key अभी सेट नहीं है।"
-        }), 503
+        return json_error(
+            "Push Notification की public key अभी सेट नहीं है।",
+            503
+        )
 
     return jsonify({
         "success": True,
         "publicKey": public_key
     })
 
+
+# ============================================================
+# SUBSCRIBE NOTIFICATIONS
+# ============================================================
 
 @app.route("/api/notifications/subscribe", methods=["POST"])
 def notification_subscribe():
@@ -1470,15 +1485,23 @@ def notification_subscribe():
     if not isinstance(payload, dict):
         return json_error("Subscription का JSON सही नहीं है।")
 
-    endpoint = payload.get("endpoint")
-    keys = payload.get("keys")
+    subscription = payload.get("subscription", payload)
+
+    if not isinstance(subscription, dict):
+        return json_error("Browser subscription नहीं मिला।")
+
+    endpoint = subscription.get("endpoint")
+    keys = subscription.get("keys")
 
     if (
         not isinstance(endpoint, str)
         or not endpoint.startswith("https://")
+        or len(endpoint) > 4096
         or not isinstance(keys, dict)
         or not isinstance(keys.get("p256dh"), str)
         or not isinstance(keys.get("auth"), str)
+        or len(keys["p256dh"]) > 500
+        or len(keys["auth"]) > 500
     ):
         return json_error("Push subscription अधूरा या गलत है।")
 
@@ -1492,37 +1515,49 @@ def notification_subscribe():
         }
     }
 
-    # एक ही endpoint को बार-बार सेव न करें
     subscriptions = [
         item for item in subscriptions
         if item.get("endpoint") != endpoint
     ]
+
     subscriptions.append(new_item)
 
     try:
         save_push_subscriptions(subscriptions)
+
     except OSError:
         logger.exception("Push subscription save failed")
-        return jsonify({
-            "success": False,
-            "error": "Subscription सेव नहीं हो पाया।"
-        }), 500
+
+        return json_error(
+            "Subscription सेव नहीं हो पाया।",
+            500
+        )
 
     return jsonify({
         "success": True,
+        "saved": True,
         "message": "Push subscription सेव हो गया।"
     })
 
 
+# ============================================================
+# UNSUBSCRIBE NOTIFICATIONS
+# ============================================================
+
 @app.route("/api/notifications/unsubscribe", methods=["POST"])
 def notification_unsubscribe():
     payload = request.get_json(silent=True) or {}
+
+    if not isinstance(payload, dict):
+        return json_error("सही JSON भेजें।")
+
     endpoint = payload.get("endpoint")
 
     if not isinstance(endpoint, str):
         return json_error("Subscription endpoint नहीं मिला।")
 
     subscriptions = load_push_subscriptions()
+
     remaining = [
         item for item in subscriptions
         if item.get("endpoint") != endpoint
@@ -1530,83 +1565,119 @@ def notification_unsubscribe():
 
     try:
         save_push_subscriptions(remaining)
+
     except OSError:
-        logger.exception("Push unsubscribe save failed")
-        return jsonify({
-            "success": False,
-            "error": "Subscription हटाया नहीं जा सका।"
-        }), 500
+        return json_error(
+            "Subscription हटाया नहीं जा सका।",
+            500
+        )
 
-    return jsonify({"success": True})
+    return jsonify({
+        "success": True,
+        "message": "Notification subscription हटा दिया गया।"
+    })
 
+
+# ============================================================
+# SEND PUSH NOTIFICATIONS
+# ============================================================
 
 @app.route("/api/notifications/send", methods=["POST"])
 def notification_send():
-    # केवल secret admin token वाला अनुरोध notification भेज सकता है।
-    admin_secret = os.environ.get("NOTIFICATION_ADMIN_TOKEN", "")
-    supplied_token = request.headers.get("X-Admin-Token", "")
+    admin_secret = os.environ.get(
+        "NOTIFICATION_ADMIN_TOKEN", ""
+    )
 
-    if not admin_secret or not supplied_token:
-        return jsonify({
-            "success": False,
-            "error": "Admin authorization सेट नहीं है।"
-        }), 403
+    supplied_token = request.headers.get(
+        "X-Admin-Token", ""
+    )
 
-    import hmac
-    if not hmac.compare_digest(supplied_token, admin_secret):
-        return jsonify({
-            "success": False,
-            "error": "Admin authorization गलत है।"
-        }), 403
+    if (
+        not admin_secret
+        or not supplied_token
+        or not hmac.compare_digest(
+            supplied_token,
+            admin_secret
+        )
+    ):
+        return json_error(
+            "Admin authorization गलत या सेट नहीं है।",
+            403
+        )
 
     payload = request.get_json(silent=True)
 
     if not isinstance(payload, dict):
         return json_error("Notification का JSON सही नहीं है।")
 
-    category = str(payload.get("category", "")).strip().lower()
+    category = str(
+        payload.get("category", "")
+    ).strip().lower()
+
     title = clean_text(payload.get("title", ""))
     body = clean_text(payload.get("body", ""))
-    target_url = str(payload.get("url", "/")).strip()
+
+    target_url = str(
+        payload.get("url", "/")
+    ).strip()
 
     if category not in PUSH_CATEGORIES:
-        return json_error("Category news, jobs, updates, schemes या fraud होनी चाहिए।")
+        return json_error(
+            "Category news, jobs, updates, schemes या fraud होनी चाहिए।"
+        )
 
     if not title or not body:
         return json_error("Title और body दोनों जरूरी हैं।")
 
     if len(title) > 100 or len(body) > 300:
-        return json_error("Title 100 और body 300 अक्षरों तक रखें।")
+        return json_error(
+            "Title 100 और body 300 अक्षरों तक रखें।"
+        )
 
-    # Notifications केवल अपनी वेबसाइट के URLs खोलें।
     from urllib.parse import urlparse
+
     parsed = urlparse(target_url)
 
-    if target_url.startswith("/") and not target_url.startswith("//"):
+    if (
+        target_url.startswith("/")
+        and not target_url.startswith("//")
+    ):
         safe_target_url = target_url
-    elif parsed.scheme == "https" and parsed.netloc == request.host:
-        safe_target_url = target_url
-    else:
-        return json_error("Notification URL अपनी वेबसाइट का relative path होना चाहिए।")
 
-    private_key = os.environ.get("VAPID_PRIVATE_KEY", "").strip()
+    elif (
+        parsed.scheme == "https"
+        and parsed.netloc == request.host
+    ):
+        safe_target_url = target_url
+
+    else:
+        return json_error(
+            "Notification URL अपनी वेबसाइट का होना चाहिए।"
+        )
+
+    private_key = os.environ.get(
+        "VAPID_PRIVATE_KEY", ""
+    ).strip()
+
     public_key = get_vapid_public_key()
 
     if not private_key or not public_key:
-        return jsonify({
-            "success": False,
-            "error": "VAPID keys सेट नहीं हैं।"
-        }), 503
+        return json_error(
+            "VAPID keys सेट नहीं हैं।",
+            503
+        )
 
     try:
         from pywebpush import webpush, WebPushException
+
     except ImportError:
-        return jsonify({
-            "success": False,
-            "error": "pywebpush dependency इंस्टॉल नहीं है।"
-        }), 503
+        return json_error(
+            "pywebpush dependency इंस्टॉल नहीं है।",
+            503
+        )
 
     subscriptions = load_push_subscriptions()
+
     delivered = 0
     failed = 0
     expired_endpoints = set()
@@ -1622,43 +1693,57 @@ def notification_send():
         try:
             webpush(
                 subscription_info=subscription,
-                data=json.dumps(message, ensure_ascii=False),
+                data=json.dumps(
+                    message,
+                    ensure_ascii=False
+                ),
                 vapid_private_key=private_key,
                 vapid_claims={
                     "sub": os.environ.get(
                         "VAPID_SUBJECT",
-                        "mailto:admin@example.com"
+                        "mailto:admin@ishwar-search.onrender.com"
                     )
                 },
-                ttl=3600,
+                ttl=3600
             )
+
             delivered += 1
 
         except WebPushException as exc:
             failed += 1
 
             response = getattr(exc, "response", None)
-            status_code = getattr(response, "status_code", None)
+            status_code = getattr(
+                response,
+                "status_code",
+                None
+            )
 
-            # 404/410 usually means the subscription has expired.
             if status_code in (404, 410):
-                expired_endpoints.add(subscription.get("endpoint"))
+                expired_endpoints.add(
+                    subscription.get("endpoint")
+                )
 
-            logger.warning("Push delivery failed: %s", exc)
+            logger.warning(
+                "Push delivery failed: %s",
+                exc
+            )
 
         except Exception:
             failed += 1
-            logger.exception("Unexpected Push delivery error")
+            logger.exception("Unexpected Push error")
 
     if expired_endpoints:
         subscriptions = [
             item for item in subscriptions
             if item.get("endpoint") not in expired_endpoints
         ]
+
         try:
             save_push_subscriptions(subscriptions)
+
         except OSError:
-            logger.exception("Could not clean expired subscriptions")
+            logger.exception("Expired subscriptions cleanup failed")
 
     return jsonify({
         "success": True,
@@ -1669,6 +1754,108 @@ def notification_send():
         "message": "Push भेजने का प्रयास पूरा हुआ।"
     })
 
-    if __name__ == "__main__":
+
+# ============================================================
+# ERROR HANDLERS
+# ============================================================
+
+@app.errorhandler(404)
+def page_not_found(error):
+    if request.path.startswith("/api/"):
+        return jsonify({
+            "success": False,
+            "error": "यह API endpoint नहीं मिला।",
+            "path": request.path
+        }), 404
+
+    return (
+        "<!doctype html><html lang='hi'>"
+        "<meta charset='utf-8'>"
+        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+        "<title>404 | Ishwar Search</title>"
+        "<h1>Ishwar Search</h1>"
+        "<p>यह पेज नहीं मिला।</p>"
+        "<a href='/'>Ishwar Search पर वापस जाएँ</a>"
+        "</html>",
+        404
+    )
 
 
+@app.errorhandler(405)
+def method_not_allowed(error):
+    return jsonify({
+        "success": False,
+        "error": "इस अनुरोध का तरीका उपलब्ध नहीं है।"
+    }), 405
+
+
+@app.errorhandler(413)
+def request_too_large(error):
+    return jsonify({
+        "success": False,
+        "error": "अनुरोध बहुत बड़ा है।"
+    }), 413
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    logger.error(
+        "Internal server error on %s",
+        request.path,
+        exc_info=True
+    )
+
+    if request.path.startswith("/api/"):
+        return jsonify({
+            "success": False,
+            "error": "सर्वर में समस्या आई। बाद में प्रयास करें।"
+        }), 500
+
+    return (
+        "<!doctype html><html lang='hi'>"
+        "<meta charset='utf-8'>"
+        "<title>500 | Ishwar Search</title>"
+        "<h1>Ishwar Search</h1>"
+        "<p>सर्वर में समस्या आई। कृपया बाद में प्रयास करें।</p>"
+        "<a href='/'>होम पेज पर जाएँ</a>"
+        "</html>",
+        500
+    )
+
+
+# ============================================================
+# SECURITY HEADERS
+# ============================================================
+
+@app.after_request
+def add_security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+
+    response.headers["Referrer-Policy"] = (
+        "strict-origin-when-cross-origin"
+    )
+
+    response.headers["Permissions-Policy"] = (
+        "camera=(), microphone=(), geolocation=()"
+    )
+
+    if request.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+
+    return response
+
+
+# ============================================================
+# RUN SERVER
+# ============================================================
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", "5000"))
+
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        debug=False
+    )
