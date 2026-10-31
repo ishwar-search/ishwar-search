@@ -1,75 +1,162 @@
-
 "use strict";
 
 (() => {
-  const SUPPORTS_NOTIFICATIONS = "Notification" in window;
-  const SUPPORTS_SERVICE_WORKER = "serviceWorker" in navigator;
-  const SUPPORTS_PUSH = "PushManager" in window;
+  const button = document.getElementById("enableNotifications");
+  const status = document.getElementById("notificationStatus");
 
   const STORAGE_KEY = "ishwar-search-notification-preference";
 
-  function getPreference() {
-    try {
-      return localStorage.getItem(STORAGE_KEY);
-    } catch {
-      return null;
+  function setStatus(message) {
+    if (status) {
+      status.textContent = message;
     }
   }
 
-  function setPreference(value) {
+  function savePreference(value) {
     try {
       localStorage.setItem(STORAGE_KEY, value);
-    } catch {
-      // Storage may be unavailable in private browsing.
+    } catch (error) {
+      console.warn("Notification preference save failed:", error);
     }
+  }
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - base64String.length % 4) % 4);
+
+    const base64 = (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const rawData = window.atob(base64);
+
+    return Uint8Array.from(
+      rawData,
+      character => character.charCodeAt(0)
+    );
+  }
+
+  async function fetchJSON(url, options = {}) {
+    const response = await fetch(url, options);
+
+    let data = {};
+
+    try {
+      data = await response.json();
+    } catch (error) {
+      throw new Error("Server से सही जवाब नहीं मिला।");
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || data.message || "Server request असफल हुई।"
+      );
+    }
+
+    return data;
   }
 
   async function registerServiceWorker() {
-    if (!SUPPORTS_SERVICE_WORKER) {
+    if (!("serviceWorker" in navigator)) {
       throw new Error("इस ब्राउज़र में Service Worker उपलब्ध नहीं है।");
     }
 
-    return navigator.serviceWorker.register("/static/sw.js", {
-      scope: "/"
-    });
+    const registration = await navigator.serviceWorker.register(
+      "/static/sw.js",
+      { scope: "/" }
+    );
+
+    await navigator.serviceWorker.ready;
+
+    return registration;
   }
 
   async function enableNotifications() {
-    if (!SUPPORTS_NOTIFICATIONS) {
-      throw new Error("यह ब्राउज़र Notifications सपोर्ट नहीं करता।");
+    if (!("Notification" in window)) {
+      throw new Error("यह ब्राउज़र Notification सपोर्ट नहीं करता।");
+    }
+
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      throw new Error("इस ब्राउज़र में Push Notification उपलब्ध नहीं है।");
     }
 
     if (!window.isSecureContext) {
-      throw new Error("Notifications के लिए HTTPS वेबसाइट खोलें।");
+      throw new Error("Notification के लिए HTTPS वेबसाइट खोलें।");
     }
 
-    const permission = await Notification.requestPermission();
+    // पहले Server से VAPID Public Key लें
+    const keyData = await fetchJSON(
+      "/api/notifications/public-key"
+    );
+
+    if (!keyData.publicKey) {
+      throw new Error("Push Public Key अभी सेट नहीं है।");
+    }
+
+    // Browser से अनुमति लें
+    let permission = Notification.permission;
+
+    if (permission === "default") {
+      permission = await Notification.requestPermission();
+    }
 
     if (permission !== "granted") {
-      setPreference("denied");
-      throw new Error("Notification permission नहीं मिली।");
+      savePreference("denied");
+      throw new Error("Notification की अनुमति नहीं मिली।");
     }
 
+    // Service Worker तैयार करें
     const registration = await registerServiceWorker();
 
-    setPreference("enabled");
+    // पहले से मौजूद Push Subscription देखें
+    let subscription =
+      await registration.pushManager.getSubscription();
+
+    // Subscription मौजूद नहीं है तो नया बनाएं
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(
+          keyData.publicKey
+        )
+      });
+    }
+
+    // Subscription Backend पर सेव करें
+    const result = await fetchJSON(
+      "/api/notifications/subscribe",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(subscription)
+      }
+    );
+
+    if (result.success !== true) {
+      throw new Error(
+        result.error || "Subscription सेव नहीं हो पाया।"
+      );
+    }
+
+    savePreference("enabled");
 
     return {
       enabled: true,
-      permission,
-      pushSupported: SUPPORTS_PUSH,
-      serviceWorkerReady: Boolean(registration.active || registration.installing)
+      permission: permission,
+      subscription: true
     };
   }
 
   async function showTestNotification() {
-    if (!SUPPORTS_NOTIFICATIONS || Notification.permission !== "granted") {
-      throw new Error("पहले Notifications चालू करें।");
+    if (
+      !("Notification" in window) ||
+      Notification.permission !== "granted"
+    ) {
+      throw new Error("पहले Notification की अनुमति दें।");
     }
 
     const registration = await registerServiceWorker();
-
-    await navigator.serviceWorker.ready;
 
     await registration.showNotification("Ishwar Search", {
       body: "Notification test सफल रहा! 🔔",
@@ -85,138 +172,111 @@
   }
 
   async function getStatus() {
-    let serviceWorkerReady = false;
+    const supported =
+      "Notification" in window &&
+      "serviceWorker" in navigator &&
+      "PushManager" in window;
 
-    if (SUPPORTS_SERVICE_WORKER) {
+    let serviceWorkerReady = false;
+    let subscribed = false;
+
+    if (supported) {
       try {
-        await registerServiceWorker();
-        await navigator.serviceWorker.ready;
+        const registration = await registerServiceWorker();
+
         serviceWorkerReady = true;
+
+        const subscription =
+          await registration.pushManager.getSubscription();
+
+        subscribed = Boolean(subscription);
       } catch (error) {
-        console.warn("Service Worker:", error);
+        console.warn("Notification status:", error);
       }
     }
 
+    let preference = null;
+
+    try {
+      preference = localStorage.getItem(STORAGE_KEY);
+    } catch (error) {
+      // Storage unavailable
+    }
+
     return {
-      supported: SUPPORTS_NOTIFICATIONS,
-      pushSupported: SUPPORTS_PUSH,
-      permission: SUPPORTS_NOTIFICATIONS
+      supported: supported,
+      permission: "Notification" in window
         ? Notification.permission
         : "unsupported",
-      preference: getPreference(),
-      serviceWorkerReady
+      serviceWorkerReady: serviceWorkerReady,
+      subscribed: subscribed,
+      preference: preference
     };
   }
 
+  // Public functions
   window.IshwarNotifications = {
     enable: enableNotifications,
     test: showTestNotification,
     status: getStatus
   };
-})();
 
-"use strict";
+  // Enable button
+  if (button) {
+    button.addEventListener("click", async () => {
+      button.disabled = true;
+      setStatus("Notification सेवा तैयार हो रही है...");
 
-(() => {
-  const button = document.getElementById("enableNotifications");
-  const status = document.getElementById("notificationStatus");
+      try {
+        await enableNotifications();
 
-  if (!button || !status) return;
+        button.textContent = "🔔 Notifications चालू हैं";
 
-  const setStatus = message => {
-    status.textContent = message;
-  };
+        setStatus(
+          "✅ Ishwar Search की Push Notification चालू हो गई!"
+        );
+      } catch (error) {
+        console.error("Notification setup error:", error);
 
-  function urlBase64ToUint8Array(base64String) {
-    const padding = "=".repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding)
-      .replace(/-/g, "+")
-      .replace(/_/g, "/");
-
-    const raw = atob(base64);
-    return Uint8Array.from(raw, char => char.charCodeAt(0));
+        setStatus(
+          "Notification चालू नहीं हुई: " + error.message
+        );
+      } finally {
+        button.disabled = false;
+      }
+    });
   }
 
-  async function enableNotifications() {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-      setStatus("इस ब्राउज़र में Push Notification समर्थित नहीं है।");
-      return;
-    }
-
-    if (!window.isSecureContext) {
-      setStatus("Push Notification के लिए HTTPS वेबसाइट खोलें।");
-      return;
-    }
-
-    if (!("Notification" in window)) {
-      setStatus("इस ब्राउज़र में Notification उपलब्ध नहीं है।");
-      return;
-    }
-
-    button.disabled = true;
-    setStatus("Notification सेवा तैयार हो रही है...");
+  // शुरुआती स्थिति दिखाएं
+  (async () => {
+    if (!status) return;
 
     try {
-      const keyResponse = await fetch("/api/notifications/public-key");
-      const keyData = await keyResponse.json();
+      const current = await getStatus();
 
-      if (!keyResponse.ok || !keyData.publicKey) {
-        throw new Error(keyData.error || "Push public key सेट नहीं है।");
+      if (!current.supported) {
+        setStatus(
+          "इस ब्राउज़र में Push Notification उपलब्ध नहीं है।"
+        );
+      } else if (current.subscribed) {
+        setStatus(
+          "आपकी Push Notification पहले से चालू है।"
+        );
+
+        if (button) {
+          button.textContent = "🔔 Notifications चालू हैं";
+        }
+      } else if (current.permission === "granted") {
+        setStatus(
+          "Notification की अनुमति मिल चुकी है। Push चालू करने के लिए बटन दबाएं।"
+        );
+      } else {
+        setStatus(
+          "ताज़ा खबरें और जरूरी अलर्ट पाने के लिए Notification चालू करें।"
+        );
       }
-
-      let permission = Notification.permission;
-
-      if (permission === "default") {
-        permission = await Notification.requestPermission();
-      }
-
-      if (permission !== "granted") {
-        setStatus("Notification की अनुमति नहीं मिली। Browser settings में अनुमति दें।");
-        return;
-      }
-
-      const registration = await navigator.serviceWorker.register("/static/sw.js");
-      await navigator.serviceWorker.ready;
-
-      let subscription = await registration.pushManager.getSubscription();
-
-      if (!subscription) {
-        subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(keyData.publicKey)
-        });
-      }
-
-      const response = await fetch("/api/notifications/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(subscription)
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || "Subscription सेव नहीं हो पाया।");
-      }
-
-      setStatus("✅ Ishwar Search की Push Notification चालू हो गई!");
-      button.textContent = "🔔 Notifications चालू हैं";
-
     } catch (error) {
-      console.error("Notification setup failed:", error);
-      setStatus("Notification चालू नहीं हुई: " + error.message);
-    } finally {
-      button.disabled = false;
+      setStatus("Notification स्थिति जाँच नहीं हो सकी।");
     }
-  }
-
-  button.addEventListener("click", enableNotifications);
-
-  if ("Notification" in window && Notification.permission === "granted") {
-    setStatus("आपके ब्राउज़र में Notification की अनुमति पहले से है।");
-  } else {
-    setStatus("ताज़ा खबरें और जरूरी अलर्ट पाने के लिए Notification चालू करें।");
-  }
+  })();
 })();
-
-
