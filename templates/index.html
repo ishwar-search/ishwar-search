@@ -1,10 +1,8 @@
-
 <!doctype html>
 <html lang="hi">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#020817">
 <meta name="description" content="Ishwar Search — वेबसाइट, समाचार, इमेज और ऑनलाइन सेवाएँ खोजें।">
 <title>Ishwar Search</title>
 <link rel="manifest" href="/static/manifest.json">
@@ -245,8 +243,7 @@ body.light-mode .notification-box{background:white;color:#10213a}
     <div id="resultsStatus" class="empty" aria-live="polite">खोजने के लिए शब्द लिखें।</div>
     <div id="resultsList" class="result-list"></div>
   </section>
-
-  <section class="tool-panel" id="websitesPanel" hidden>
+    <section class="tool-panel" id="websitesPanel" hidden>
     <h2>🌐 Websites Directory</h2>
     <p>किसी वेबसाइट को खोजें या category चुनें।</p>
     <input class="panel-search" id="websiteFilter" type="search" placeholder="Instagram, PAN Card, Aadhaar, Railway...">
@@ -298,34 +295,21 @@ body.light-mode .notification-box{background:white;color:#10213a}
     <p>उपलब्ध RSS स्रोतों से समाचार। खबर की तारीख और स्रोत जाँचकर पढ़ें।</p>
     <button class="action-button" id="refreshNews" type="button">खबरें फिर से लोड करें ↻</button>
     <div id="newsStatus" class="panel-status" aria-live="polite">खबरें लोड करने के लिए News खोलें।</div>
-    
-<!-- ISHWAR SEARCH NOTIFICATION SETTINGS -->
-<section class="notification-box" aria-label="Notification settings">
-  <h3>🔔 Ishwar Search Alerts</h3>
-  <p>News, Jobs, Updates, Schemes और Fraud Alerts पाने के लिए अनुमति दें।</p>
-  <button type="button" class="action-button" id="enableNotifications">
-    🔔 Notification चालू करें
-  </button>
-  <p id="notificationStatus" class="panel-status" aria-live="polite">
-    Notification की स्थिति जाँची जा रही है...
-  </p>
-</section>
-
     <div class="directory-grid" id="newsList"></div>
   </section>
 
   <section class="tool-panel" id="notificationsPanel" hidden>
     <h2>🔔 Ishwar Search News Notifications</h2>
     <div class="notification-box">
-      <strong>ब्राउज़र नोटिफिकेशन</strong>
-      <p>अनुमति देने पर यह वेबसाइट ब्राउज़र नोटिफिकेशन दिखा सकती है। फोन पर नोटिफिकेशन की उपलब्धता ब्राउज़र और साइट की HTTPS सेटिंग पर निर्भर करती है।</p>
-      <button class="action-button" id="enableNotifications" type="button">नोटिफिकेशन चालू करें</button>
-      <p id="notificationStatus" aria-live="polite">नोटिफिकेशन अभी चालू नहीं किए गए हैं।</p>
+      <strong>ब्राउज़र Push Notification</strong>
+      <p>अनुमति देने के बाद यह ब्राउज़र इस डिवाइस पर Ishwar Search के अलर्ट दिखा सकेगा। इसके लिए HTTPS, Service Worker और सर्वर पर Push configuration जरूरी है।</p>
+      <button class="action-button" id="enableNotifications" type="button">🔔 Notification चालू करें</button>
+      <p id="notificationStatus" class="panel-status" aria-live="polite">Notification की स्थिति जाँची जा रही है...</p>
     </div>
     <div class="notification-box">
-      <strong>न्यूज़ अपडेट</strong>
-      <p>वेबसाइट खोलने पर नई खबरें जाँची जाएँगी। बैकग्राउंड में लगातार खबरें भेजने के लिए बाद में HTTPS, service worker और push server जोड़ना होगा।</p>
-      <button class="action-button" id="checkNewsNotification" type="button">नई खबरें जाँचें</button>
+      <strong>टेस्ट / ताज़ा न्यूज़ अलर्ट</strong>
+      <p>यह बटन वेबसाइट खुली होने पर उपलब्ध ताज़ा खबर का एक स्थानीय टेस्ट नोटिफिकेशन दिखाएगा। यह अपने-आप बैकग्राउंड न्यूज़ भेजने का विकल्प नहीं है।</p>
+      <button class="action-button" id="checkNewsNotification" type="button">नई खबर जाँचें</button>
     </div>
   </section>
 </main>
@@ -350,7 +334,6 @@ body.light-mode .notification-box{background:white;color:#10213a}
   let selectedCategory = "all";
   let newsLoaded = false;
   let latestNews = [];
-  let notificationPermission = "default";
 
   $("year").textContent = new Date().getFullYear();
 
@@ -501,7 +484,7 @@ body.light-mode .notification-box{background:white;color:#10213a}
       const response = await fetch("/api/services");
       if (!response.ok) throw new Error("HTTP "+response.status);
       const data = await response.json();
-      const combined = [...builtInWebsites,...(Array.isArray(data.results)?data.results:[])]
+            const combined = [...builtInWebsites,...(Array.isArray(data.results)?data.results:[])]
         .map(normalizeSite).filter(Boolean);
       const seen = new Set();
       allWebsites = combined.filter(item => {
@@ -636,10 +619,7 @@ body.light-mode .notification-box{background:white;color:#10213a}
   }
   $("refreshNews").addEventListener("click",loadNews);
 
-  // --------------------------------------------------
   // MAIN SEARCH
-  // --------------------------------------------------
-
   async function performSearch(query) {
     showView("home");
     $("searchResults").hidden = false;
@@ -677,126 +657,60 @@ body.light-mode .notification-box{background:white;color:#10213a}
     });
   });
 
-  // --------------------------------------------------
   // NEWS NOTIFICATIONS
-  // Browser notification permission requires HTTPS or localhost.
-  // A page-open check is not the same as background push.
-  // --------------------------------------------------
+  // Permission + Push subscription are managed by notifications.js.
+  // This section only provides navigation and an on-demand news test.
 
-  function notificationStatus(message) {
-    $("notificationStatus").textContent = message;
-  }
-
-  async function enableNotifications() {
-    if (!("Notification" in window)) {
-      notificationStatus("इस ब्राउज़र में notifications समर्थित नहीं हैं।");
-      return;
-    }
-
-    if (!window.isSecureContext) {
-      notificationStatus("Notifications के लिए HTTPS वेबसाइट खोलें।");
-      return;
-    }
-
-    try {
-      notificationPermission = await Notification.requestPermission();
-
-      if (notificationPermission === "granted") {
-        notificationStatus("नोटिफिकेशन की अनुमति मिल गई। अब नई खबर जाँच सकते हैं।");
-        new Notification("Ishwar Search",{
-          body:"News notifications चालू हैं।",
-          icon:"/static/logo.png"
-        });
-      } else if (notificationPermission === "denied") {
-        notificationStatus("अनुमति अस्वीकार हुई। ब्राउज़र साइट सेटिंग्स में इसे बदल सकते हैं।");
-      } else {
-        notificationStatus("अनुमति नहीं दी गई।");
-      }
-    } catch(error) {
-      console.error(error);
-      notificationStatus("नोटिफिकेशन चालू नहीं हो पाए।");
-    }
-  }
-
-  $("enableNotifications").addEventListener("click",enableNotifications);
   $("notificationButton").addEventListener("click",() => {
     showView("notifications");
-    enableNotifications();
   });
 
   async function checkNewsNotification() {
     if (!("Notification" in window) || Notification.permission !== "granted") {
-      notificationStatus("पहले नोटिफिकेशन चालू करें।");
+      $("notificationStatus").textContent = "पहले Notification चालू करें।";
       return;
     }
 
     try {
       const response = await fetch("/api/news?limit=5&refresh=1");
-      if (!response.ok) throw new Error("News API "+response.status);
+      if (!response.ok) throw new Error("News API " + response.status);
+
       const data = await response.json();
-      const news = Array.isArray(data.results)?data.results:[];
+      const news = Array.isArray(data.results) ? data.results : [];
 
       if (!news.length) {
-        notificationStatus("अभी नई खबरें उपलब्ध नहीं हैं।");
+        $("notificationStatus").textContent = "अभी नई खबरें उपलब्ध नहीं हैं।";
         return;
       }
 
-      new Notification("Ishwar Search — News Update",{
-        body:String(news[0].title || "नई खबर उपलब्ध है।").slice(0,180),
-        icon:"/static/logo.png"
+      const registration = await navigator.serviceWorker.ready;
+      await registration.showNotification("Ishwar Search — News Update", {
+        body: String(news[0].title || "नई खबर उपलब्ध है।").slice(0, 180),
+        icon: "/static/logo.png",
+        badge: "/static/logo.png",
+        tag: "ishwar-search-manual-news-test",
+        data: { url: news[0].url || news[0].link || "/" }
       });
 
-      notificationStatus("ताजा खबर का नोटिफिकेशन भेजा गया।");
+      $("notificationStatus").textContent = "ताज़ा खबर का टेस्ट नोटिफिकेशन दिखाया गया।";
       latestNews = news;
-    } catch(error) {
-      console.error(error);
-      notificationStatus("खबर जाँच नहीं पाए। News API उपलब्ध है या नहीं देखें।");
+    } catch (error) {
+      console.error("News notification test failed:", error);
+      $("notificationStatus").textContent = "खबर जाँच नहीं पाए। News API या Service Worker जाँचें।";
     }
   }
 
   $("checkNewsNotification").addEventListener("click",checkNewsNotification);
 
-  // Browser notification on opening the page, if permission is already granted.
-  if ("Notification" in window && Notification.permission === "granted") {
-    notificationPermission = "granted";
-    notificationStatus("नोटिफिकेशन की अनुमति पहले से मिली हुई है।");
-  }
-
-  // --------------------------------------------------
   // THEME
-  // --------------------------------------------------
-
   $("themeButton").addEventListener("click",() => {
     const light = document.body.classList.toggle("light-mode");
     $("themeButton").textContent = light?"☀":"☾";
   });
 
   showView("home");
-  // Notification controls for Ishwar Search
-const notificationButton = document.createElement("button");
-notificationButton.type = "button";
-notificationButton.textContent = "🔔 Notifications चालू करें";
-notificationButton.className = "action-button";
-notificationButton.style.margin = "12px";
-notificationButton.addEventListener("click", async () => {
-  try {
-    await window.IshwarNotifications.enable();
-    await window.IshwarNotifications.test();
-    notificationButton.textContent = "✓ Test Notification भेजा गया";
-  } catch (error) {
-    alert(error.message || "Notification चालू नहीं हो सका।");
-  }
-});
-
-const footer = document.getElementById("footer");
-if (footer) {
-  footer.appendChild(notificationButton);
-}
 })();
 </script>
-  <script src="/static/notifications.js"></script>
-  
-<link rel="manifest" href="/static/manifest.json">
 <script src="/static/notifications.js" defer></script>
 </body>
 </html>
