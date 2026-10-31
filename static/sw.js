@@ -1,86 +1,80 @@
-
 "use strict";
 
-const CACHE_NAME = "ishwar-search-static-v1";
+const CACHE_NAME = "ishwar-search-static-v2";
 
+// Install Service Worker
 self.addEventListener("install", event => {
-  self.skipWaiting();
+  event.waitUntil(self.skipWaiting());
 });
 
+// Activate Service Worker
 self.addEventListener("activate", event => {
-  event.waitUntil(
-    (async () => {
-      const cacheNames = await caches.keys();
-
-      await Promise.all(
-        cacheNames
-          .filter(name =>
-            name.startsWith("ishwar-search-") &&
-            name !== CACHE_NAME
-          )
-          .map(name => caches.delete(name))
-      );
-
-      await self.clients.claim();
-    })()
-  );
+  event.waitUntil(self.clients.claim());
 });
 
-// Notifications sent by a future push backend can be displayed here.
+// Receive Push Notification
 self.addEventListener("push", event => {
-  let data = {
-    title: "Ishwar Search",
-    body: "नई जानकारी उपलब्ध है।",
-    url: "/"
-  };
+  let data = {};
 
-  if (event.data) {
-    try {
-      data = {
-        ...data,
-        ...event.data.json()
-      };
-    } catch {
-      data.body = event.data.text();
-    }
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (error) {
+    data = {
+      title: "Ishwar Search",
+      body: event.data ? event.data.text() : "नई सूचना उपलब्ध है।"
+    };
   }
 
-  const title = String(data.title || "Ishwar Search");
-  const body = String(data.body || "नई जानकारी उपलब्ध है।");
+  const title = String(data.title || "Ishwar Search").slice(0, 100);
+  const body = String(data.body || "नई जानकारी उपलब्ध है।").slice(0, 300);
 
   let targetUrl = "/";
 
   try {
-    const candidate = new URL(data.url || "/", self.location.origin);
+    const url = new URL(data.url || "/", self.location.origin);
 
-    // Only open same-origin links from push data.
-    if (candidate.origin === self.location.origin) {
-      targetUrl = candidate.pathname + candidate.search + candidate.hash;
+    // केवल अपनी वेबसाइट के लिंक खोलें
+    if (url.origin === self.location.origin) {
+      targetUrl = url.pathname + url.search + url.hash;
     }
-  } catch {
+  } catch (error) {
     targetUrl = "/";
   }
 
+  const options = {
+    body: body,
+    icon: "/static/logo.png",
+    badge: "/static/logo.png",
+    tag: String(data.tag || "ishwar-search-news").slice(0, 100),
+    renotify: false,
+    data: {
+      url: targetUrl
+    }
+  };
+
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      icon: "/static/logo.png",
-      badge: "/static/logo.png",
-      tag: "ishwar-search-news",
-      data: {
-        url: targetUrl
-      }
-    })
+    self.registration.showNotification(title, options)
   );
 });
 
+// Notification पर क्लिक करने पर वेबसाइट खोलें
 self.addEventListener("notificationclick", event => {
   event.notification.close();
 
-  const targetUrl = new URL(
-    event.notification.data?.url || "/",
-    self.location.origin
-  ).href;
+  let targetUrl = self.location.origin + "/";
+
+  try {
+    const url = new URL(
+      event.notification.data?.url || "/",
+      self.location.origin
+    );
+
+    if (url.origin === self.location.origin) {
+      targetUrl = url.href;
+    }
+  } catch (error) {
+    targetUrl = self.location.origin + "/";
+  }
 
   event.waitUntil(
     (async () => {
@@ -90,13 +84,15 @@ self.addEventListener("notificationclick", event => {
       });
 
       for (const client of windows) {
-        if (client.url.startsWith(self.location.origin) && "focus" in client) {
-          await client.focus();
-
+        if (
+          client.url.startsWith(self.location.origin) &&
+          "focus" in client
+        ) {
           if ("navigate" in client) {
             await client.navigate(targetUrl);
           }
 
+          await client.focus();
           return;
         }
       }
@@ -105,76 +101,3 @@ self.addEventListener("notificationclick", event => {
     })()
   );
 });
-
-"use strict";
-
-self.addEventListener("install", event => {
-  self.skipWaiting();
-});
-
-self.addEventListener("activate", event => {
-  event.waitUntil(self.clients.claim());
-});
-
-self.addEventListener("push", event => {
-  let data = {};
-
-  try {
-    data = event.data ? event.data.json() : {};
-  } catch {
-    data = {
-      title: "Ishwar Search",
-      body: event.data ? event.data.text() : "नई सूचना उपलब्ध है।"
-    };
-  }
-
-  const title = String(data.title || "Ishwar Search").slice(0, 100);
-  const body = String(data.body || "नई सूचना उपलब्ध है।").slice(0, 300);
-
-  const targetUrl = (() => {
-    try {
-      const candidate = new URL(data.url || "/", self.location.origin);
-      return candidate.origin === self.location.origin
-        ? candidate.href
-        : self.location.origin + "/";
-    } catch {
-      return self.location.origin + "/";
-    }
-  })();
-
-  event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      icon: "/static/logo.png",
-      badge: "/static/logo.png",
-      tag: String(data.tag || "ishwar-search"),
-      data: { url: targetUrl },
-      renotify: false
-    })
-  );
-});
-
-self.addEventListener("notificationclick", event => {
-  event.notification.close();
-
-  const targetUrl =
-    event.notification.data?.url || self.location.origin + "/";
-
-  event.waitUntil(
-    self.clients.matchAll({
-      type: "window",
-      includeUncontrolled: true
-    }).then(clientList => {
-      for (const client of clientList) {
-        if (client.url.startsWith(self.location.origin) && "focus" in client) {
-          client.navigate(targetUrl);
-          return client.focus();
-        }
-      }
-
-      return self.clients.openWindow(targetUrl);
-    })
-  );
-});
-
-
