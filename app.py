@@ -18,7 +18,7 @@ import xml.etree.ElementTree as ET
 
 from pathlib import Path
 from datetime import datetime, timezone
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 
 # ------------------------------------------------------------
 # APP CONFIGURATION
@@ -28,7 +28,7 @@ app = Flask(__name__)
 
 APP_NAME = "Ishwar Search"
 OWNER_NAME = "Ishwar Ghanchi"
-APP_VERSION = "5.2.0"
+APP_VERSION = "5.3.0"
 
 BASE_DIR = Path(__file__).resolve().parent
 SERVICES_FILE = BASE_DIR / "service.json"
@@ -641,9 +641,7 @@ def weather_description(code):
         )
     except (ValueError, TypeError):
         return "मौसम की जानकारी उपलब्ध"
-
-
-def get_weather(place):
+        def get_weather(place):
     location = get_location_details(place)
 
     if not location:
@@ -1032,6 +1030,17 @@ def home():
     return render_template("index.html")
 
 
+@app.route("/sw.js", methods=["GET"])
+def service_worker():
+    """Serve the worker at the site root so it can control the whole site."""
+    response = app.make_response(
+        send_from_directory(app.static_folder, "sw.js", mimetype="application/javascript")
+    )
+    response.headers["Service-Worker-Allowed"] = "/"
+    response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
 # ============================================================
 # HEALTH CHECK
 # ============================================================
@@ -1070,7 +1079,9 @@ def about():
             "Video search links",
             "OpenStreetMap place search",
             "Market-rate source links",
-            "Push notification API"
+            "Push notification API",
+            "Root-scope Service Worker endpoint",
+            "Push subscription status diagnostics"
         ],
         "services_count": len(load_services())
     })
@@ -1275,7 +1286,9 @@ def api_search_all():
         "places_api": "/api/places?q=" + encoded,
         "news_api": "/api/news?q=" + encoded,
         "weather_api": "/api/weather?place=" + encoded,
-        "message": "उपलब्ध खोज श्रेणियों के API लिंक तैयार हैं।"
+            "news_api": "/api/news?q=" + encoded,
+        "weather_api": "/api/weather?place=" + encoded,
+        "rates_api": "/api/rates"
     })
 
 
@@ -1284,34 +1297,32 @@ def api_search_all():
 # ============================================================
 
 @app.route("/api/news", methods=["GET"])
-@app.route("/api/latest-news", methods=["GET"])
 def api_news():
     query = clean_text(request.args.get("q", ""))
 
     if len(query) > 150:
-        return json_error("समाचार खोज का शब्द बहुत लंबा है।")
-
-    refresh = request.args.get("refresh", "").casefold()
-    force_refresh = refresh in ("1", "true", "yes")
-
-    news = fetch_news(query, force_refresh)
+        return json_error("खबर खोजने का शब्द बहुत लंबा है।")
 
     limit = bounded_limit(
-        request.args.get("limit", MAX_NEWS_ITEMS),
-        MAX_NEWS_ITEMS,
+        request.args.get("limit", 15),
+        15,
         MAX_NEWS_ITEMS
     )
 
-    news = news[:limit]
+    force_refresh = (
+        request.args.get("refresh", "").lower()
+        in ("1", "true", "yes")
+    )
+
+    results = fetch_news(query, force_refresh)
 
     return jsonify({
         "success": True,
-        "count": len(news),
         "query": query,
+        "count": min(len(results), limit),
+        "results": results[:limit],
         "updated_at": utc_now(),
-        "results": news,
-        "news": news,
-        "message": "" if news else "कोई खबर नहीं मिली।"
+        "source": "RSS feeds"
     })
 
 
@@ -1320,30 +1331,29 @@ def api_news():
 # ============================================================
 
 @app.route("/api/weather", methods=["GET"])
-@app.route("/api/current-weather", methods=["GET"])
 def api_weather():
     place = clean_text(
-        request.args.get("place", "")
-        or request.args.get("city", "")
-        or request.args.get("q", "")
+        request.args.get("place")
+        or request.args.get("q")
+        or ""
     )
 
     if not place:
-        return json_error("शहर या गाँव का नाम लिखें।")
+        return json_error("कृपया शहर या जगह का नाम लिखें।")
 
     if len(place) > 100:
-        return json_error("शहर का नाम बहुत लंबा है।")
+        return json_error("जगह का नाम बहुत लंबा है।")
 
     result = get_weather(place)
 
     if not result.get("success"):
-        return jsonify(result), 502
+        return jsonify(result), 404
 
     return jsonify(result)
 
 
 # ============================================================
-# RATE SOURCES API
+# MARKET RATES API
 # ============================================================
 
 @app.route("/api/rates", methods=["GET"])
@@ -1356,363 +1366,499 @@ def api_rates():
 
 
 # ============================================================
-# EDUCATION PAGE
+# EDUCATION AND IMPORTANT LINKS
 # ============================================================
 
-@app.route("/education", methods=["GET"])
-def education():
+@app.route("/api/education", methods=["GET"])
+def api_education():
+    results = [
+        {
+            "name": "National Scholarship Portal",
+            "url": "https://scholarships.gov.in/",
+            "category": "scholarship"
+        },
+        {
+            "name": "DigiLocker",
+            "url": "https://www.digilocker.gov.in/",
+            "category": "documents"
+        },
+        {
+            "name": "National Career Service",
+            "url": "https://www.ncs.gov.in/",
+            "category": "jobs"
+        },
+        {
+            "name": "Skill India Digital",
+            "url": "https://www.skillindiadigital.gov.in/",
+            "category": "skills"
+        },
+        {
+            "name": "Railway Recruitment Board",
+            "url": "https://www.rrbapply.gov.in/",
+            "category": "railway"
+        },
+        {
+            "name": "Union Public Service Commission",
+            "url": "https://upsc.gov.in/",
+            "category": "government jobs"
+        },
+        {
+            "name": "Rajasthan Public Service Commission",
+            "url": "https://rpsc.rajasthan.gov.in/",
+            "category": "rajasthan jobs"
+        },
+        {
+            "name": "Rajasthan Staff Selection Board",
+            "url": "https://rssb.rajasthan.gov.in/",
+            "category": "rajasthan jobs"
+        }
+    ]
+
+    return jsonify({
+        "success": True,
+        "count": len(results),
+        "results": results
+    })
+
+
+# ============================================================
+# NOTIFICATION CONFIGURATION
+# ============================================================
+
+def get_vapid_settings():
+    return {
+        "public_key": os.environ.get(
+            "VAPID_PUBLIC_KEY", ""
+        ).strip(),
+        "private_key": os.environ.get(
+            "VAPID_PRIVATE_KEY", ""
+        ).strip(),
+        "subject": os.environ.get(
+            "VAPID_SUBJECT",
+            "mailto:admin@example.com"
+        ).strip()
+    }
+
+
+def push_configuration():
+    settings = get_vapid_settings()
+
     try:
-        return render_template("education.html")
+        import pywebpush
+        package_available = True
+    except ImportError:
+        package_available = False
 
-    except Exception:
-        return (
-            "<!doctype html><html lang='hi'>"
-            "<meta charset='utf-8'>"
-            "<meta name='viewport' content='width=device-width,initial-scale=1'>"
-            "<title>Ishwar Search - Education</title>"
-            "<h1>Ishwar Search</h1>"
-            "<p>Education पेज अभी तैयार नहीं है।</p>"
-            "<a href='/'>होम पेज पर जाएँ</a></html>",
-            200
+    return {
+        "public_key_configured": bool(settings["public_key"]),
+        "private_key_configured": bool(settings["private_key"]),
+        "subject_configured": bool(settings["subject"]),
+        "pywebpush_available": package_available,
+        "configured": bool(
+            settings["public_key"]
+            and settings["private_key"]
+            and settings["subject"]
+            and package_available
         )
+    }
 
 
 # ============================================================
-# PUSH NOTIFICATION STORAGE
+# SUBSCRIPTION STORAGE
 # ============================================================
 
-PUSH_CATEGORIES = {
-    "news",
-    "jobs",
-    "updates",
-    "schemes",
-    "fraud"
-}
-
-_push_lock = threading.Lock()
+_subscription_lock = threading.RLock()
 
 
-def load_push_subscriptions():
-    with _push_lock:
+def load_subscriptions():
+    with _subscription_lock:
+        if not PUSH_DATA_FILE.is_file():
+            return []
+
         try:
-            if not PUSH_DATA_FILE.exists():
-                return []
-
             with PUSH_DATA_FILE.open(
                 "r",
                 encoding="utf-8"
             ) as file:
                 data = json.load(file)
 
-            return data if isinstance(data, list) else []
+            if not isinstance(data, list):
+                return []
+
+            valid = []
+
+            for item in data:
+                if not isinstance(item, dict):
+                    continue
+
+                endpoint = safe_url(item.get("endpoint"))
+                keys = item.get("keys", {})
+
+                if not endpoint or not isinstance(keys, dict):
+                    continue
+
+                if not keys.get("p256dh") or not keys.get("auth"):
+                    continue
+
+                item["endpoint"] = endpoint
+                valid.append(item)
+
+            return valid
 
         except (OSError, json.JSONDecodeError):
-            logger.exception("Push subscription loading failed")
+            logger.exception(
+                "Subscription file could not be read"
+            )
             return []
 
 
-def save_push_subscriptions(items):
-    temp_file = PUSH_DATA_FILE.with_suffix(".tmp")
+def save_subscriptions(subscriptions):
+    with _subscription_lock:
+        temp_file = PUSH_DATA_FILE.with_suffix(".tmp")
 
-    with _push_lock:
-        with temp_file.open("w", encoding="utf-8") as file:
-            json.dump(
-                items,
-                file,
-                ensure_ascii=False,
-                indent=2
+        try:
+            DATA_DIR.mkdir(
+                parents=True,
+                exist_ok=True
             )
 
-        os.replace(temp_file, PUSH_DATA_FILE)
+            with temp_file.open(
+                "w",
+                encoding="utf-8"
+            ) as file:
+                json.dump(
+                    subscriptions,
+                    file,
+                    ensure_ascii=False,
+                    indent=2
+                )
+
+                file.flush()
+                os.fsync(file.fileno())
+
+            os.replace(
+                temp_file,
+                PUSH_DATA_FILE
+            )
+
+            return True
+
+        except OSError:
+            logger.exception(
+                "Subscription file could not be saved"
+            )
+
+            try:
+                if temp_file.exists():
+                    temp_file.unlink()
+            except OSError:
+                pass
+
+            return False
 
 
-def get_vapid_public_key():
-    return os.environ.get(
-        "VAPID_PUBLIC_KEY", ""
+def notification_admin_authorized():
+    expected = os.environ.get(
+        "NOTIFICATION_ADMIN_TOKEN",
+        ""
     ).strip()
 
+    if not expected:
+        return False
+
+    supplied = (
+        request.headers.get("X-Admin-Token", "")
+        or request.args.get("token", "")
+    )
+
+    return bool(supplied) and hmac.compare_digest(
+        supplied,
+        expected
+    )
+
 
 # ============================================================
-# NOTIFICATION STATUS
+# NOTIFICATION STATUS API
 # ============================================================
 
-@app.route("/api/notifications/status", methods=["GET"])
+@app.route(
+    "/api/notifications/status",
+    methods=["GET"]
+)
 def notification_status():
-    public_key = get_vapid_public_key()
+    config = push_configuration()
+    subscriptions = load_subscriptions()
 
     return jsonify({
         "success": True,
-        "app": APP_NAME,
-        "notifications_available": True,
-        "push_configured": bool(public_key),
-        "subscription_count": len(load_push_subscriptions()),
-        "message": (
-            "Push configuration उपलब्ध है।"
-            if public_key
-            else "Push Notification configuration बाकी है।"
-        )
+        "version": APP_VERSION,
+        "push_configured": config["configured"],
+        "configuration": config,
+        "subscription_count": len(subscriptions),
+        "time": utc_now()
     })
 
 
 # ============================================================
-# NOTIFICATION PUBLIC KEY
+# NOTIFICATION PUBLIC KEY API
 # ============================================================
 
-@app.route("/api/notifications/public-key", methods=["GET"])
+@app.route(
+    "/api/notifications/public-key",
+    methods=["GET"]
+)
 def notification_public_key():
-    public_key = get_vapid_public_key()
+    settings = get_vapid_settings()
 
-    if not public_key:
+    if not settings["public_key"]:
         return json_error(
-            "Push Notification की public key अभी सेट नहीं है।",
+            "Notifications की public key अभी सेट नहीं है।",
             503
         )
 
     return jsonify({
         "success": True,
-        "publicKey": public_key
+        "publicKey": settings["public_key"]
     })
 
 
 # ============================================================
-# SUBSCRIBE NOTIFICATIONS
+# NOTIFICATION SUBSCRIBE API
 # ============================================================
 
-@app.route("/api/notifications/subscribe", methods=["POST"])
+@app.route(
+    "/api/notifications/subscribe",
+    methods=["POST"]
+)
 def notification_subscribe():
+    settings = get_vapid_settings()
+
+    if not settings["public_key"]:
+        return json_error(
+            "Push notification configuration उपलब्ध नहीं है।",
+            503
+        )
+
     payload = request.get_json(silent=True)
 
     if not isinstance(payload, dict):
-        return json_error("Subscription का JSON सही नहीं है।")
+        return json_error("गलत subscription data।")
 
-    subscription = payload.get("subscription", payload)
+    endpoint = safe_url(
+        payload.get("endpoint")
+    )
 
-    if not isinstance(subscription, dict):
-        return json_error("Browser subscription नहीं मिला।")
+    keys = payload.get("keys", {})
 
-    endpoint = subscription.get("endpoint")
-    keys = subscription.get("keys")
+    if not endpoint or not isinstance(keys, dict):
+        return json_error(
+            "Subscription details अधूरी हैं।"
+        )
 
-    if (
-        not isinstance(endpoint, str)
-        or not endpoint.startswith("https://")
-        or len(endpoint) > 4096
-        or not isinstance(keys, dict)
-        or not isinstance(keys.get("p256dh"), str)
-        or not isinstance(keys.get("auth"), str)
-        or len(keys["p256dh"]) > 500
-        or len(keys["auth"]) > 500
-    ):
-        return json_error("Push subscription अधूरा या गलत है।")
+    p256dh = clean_text(keys.get("p256dh"))
+    auth = clean_text(keys.get("auth"))
 
-    subscriptions = load_push_subscriptions()
+    if not p256dh or not auth:
+        return json_error(
+            "Subscription keys उपलब्ध नहीं हैं।"
+        )
 
-    new_item = {
+    subscription = {
         "endpoint": endpoint,
+        "expirationTime": payload.get("expirationTime"),
         "keys": {
-            "p256dh": keys["p256dh"],
-            "auth": keys["auth"]
-        }
+            "p256dh": p256dh,
+            "auth": auth
+        },
+        "created_at": utc_now()
     }
 
-    subscriptions = [
-        item for item in subscriptions
-        if item.get("endpoint") != endpoint
-    ]
+    with _subscription_lock:
+        subscriptions = load_subscriptions()
 
-    subscriptions.append(new_item)
+        subscriptions = [
+            item for item in subscriptions
+            if item.get("endpoint") != endpoint
+        ]
 
-    try:
-        save_push_subscriptions(subscriptions)
+        if len(subscriptions) >= 10000:
+            return json_error(
+                "अभी subscription की अधिकतम सीमा पूरी हो गई है।",
+                429
+            )
 
-    except OSError:
-        logger.exception("Push subscription save failed")
+        subscriptions.append(subscription)
 
-        return json_error(
-            "Subscription सेव नहीं हो पाया।",
-            500
-        )
+        if not save_subscriptions(subscriptions):
+            return json_error(
+                "Subscription सेव नहीं हो सका।",
+                500
+            )
 
     return jsonify({
         "success": True,
-        "saved": True,
-        "message": "Push subscription सेव हो गया।"
+        "message": "Notifications subscription सेव हो गया।",
+        "subscription_count": len(subscriptions)
     })
 
 
 # ============================================================
-# UNSUBSCRIBE NOTIFICATIONS
+# NOTIFICATION UNSUBSCRIBE API
 # ============================================================
 
-@app.route("/api/notifications/unsubscribe", methods=["POST"])
+@app.route(
+    "/api/notifications/unsubscribe",
+    methods=["POST"]
+)
 def notification_unsubscribe():
     payload = request.get_json(silent=True) or {}
 
     if not isinstance(payload, dict):
-        return json_error("सही JSON भेजें।")
+        return json_error("गलत अनुरोध।")
 
-    endpoint = payload.get("endpoint")
+    endpoint = safe_url(
+        payload.get("endpoint")
+    )
 
-    if not isinstance(endpoint, str):
-        return json_error("Subscription endpoint नहीं मिला।")
-
-    subscriptions = load_push_subscriptions()
-
-    remaining = [
-        item for item in subscriptions
-        if item.get("endpoint") != endpoint
-    ]
-
-    try:
-        save_push_subscriptions(remaining)
-
-    except OSError:
+    if not endpoint:
         return json_error(
-            "Subscription हटाया नहीं जा सका।",
-            500
+            "Subscription endpoint नहीं मिला।"
         )
+
+    with _subscription_lock:
+        subscriptions = load_subscriptions()
+
+        updated = [
+            item for item in subscriptions
+            if item.get("endpoint") != endpoint
+        ]
+
+        if not save_subscriptions(updated):
+            return json_error(
+                "Subscription हटाया नहीं जा सका।",
+                500
+            )
 
     return jsonify({
         "success": True,
-        "message": "Notification subscription हटा दिया गया।"
+        "message": "Subscription हटा दिया गया।",
+        "subscription_count": len(updated)
     })
 
 
 # ============================================================
-# SEND PUSH NOTIFICATIONS
+# NOTIFICATION SEND API
 # ============================================================
 
-@app.route("/api/notifications/send", methods=["POST"])
+@app.route(
+    "/api/notifications/send",
+    methods=["POST"]
+)
 def notification_send():
-    admin_secret = os.environ.get(
-        "NOTIFICATION_ADMIN_TOKEN", ""
-    )
-
-    supplied_token = request.headers.get(
-        "X-Admin-Token", ""
-    )
-
-    if (
-        not admin_secret
-        or not supplied_token
-        or not hmac.compare_digest(
-            supplied_token,
-            admin_secret
-        )
-    ):
+    if not notification_admin_authorized():
         return json_error(
-            "Admin authorization गलत या सेट नहीं है।",
+            "Admin authorization जरूरी है।",
             403
         )
 
-    payload = request.get_json(silent=True)
+    config = push_configuration()
+
+    if not config["configured"]:
+        return json_error(
+            "Push notification configuration पूरी नहीं है।",
+            503
+        )
+
+    payload = request.get_json(silent=True) or {}
 
     if not isinstance(payload, dict):
-        return json_error("Notification का JSON सही नहीं है।")
-
-    category = str(
-        payload.get("category", "")
-    ).strip().lower()
-
-    title = clean_text(payload.get("title", ""))
-    body = clean_text(payload.get("body", ""))
-
-    target_url = str(
-        payload.get("url", "/")
-    ).strip()
-
-    if category not in PUSH_CATEGORIES:
         return json_error(
-            "Category news, jobs, updates, schemes या fraud होनी चाहिए।"
+            "गलत notification data।"
         )
 
-    if not title or not body:
-        return json_error("Title और body दोनों जरूरी हैं।")
+    title = clean_text(
+        payload.get("title") or APP_NAME
+    )
 
-    if len(title) > 100 or len(body) > 300:
-        return json_error(
-            "Title 100 और body 300 अक्षरों तक रखें।"
-        )
+    body = clean_text(
+        payload.get("body") or "नई जानकारी उपलब्ध है।"
+    )
 
-    from urllib.parse import urlparse
+    target_url = payload.get("url") or "/"
 
-    parsed = urlparse(target_url)
+    if target_url != "/":
+        target_url = safe_url(target_url)
 
-    if (
-        target_url.startswith("/")
-        and not target_url.startswith("//")
-    ):
-        safe_target_url = target_url
+        if not target_url:
+            return json_error(
+                "Notification का URL सही नहीं है।"
+            )
 
-    elif (
-        parsed.scheme == "https"
-        and parsed.netloc == request.host
-    ):
-        safe_target_url = target_url
+        parsed_target = urllib.parse.urlparse(target_url)
+        parsed_base = urllib.parse.urlparse(request.host_url)
 
-    else:
-        return json_error(
-            "Notification URL अपनी वेबसाइट का होना चाहिए।"
-        )
+        if parsed_target.netloc != parsed_base.netloc:
+            return json_error(
+                "Notification URL इसी वेबसाइट का होना चाहिए।"
+            )
 
-    private_key = os.environ.get(
-        "VAPID_PRIVATE_KEY", ""
-    ).strip()
+    if len(title) > 100:
+        title = title[:100]
 
-    public_key = get_vapid_public_key()
+    if len(body) > 300:
+        body = body[:300]
 
-    if not private_key or not public_key:
-        return json_error(
-            "VAPID keys सेट नहीं हैं।",
-            503
-        )
+    settings = get_vapid_settings()
 
     try:
-        from pywebpush import webpush, WebPushException
-
+        from pywebpush import (
+            webpush,
+            WebPushException
+        )
     except ImportError:
         return json_error(
-            "pywebpush dependency इंस्टॉल नहीं है।",
+            "pywebpush package उपलब्ध नहीं है।",
             503
         )
 
-    subscriptions = load_push_subscriptions()
+    subscriptions = load_subscriptions()
 
-    delivered = 0
+    sent = 0
     failed = 0
-    expired_endpoints = set()
+    expired = set()
+    attempted = len(subscriptions)
 
-    message = {
+    notification_data = json.dumps({
         "title": title,
         "body": body,
-        "url": safe_target_url,
-        "tag": "ishwar-" + category
-    }
+        "url": target_url,
+        "icon": "/static/logo.png",
+        "badge": "/static/logo.png"
+    }, ensure_ascii=False)
 
     for subscription in subscriptions:
         try:
             webpush(
                 subscription_info=subscription,
-                data=json.dumps(
-                    message,
-                    ensure_ascii=False
-                ),
-                vapid_private_key=private_key,
+                data=notification_data,
+                vapid_private_key=settings["private_key"],
                 vapid_claims={
-                    "sub": os.environ.get(
-                        "VAPID_SUBJECT",
-                        "mailto:admin@ishwar-search.onrender.com"
-                    )
+                    "sub": settings["subject"]
                 },
-                ttl=3600
+                timeout=10
             )
 
-            delivered += 1
+            sent += 1
 
         except WebPushException as exc:
             failed += 1
 
-            response = getattr(exc, "response", None)
+            response = getattr(
+                exc,
+                "response",
+                None
+            )
+
             status_code = getattr(
                 response,
                 "status_code",
@@ -1720,38 +1866,36 @@ def notification_send():
             )
 
             if status_code in (404, 410):
-                expired_endpoints.add(
+                expired.add(
                     subscription.get("endpoint")
                 )
 
             logger.warning(
-                "Push delivery failed: %s",
-                exc
+                "Push notification failed: %s",
+                status_code or str(exc)
             )
 
         except Exception:
             failed += 1
-            logger.exception("Unexpected Push error")
+            logger.exception(
+                "Unexpected push notification error"
+            )
 
-    if expired_endpoints:
-        subscriptions = [
+    if expired:
+        remaining = [
             item for item in subscriptions
-            if item.get("endpoint") not in expired_endpoints
+            if item.get("endpoint") not in expired
         ]
 
-        try:
-            save_push_subscriptions(subscriptions)
-
-        except OSError:
-            logger.exception("Expired subscriptions cleanup failed")
+        save_subscriptions(remaining)
 
     return jsonify({
         "success": True,
-        "category": category,
-        "attempted": len(subscriptions) + len(expired_endpoints),
-        "sent": delivered,
+        "attempted": attempted,
+        "sent": sent,
         "failed": failed,
-        "message": "Push भेजने का प्रयास पूरा हुआ।"
+        "expired_removed": len(expired),
+        "message": "Notification sending process पूरा हुआ।"
     })
 
 
@@ -1762,97 +1906,51 @@ def notification_send():
 @app.errorhandler(404)
 def page_not_found(error):
     if request.path.startswith("/api/"):
-        return jsonify({
-            "success": False,
-            "error": "यह API endpoint नहीं मिला।",
-            "path": request.path
-        }), 404
+        return json_error(
+            "यह API endpoint उपलब्ध नहीं है।",
+            404
+        )
 
-    return (
-        "<!doctype html><html lang='hi'>"
-        "<meta charset='utf-8'>"
-        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
-        "<title>404 | Ishwar Search</title>"
-        "<h1>Ishwar Search</h1>"
-        "<p>यह पेज नहीं मिला।</p>"
-        "<a href='/'>Ishwar Search पर वापस जाएँ</a>"
-        "</html>",
-        404
-    )
-
-
-@app.errorhandler(405)
-def method_not_allowed(error):
     return jsonify({
         "success": False,
-        "error": "इस अनुरोध का तरीका उपलब्ध नहीं है।"
-    }), 405
+        "error": "यह पेज नहीं मिला।"
+    }), 404
 
 
 @app.errorhandler(413)
 def request_too_large(error):
-    return jsonify({
-        "success": False,
-        "error": "अनुरोध बहुत बड़ा है।"
-    }), 413
+    return json_error(
+        "भेजा गया डेटा बहुत बड़ा है।",
+        413
+    )
 
 
 @app.errorhandler(500)
 def internal_server_error(error):
-    logger.error(
-        "Internal server error on %s",
-        request.path,
-        exc_info=True
+    logger.exception(
+        "Internal server error"
     )
 
     if request.path.startswith("/api/"):
-        return jsonify({
-            "success": False,
-            "error": "सर्वर में समस्या आई। बाद में प्रयास करें।"
-        }), 500
+        return json_error(
+            "Server पर समस्या आई है। कृपया बाद में प्रयास करें।",
+            500
+        )
 
-    return (
-        "<!doctype html><html lang='hi'>"
-        "<meta charset='utf-8'>"
-        "<title>500 | Ishwar Search</title>"
-        "<h1>Ishwar Search</h1>"
-        "<p>सर्वर में समस्या आई। कृपया बाद में प्रयास करें।</p>"
-        "<a href='/'>होम पेज पर जाएँ</a>"
-        "</html>",
-        500
-    )
+    return jsonify({
+        "success": False,
+        "error": "Server पर समस्या आई है।"
+    }), 500
 
 
 # ============================================================
-# SECURITY HEADERS
-# ============================================================
-
-@app.after_request
-def add_security_headers(response):
-    response.headers["X-Content-Type-Options"] = "nosniff"
-
-    response.headers["X-Frame-Options"] = "SAMEORIGIN"
-
-    response.headers["Referrer-Policy"] = (
-        "strict-origin-when-cross-origin"
-    )
-
-    response.headers["Permissions-Policy"] = (
-        "camera=(), microphone=(), geolocation=()"
-    )
-
-    if request.path.startswith("/api/"):
-        response.headers["Cache-Control"] = "no-store"
-
-    return response
-
-
-# ============================================================
-# RUN SERVER
+# APPLICATION START
 # ============================================================
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", "5000"))
+    port = int(
+        os.environ.get("PORT", 5000)
+    )
 
     app.run(
         host="0.0.0.0",
