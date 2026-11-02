@@ -104,6 +104,24 @@ h1{font-size:clamp(36px,5vw,58px);margin:12px 0 0;letter-spacing:-1px}
 .quick-links button:hover,.category-button:hover,.category-button.active{
   background:#064db5;border-color:var(--cyan)
 }
+.alert-section{
+  max-width:760px;margin:22px auto 0;padding:16px;text-align:left;
+  background:#06152ae8;border:1px solid #0878ff;border-radius:14px;
+  box-shadow:0 0 22px #0077ff35
+}
+.alert-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.alert-heading h2{margin:0;color:var(--cyan);font-size:20px}
+.alert-heading button{
+  border:1px solid #0878ff;border-radius:20px;padding:8px 12px;
+  background:#082448;color:white
+}
+.alert-status{color:var(--muted);font-size:13px;margin:12px 0}
+.alert-list{display:grid;grid-template-columns:1fr;gap:9px}
+.alert-list .directory-card{padding:11px}
+.alert-label{
+  display:inline-block;margin-bottom:10px;padding:5px 10px;border-radius:20px;
+  background:#063b80;color:#dff8ff;font-size:12px
+}
 .results,.tool-panel{max-width:1200px;margin:20px auto;padding:22px}
 .results h2,.tool-panel h2{color:var(--cyan)}
 .result-list,.directory-grid{
@@ -177,7 +195,6 @@ body.light-mode .notification-box{background:white;color:#10213a}
 }
 </style>
 </head>
-
 <body>
 <header class="topbar">
   <a class="brand" href="#home" data-view="home">
@@ -229,12 +246,20 @@ body.light-mode .notification-box{background:white;color:#10213a}
       </form>
 
       <div class="status-line" id="systemStatus" aria-live="polite">● Ishwar Search Ready</div>
-      <div class="quick-links">
-        <button type="button" data-quick-search="Railway recruitment">Railway Jobs</button>
-        <button type="button" data-quick-search="Aadhaar">Aadhaar</button>
-        <button type="button" data-quick-search="Scholarship">Scholarship</button>
-        <button type="button" data-quick-search="Rajasthan jobs">Rajasthan Jobs</button>
-      </div>
+
+      <section class="alert-section" id="ishwarAlert" aria-labelledby="alertTitle">
+        <div class="alert-heading">
+          <div>
+            <span class="alert-label">🔔 जरूरी अपडेट</span>
+            <h2 id="alertTitle">Ishwar Alert</h2>
+          </div>
+          <button type="button" id="refreshAlerts">↻ अपडेट करें</button>
+        </div>
+        <p class="alert-status" id="alertStatus" aria-live="polite">
+          ताज़ा अपडेट लोड हो रहे हैं...
+        </p>
+        <div class="alert-list" id="alertList"></div>
+      </section>
     </div>
   </section>
 
@@ -243,7 +268,8 @@ body.light-mode .notification-box{background:white;color:#10213a}
     <div id="resultsStatus" class="empty" aria-live="polite">खोजने के लिए शब्द लिखें।</div>
     <div id="resultsList" class="result-list"></div>
   </section>
-    <section class="tool-panel" id="websitesPanel" hidden>
+
+  <section class="tool-panel" id="websitesPanel" hidden>
     <h2>🌐 Websites Directory</h2>
     <p>किसी वेबसाइट को खोजें या category चुनें।</p>
     <input class="panel-search" id="websiteFilter" type="search" placeholder="Instagram, PAN Card, Aadhaar, Railway...">
@@ -334,6 +360,7 @@ body.light-mode .notification-box{background:white;color:#10213a}
   let selectedCategory = "all";
   let newsLoaded = false;
   let latestNews = [];
+  let alertsLoaded = false;
 
   $("year").textContent = new Date().getFullYear();
 
@@ -387,8 +414,7 @@ body.light-mode .notification-box{background:white;color:#10213a}
     {name:"Stack Overflow",url:"https://stackoverflow.com/",category:"technology",description:"प्रोग्रामिंग सवाल-जवाब"},
     {name:"Google Translate",url:"https://translate.google.com/",category:"technology",description:"भाषा अनुवाद"}
   ];
-
-  function validUrl(value) {
+    function validUrl(value) {
     try {
       const url = new URL(value);
       return url.protocol === "https:" || url.protocol === "http:";
@@ -465,6 +491,7 @@ body.light-mode .notification-box{background:white;color:#10213a}
       link.classList.toggle("active",link.dataset.view === name)
     );
     if (name === "websites" && !allWebsites.length) loadWebsites();
+    if (name === "home" && !alertsLoaded) loadAlerts();
     if (name === "tools") renderTools();
     if (name === "news" && !newsLoaded) loadNews();
     window.scrollTo({top:0,behavior:"smooth"});
@@ -484,7 +511,7 @@ body.light-mode .notification-box{background:white;color:#10213a}
       const response = await fetch("/api/services");
       if (!response.ok) throw new Error("HTTP "+response.status);
       const data = await response.json();
-            const combined = [...builtInWebsites,...(Array.isArray(data.results)?data.results:[])]
+      const combined = [...builtInWebsites,...(Array.isArray(data.results)?data.results:[])]
         .map(normalizeSite).filter(Boolean);
       const seen = new Set();
       allWebsites = combined.filter(item => {
@@ -617,6 +644,41 @@ body.light-mode .notification-box{background:white;color:#10213a}
       $("newsStatus").textContent = "खबरें लोड नहीं हुईं। app.py का news endpoint जाँचें।";
     }
   }
+
+  // ISHWAR ALERT
+  async function loadAlerts() {
+    $("alertStatus").textContent = "Ishwar Alert के लिए ताज़ा अपडेट लोड हो रहे हैं...";
+    $("alertList").replaceChildren();
+
+    try {
+      const response = await fetch("/api/news?limit=5&refresh=1");
+      if (!response.ok) throw new Error("HTTP " + response.status);
+
+      const data = await response.json();
+      const items = Array.isArray(data.results) ? data.results : [];
+      const alerts = items.map(item => ({
+        name: item.title || item.name || "नई खबर",
+        url: item.url || item.link,
+        category: "alert",
+        description: [item.source, item.published, item.description]
+          .filter(Boolean).join(" • ") || "ताज़ा समाचार अपडेट"
+      }));
+
+      renderCards($("alertList"), alerts, {
+        empty: "अभी कोई नया अपडेट उपलब्ध नहीं है।"
+      });
+      $("alertStatus").textContent = alerts.length
+        ? alerts.length + " ताज़ा अपडेट उपलब्ध हैं। खबर खोलकर स्रोत और तारीख जाँचें।"
+        : "अभी कोई नया अपडेट उपलब्ध नहीं है।";
+      alertsLoaded = true;
+    } catch (error) {
+      console.error("Ishwar Alert load failed:", error);
+      $("alertStatus").textContent =
+        "अलर्ट लोड नहीं हुए। कृपया थोड़ी देर बाद फिर कोशिश करें।";
+    }
+  }
+
+  $("refreshAlerts").addEventListener("click", loadAlerts);
   $("refreshNews").addEventListener("click",loadNews);
 
   // MAIN SEARCH
@@ -647,14 +709,6 @@ body.light-mode .notification-box{background:white;color:#10213a}
     event.preventDefault();
     const query = $("searchInput").value.trim();
     if (query) performSearch(query);
-  });
-
-  document.querySelectorAll("[data-quick-search]").forEach(button => {
-    button.addEventListener("click",() => {
-      const query = button.dataset.quickSearch;
-      $("searchInput").value = query;
-      performSearch(query);
-    });
   });
 
   // NEWS NOTIFICATIONS
