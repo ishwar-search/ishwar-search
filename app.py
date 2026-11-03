@@ -2281,7 +2281,217 @@ def api_admin_stats():
         "time": utc_now()
     })
 
+# ============================================================
+# ISHWAR SEARCH - GOVERNMENT INFORMATION CENTRE
+# ============================================================
 
+GOVERNMENT_CENTRES = [
+    {
+        "id": "schemes",
+        "name": "Government Scheme Finder",
+        "description": "केंद्र और राज्य सरकार की योजनाएँ खोजें।",
+        "items": [
+            {
+                "name": "myScheme - सरकारी योजना खोजें",
+                "description": "अपनी पात्रता के अनुसार सरकारी योजनाएँ देखें।",
+                "url": "https://www.myscheme.gov.in/",
+                "source": "Government of India"
+            },
+            {
+                "name": "UMANG Government Services",
+                "description": "कई सरकारी सेवाएँ और योजनाएँ एक जगह।",
+                "url": "https://web.umang.gov.in/",
+                "source": "MeitY, Government of India"
+            },
+            {
+                "name": "National Portal of India",
+                "description": "सरकारी सेवाओं और योजनाओं की जानकारी।",
+                "url": "https://www.india.gov.in/",
+                "source": "Government of India"
+            }
+        ]
+    },
+    {
+        "id": "documents",
+        "name": "Government Document Guide",
+        "description": "डिजिटल दस्तावेज़ और सरकारी डॉक्यूमेंट सेवाएँ।",
+        "items": [
+            {
+                "name": "DigiLocker",
+                "description": "डिजिटल दस्तावेज़ प्राप्त और सत्यापित करें।",
+                "url": "https://www.digilocker.gov.in/",
+                "source": "MeitY, Government of India"
+            },
+            {
+                "name": "UIDAI Aadhaar",
+                "description": "आधार से संबंधित आधिकारिक सेवाएँ।",
+                "url": "https://uidai.gov.in/",
+                "source": "UIDAI"
+            },
+            {
+                "name": "Income Tax e-Filing",
+                "description": "आयकर विभाग की आधिकारिक सेवाएँ।",
+                "url": "https://www.incometax.gov.in/",
+                "source": "Income Tax Department"
+            }
+        ]
+    },
+    {
+        "id": "scholarships",
+        "name": "Scholarship Finder",
+        "description": "छात्रवृत्ति और शिक्षा सहायता की जानकारी।",
+        "items": [
+            {
+                "name": "National Scholarship Portal",
+                "description": "केंद्र और राज्य की छात्रवृत्ति योजनाएँ।",
+                "url": "https://scholarships.gov.in/",
+                "source": "Government of India"
+            },
+            {
+                "name": "UGC Student Corner",
+                "description": "छात्रवृत्ति और फेलोशिप की जानकारी।",
+                "url": "https://www.ugc.gov.in/Home/student_Corner",
+                "source": "University Grants Commission"
+            },
+            {
+                "name": "Vidya Lakshmi",
+                "description": "शिक्षा ऋण की जानकारी और आवेदन।",
+                "url": "https://pmvidyalaxmi.co.in/",
+                "source": "Government education finance portal"
+            }
+        ]
+    },
+    {
+        "id": "exams",
+        "name": "Exam, Admit Card & Result Centre",
+        "description": "सरकारी परीक्षाओं के आधिकारिक पोर्टल।",
+        "items": [
+            {
+                "name": "Rajasthan Recruitment Portal",
+                "description": "राजस्थान भर्ती, परीक्षा और परिणाम।",
+                "url": "https://recruitment.rajasthan.gov.in/",
+                "source": "Government of Rajasthan"
+            },
+            {
+                "name": "RPSC",
+                "description": "राजस्थान लोक सेवा आयोग की सूचनाएँ।",
+                "url": "https://rpsc.rajasthan.gov.in/",
+                "source": "Government of Rajasthan"
+            },
+            {
+                "name": "RSSB",
+                "description": "राजस्थान कर्मचारी चयन बोर्ड की सूचनाएँ।",
+                "url": "https://rssb.rajasthan.gov.in/",
+                "source": "Government of Rajasthan"
+            },
+            {
+                "name": "Railway Recruitment Board",
+                "description": "रेलवे भर्ती की आधिकारिक जानकारी।",
+                "url": "https://rrb.indianrailways.gov.in/",
+                "source": "Ministry of Railways"
+            },
+            {
+                "name": "UPSC",
+                "description": "संघ लोक सेवा आयोग की परीक्षाएँ।",
+                "url": "https://upsc.gov.in/",
+                "source": "Government of India"
+            }
+        ]
+    },
+    {
+        "id": "skills",
+        "name": "Skill Learning Centre",
+        "description": "कौशल प्रशिक्षण और शिक्षा संसाधन।",
+        "items": [
+            {
+                "name": "Skill India Digital",
+                "description": "कौशल विकास से जुड़ी जानकारी।",
+                "url": "https://www.skillindiadigital.gov.in/",
+                "source": "Government of India"
+            },
+            {
+                "name": "SWAYAM",
+                "description": "ऑनलाइन शिक्षा और पाठ्यक्रम।",
+                "url": "https://swayam.gov.in/",
+                "source": "Government of India"
+            },
+            {
+                "name": "National Career Service",
+                "description": "करियर और रोजगार से जुड़ी सेवाएँ।",
+                "url": "https://www.ncs.gov.in/",
+                "source": "Ministry of Labour and Employment"
+            }
+        ]
+    }
+]
+
+
+@app.route("/api/future/centres", methods=["GET"])
+def future_centres():
+
+    category = clean_text(
+        request.args.get("category", "")
+    ).casefold()
+
+    allowed_categories = {
+        item["id"]: item
+        for item in GOVERNMENT_CENTRES
+    }
+
+    if category and category not in allowed_categories:
+        return jsonify({
+            "success": False,
+            "error": "यह श्रेणी उपलब्ध नहीं है।",
+            "available_categories": list(
+                allowed_categories.keys()
+            )
+        }), 404
+
+    if category:
+        results = [allowed_categories[category]]
+    else:
+        results = GOVERNMENT_CENTRES
+
+    total_items = sum(
+        len(item["items"])
+        for item in results
+    )
+
+    return jsonify({
+        "success": True,
+        "app": APP_NAME,
+        "version": APP_VERSION,
+        "count": len(results),
+        "total_links": total_items,
+        "categories": results,
+        "notice": (
+            "ये आधिकारिक जानकारी के लिंक हैं। "
+            "पात्रता, आवेदन की तारीख और नियम संबंधित "
+            "सरकारी पोर्टल पर जाँचें।"
+        ),
+        "updated_at": utc_now()
+    })
+
+
+@app.route("/api/future/centres/<category>", methods=["GET"])
+def future_centre_detail(category):
+
+    category = clean_text(category).casefold()
+
+    for centre in GOVERNMENT_CENTRES:
+
+        if centre["id"] == category:
+
+            return jsonify({
+                "success": True,
+                "centre": centre,
+                "updated_at": utc_now()
+            })
+
+    return jsonify({
+        "success": False,
+        "error": "यह Centre उपलब्ध नहीं है।"
+    }), 404
 # ============================================================
 # ERROR HANDLERS
 # ============================================================
