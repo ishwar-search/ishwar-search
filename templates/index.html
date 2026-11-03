@@ -765,6 +765,332 @@ body.light-mode .notification-box{background:white;color:#10213a}
   showView("home");
 })();
 </script>
+  
+<style>
+/* ISHWAR SEARCH FUTURE DASHBOARD */
+.isf-wrap {
+  max-width:1200px;
+  margin:35px auto;
+  padding:22px;
+  color:var(--text);
+}
+.isf-panel {
+  background:#06152a;
+  border:1px solid #075a9d;
+  border-radius:18px;
+  padding:22px;
+  box-shadow:0 10px 30px #0004;
+}
+.isf-header {
+  text-align:center;
+  margin-bottom:22px;
+}
+.isf-header h2 {
+  color:var(--cyan);
+  font-size:clamp(25px,4vw,36px);
+}
+.isf-header p {
+  color:var(--muted);
+  line-height:1.6;
+}
+.isf-notice {
+  padding:13px;
+  background:#33270b;
+  color:#ffe6a6;
+  border:1px solid #8b6a22;
+  border-radius:10px;
+  font-size:13px;
+  line-height:1.6;
+  margin-bottom:18px;
+}
+.isf-search {
+  width:100%;
+  padding:14px;
+  border:1px solid var(--blue);
+  border-radius:10px;
+  background:#020d20;
+  color:white;
+  margin-bottom:14px;
+}
+.isf-categories {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:15px;
+}
+.isf-categories button {
+  padding:9px 13px;
+  border:1px solid #075a9d;
+  border-radius:22px;
+  background:#06152a;
+  color:white;
+}
+.isf-categories button.active,
+.isf-categories button:hover {
+  background:#064db5;
+  border-color:var(--cyan);
+}
+.isf-count {
+  color:var(--muted);
+  font-size:13px;
+  margin:12px 0;
+}
+.isf-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.isf-card {
+  display:flex;
+  gap:12px;
+  padding:15px;
+  background:#071a33;
+  border:1px solid #075a9d;
+  border-radius:12px;
+  min-width:0;
+}
+.isf-card:hover {
+  border-color:var(--cyan);
+  background:#082448;
+}
+.isf-icon {
+  font-size:25px;
+  flex-shrink:0;
+}
+.isf-card h3 {
+  font-size:15px;
+  margin:0 0 7px;
+  color:#edf6ff;
+}
+.isf-card p {
+  font-size:13px;
+  line-height:1.5;
+  color:#a8c3e4;
+  margin:0 0 9px;
+}
+.isf-status {
+  display:inline-block;
+  padding:4px 9px;
+  border-radius:20px;
+  background:#3b2d0d;
+  border:1px solid #8b6a22;
+  color:#ffe6a6;
+  font-size:11px;
+}
+.isf-empty {
+  grid-column:1/-1;
+  padding:20px;
+  text-align:center;
+  color:var(--muted);
+}
+.isf-footer {
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  margin-top:22px;
+  line-height:1.7;
+}
+@media(max-width:900px) {
+  .isf-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:600px) {
+  .isf-wrap {padding:12px}
+  .isf-panel {padding:14px}
+  .isf-grid {grid-template-columns:1fr}
+}
+body.light-mode .isf-panel,
+body.light-mode .isf-card {
+  background:white;
+  color:#10213a;
+}
+body.light-mode .isf-card h3 {
+  color:#10213a;
+}
+body.light-mode .isf-card p {
+  color:#526780;
+}
+</style>
+
+<section class="isf-wrap" id="futureFeaturesPanel">
+  <div class="isf-panel">
+
+    <div class="isf-header">
+      <span class="alert-label">🚀 FUTURE ROADMAP</span>
+      <h2>ISHWAR SEARCH FUTURE</h2>
+      <p>
+        भारत का नया Future – उपयोगी डिजिटल सुविधाओं का
+        एक नया प्लेटफॉर्म।
+      </p>
+    </div>
+
+    <div class="isf-notice">
+      <strong>ध्यान दें:</strong>
+      ये 35 प्रस्तावित फीचर्स हैं। अभी ये Roadmap में हैं,
+      चालू सेवाएँ नहीं। हर फीचर को जाँच और परीक्षण के बाद
+      सक्रिय किया जाएगा।
+    </div>
+
+    <input
+      type="search"
+      id="isfSearch"
+      class="isf-search"
+      placeholder="अपनी पसंद का Future Feature खोजें..."
+      maxlength="100"
+    >
+
+    <div class="isf-categories" id="isfCategories">
+      <button class="active" data-cat="all">सभी 35</button>
+      <button data-cat="search">Search</button>
+      <button data-cat="education">Government & Education</button>
+      <button data-cat="information">News & Information</button>
+      <button data-cat="tools">Digital Tools</button>
+      <button data-cat="business">Business & Community</button>
+      <button data-cat="extra">Extra Features</button>
+    </div>
+
+    <div class="isf-count" id="isfCount">
+      35 प्रस्तावित सुविधाएँ
+    </div>
+
+    <div class="isf-grid" id="isfGrid"></div>
+
+    <div class="isf-footer">
+      Ishwar Search • Search Smarter, Live Better
+      <br>
+      Developed for a better digital future.
+    </div>
+
+  </div>
+</section>
+
+<script>
+(() => {
+  "use strict";
+
+  const features = [
+    ["Smart Search Suggestions","खोजते समय उपयोगी सुझाव।","⌕","search"],
+    ["Advanced Search Filters","परिणामों को प्रकार और स्रोत से छाँटना।","⚙️","search"],
+    ["Voice Search","बोलकर खोजने की सुविधा।","🎙️","search"],
+    ["Multi-language Search","हिंदी और अंग्रेज़ी सहित कई भाषाओं में खोज।","🌐","search"],
+    ["Related Searches","खोज से जुड़े दूसरे विषय।","🔎","search"],
+
+    ["Government Scheme Finder","सरकारी योजनाओं की जानकारी और आधिकारिक लिंक।","🏛️","education"],
+    ["Government Document Guide","जरूरी दस्तावेजों की जानकारी।","📄","education"],
+    ["Exam Calendar","भर्ती और परीक्षाओं का कैलेंडर।","🗓️","education"],
+    ["Admit Card & Result Center","आधिकारिक एडमिट कार्ड और रिजल्ट लिंक।","🎫","education"],
+    ["Scholarship Finder","छात्रवृत्ति की जानकारी।","🎓","education"],
+    ["College & ITI Directory","कॉलेज और ITI संस्थानों की डायरेक्टरी।","🏫","education"],
+    ["Skill Learning Center","मुफ्त सीखने के संसाधन।","📚","education"],
+
+    ["Rajasthan News Desk","राजस्थान की खबरें।","📰","information"],
+    ["India News Desk","देश की प्रमुख खबरें।","🇮🇳","information"],
+    ["Weather Information","मौसम की जानकारी और पूर्वानुमान।","🌦️","information"],
+    ["Disaster Alert Center","आधिकारिक आपदा चेतावनियाँ।","⚠️","information"],
+    ["Fact Check Center","वायरल खबरों की सत्यता जाँचने के स्रोत।","🧾","information"],
+    ["Important Helpline Directory","सत्यापित सरकारी हेल्पलाइन।","☎️","information"],
+
+    ["QR Code Generator","वेबसाइट और टेक्स्ट के QR कोड।","▦","tools"],
+    ["PDF Utility Center","PDF से जुड़े उपयोगी टूल।","📑","tools"],
+    ["Image Compressor","फोटो का आकार कम करना।","🗜️","tools"],
+    ["Image Converter","फोटो फॉर्मेट बदलना।","🖼️","tools"],
+    ["Text Utility Center","टेक्स्ट के छोटे-छोटे टूल।","🔤","tools"],
+    ["Website Status Checker","वेबसाइट की उपलब्धता जाँचना।","🌍","tools"],
+
+    ["Local Business Finder","स्थानीय व्यवसाय खोजने की डायरेक्टरी।","📍","business"],
+    ["Business Promotion Center","दुकानों और कंपनियों का प्रचार।","🏪","business"],
+    ["Advertise With Us","विज्ञापन के लिए पूछताछ।","📢","business"],
+    ["Community Suggestion Center","बिना अकाउंट सुझाव भेजना।","💬","business"],
+    ["Public Information Board","सार्वजनिक उपयोग की सूचनाएँ।","📌","business"],
+    ["App Download Center","Ishwar Search Android ऐप डाउनलोड।","📲","business"],
+
+    ["Privacy Center","डेटा और गोपनीयता की जानकारी।","🔐","extra"],
+    ["Accessibility Center","वेबसाइट को आसानी से इस्तेमाल करने के विकल्प।","♿","extra"],
+    ["Website Feedback","बिना अकाउंट समस्या या सुझाव भेजना।","🛠️","extra"],
+    ["Official Source Verification","आधिकारिक वेबसाइट पहचानने में मदद।","✅","extra"],
+    ["Website Performance Center","वेबसाइट की स्पीड और उपलब्धता की निगरानी।","🚀","extra"]
+  ];
+
+  const grid = document.getElementById("isfGrid");
+  const search = document.getElementById("isfSearch");
+  const count = document.getElementById("isfCount");
+  const categoryBox = document.getElementById("isfCategories");
+
+  if (!grid || !search || !count || !categoryBox) return;
+
+  let activeCategory = "all";
+
+  function renderFeatures() {
+    const query = search.value.trim().toLowerCase();
+
+    const filtered = features.filter(item => {
+      const categoryMatch =
+        activeCategory === "all" || item[3] === activeCategory;
+
+      const searchMatch =
+        !query || (item[0] + " " + item[1]).toLowerCase().includes(query);
+
+      return categoryMatch && searchMatch;
+    });
+
+    grid.replaceChildren();
+
+    filtered.forEach((item, index) => {
+      const card = document.createElement("article");
+      card.className = "isf-card";
+
+      const icon = document.createElement("div");
+      icon.className = "isf-icon";
+      icon.textContent = item[2];
+
+      const content = document.createElement("div");
+
+      const title = document.createElement("h3");
+      title.textContent = (features.indexOf(item) + 1) + ". " + item[0];
+
+      const description = document.createElement("p");
+      description.textContent = item[1];
+
+      const status = document.createElement("span");
+      status.className = "isf-status";
+      status.textContent = "योजना में";
+
+      content.append(title, description, status);
+      card.append(icon, content);
+      grid.appendChild(card);
+    });
+
+    if (!filtered.length) {
+      const empty = document.createElement("div");
+      empty.className = "isf-empty";
+      empty.textContent = "कोई Future Feature नहीं मिला।";
+      grid.appendChild(empty);
+    }
+
+    count.textContent =
+      filtered.length + " प्रस्तावित सुविधाएँ दिखाई जा रही हैं।";
+  }
+
+  search.addEventListener("input", renderFeatures);
+
+  categoryBox.addEventListener("click", event => {
+    const button = event.target.closest("[data-cat]");
+    if (!button) return;
+
+    activeCategory = button.dataset.cat;
+
+    categoryBox.querySelectorAll("button").forEach(item => {
+      item.classList.toggle("active", item === button);
+    });
+
+    renderFeatures();
+  });
+
+  renderFeatures();
+})();
+</script>
+
 <script src="/static/notifications.js" defer></script>
 </body>
 </html>
