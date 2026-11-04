@@ -814,6 +814,13 @@
 $("vaultChooseFilesBtn").addEventListener("click", () => {
   $("vaultFiles").click();
 });
+       const chooseFilesButton = $("vaultChooseFilesBtn");
+
+if (chooseFilesButton) {
+  chooseFilesButton.addEventListener("click", () => {
+    $("vaultFiles").click();
+  });
+}
       $("vaultFiles").addEventListener("change", (event) => {
         addFiles(event.target.files);
       });
