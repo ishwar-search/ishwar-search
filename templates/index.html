@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="hi">
 <head>
@@ -172,6 +173,37 @@ body.light-mode{background:#eef5ff;color:#10213a}
 body.light-mode .tool-panel,body.light-mode .results{color:#10213a}
 body.light-mode .directory-card,body.light-mode .result-card,
 body.light-mode .notification-box{background:white;color:#10213a}
+.centre-group {
+  margin:18px 0 24px;
+}
+.centre-group h3 {
+  color:var(--cyan);
+  margin:0 0 10px;
+}
+.centre-source {
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  margin-top:5px;
+}
+.isf-card {
+  width:100%;
+  color:inherit;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+  appearance:none;
+  -webkit-appearance:none;
+}
+.isf-card:focus-visible {
+  outline:2px solid var(--cyan);
+  outline-offset:3px;
+}
+.isf-status.isf-live {
+  background:#073b2b;
+  border-color:#16845d;
+  color:#a8ffdc;
+}
 @media(max-width:1050px){
   .layout{grid-template-columns:160px minmax(0,1fr)}
   .result-list,.directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -208,6 +240,7 @@ body.light-mode .notification-box{background:white;color:#10213a}
   <nav class="nav" aria-label="मुख्य मेनू">
     <a href="#home" data-view="home" class="active">⌂ Home</a>
     <a href="#websites" data-view="websites">🌐 Websites</a>
+    <a href="#centres" data-view="centres">🏛️ Govt Centres</a>
     <a href="#tools" data-view="tools">🔧 Tools</a>
     <a href="#images" data-view="images">🖼️ Images</a>
     <a href="#news" data-view="news">📰 News</a>
@@ -224,6 +257,7 @@ body.light-mode .notification-box{background:white;color:#10213a}
 <aside class="sidebar">
   <a href="#home" data-view="home" class="active">⌂ Home</a>
   <a href="#websites" data-view="websites">🌐 Websites</a>
+  <a href="#centres" data-view="centres">🏛️ Govt Centres</a>
   <a href="#tools" data-view="tools">🔧 Tools</a>
   <a href="#images" data-view="images">🖼️ Images</a>
   <a href="#news" data-view="news">📰 News</a>
@@ -338,6 +372,24 @@ body.light-mode .notification-box{background:white;color:#10213a}
       <button class="action-button" id="checkNewsNotification" type="button">नई खबर जाँचें</button>
     </div>
   </section>
+
+  <section class="tool-panel" id="centresPanel" hidden>
+    <h2>🏛️ Government Information Centre</h2>
+    <p>सरकारी योजनाओं, दस्तावेज़ों, छात्रवृत्ति, परीक्षाओं और कौशल प्रशिक्षण के आधिकारिक लिंक।</p>
+    <input class="panel-search" id="centreFilter" type="search"
+      placeholder="किसी सरकारी सेवा या लिंक को खोजें...">
+    <div class="category-row" id="centreCategories">
+      <button class="category-button active" type="button" data-centre-category="all">सभी</button>
+      <button class="category-button" type="button" data-centre-category="schemes">योजनाएँ</button>
+      <button class="category-button" type="button" data-centre-category="documents">दस्तावेज़</button>
+      <button class="category-button" type="button" data-centre-category="scholarships">स्कॉलरशिप</button>
+      <button class="category-button" type="button" data-centre-category="exams">परीक्षा और भर्ती</button>
+      <button class="category-button" type="button" data-centre-category="skills">स्किल ट्रेनिंग</button>
+    </div>
+    <div id="centreStatus" class="panel-status" aria-live="polite">सरकारी केंद्र लोड हो रहे हैं...</div>
+    <div class="directory-grid" id="centreList"></div>
+    <p class="panel-status">सावधानी: आवेदन की पात्रता, तारीख और नियम संबंधित आधिकारिक पोर्टल पर ही जाँचें। Ishwar Search इन सरकारी पोर्टलों का विकल्प नहीं है।</p>
+  </section>
 </main>
 </div>
 
@@ -354,13 +406,15 @@ body.light-mode .notification-box{background:white;color:#10213a}
 (() => {
   "use strict";
   const $ = id => document.getElementById(id);
-  const panelNames = ["websites","tools","images","news","notifications"];
+  const panelNames = ["websites","tools","images","news","notifications","centres"];
   const panels = Object.fromEntries(panelNames.map(name => [name,$(name+"Panel")]));
   let allWebsites = [];
   let selectedCategory = "all";
   let newsLoaded = false;
   let latestNews = [];
   let alertsLoaded = false;
+  let governmentCentres = [];
+  let selectedCentreCategory = "all";
 
   $("year").textContent = new Date().getFullYear();
 
@@ -494,6 +548,7 @@ body.light-mode .notification-box{background:white;color:#10213a}
     if (name === "home" && !alertsLoaded) loadAlerts();
     if (name === "tools") renderTools();
     if (name === "news" && !newsLoaded) loadNews();
+    if (name === "centres" && !governmentCentres.length) loadGovernmentCentres();
     window.scrollTo({top:0,behavior:"smooth"});
   }
 
@@ -552,6 +607,132 @@ body.light-mode .notification-box{background:white;color:#10213a}
       item.classList.toggle("active",item===button)
     );
     renderWebsites();
+  });
+
+  // GOVERNMENT INFORMATION CENTRE
+  async function loadGovernmentCentres() {
+    $("centreStatus").textContent = "सरकारी केंद्र लोड हो रहे हैं...";
+    $("centreList").replaceChildren();
+
+    try {
+      const response = await fetch("/api/future/centres");
+      if (!response.ok) throw new Error("HTTP " + response.status);
+
+      const data = await response.json();
+      if (!data.success || !Array.isArray(data.categories)) {
+        throw new Error("Invalid Government Centres response");
+      }
+
+      governmentCentres = data.categories;
+      renderGovernmentCentres();
+      $("centreStatus").textContent =
+        (data.total_links || 0) + " आधिकारिक लिंक " +
+        governmentCentres.length + " केंद्रों में उपलब्ध हैं।";
+    } catch (error) {
+      console.error("Government Centres load failed:", error);
+      $("centreStatus").textContent =
+        "सरकारी केंद्र लोड नहीं हुए। कृपया API /api/future/centres जाँचें।";
+    }
+  }
+
+  function renderGovernmentCentres() {
+    const query = $("centreFilter").value.trim().toLowerCase();
+    const container = $("centreList");
+    container.replaceChildren();
+
+    const centres = governmentCentres.filter(centre =>
+      selectedCentreCategory === "all" || centre.id === selectedCentreCategory
+    );
+
+    let shown = 0;
+    centres.forEach(centre => {
+      const items = (centre.items || []).filter(item => {
+        const text = [
+          centre.name, centre.description, item.name,
+          item.description, item.source, item.url
+        ].join(" ").toLowerCase();
+        return !query || text.includes(query);
+      });
+      if (!items.length) return;
+
+      const group = document.createElement("section");
+      group.className = "centre-group";
+
+      const heading = document.createElement("h3");
+      heading.textContent = centre.name;
+
+      const summary = document.createElement("p");
+      summary.className = "panel-status";
+      summary.textContent = centre.description || "";
+      group.append(heading, summary);
+
+      const grid = document.createElement("div");
+      grid.className = "directory-grid";
+
+      items.forEach(item => {
+        if (!validUrl(item.url)) return;
+
+        const card = document.createElement("a");
+        card.className = "directory-card";
+        card.href = item.url;
+        card.target = "_blank";
+        card.rel = "noopener noreferrer";
+
+        const copy = document.createElement("span");
+        copy.className = "card-copy";
+
+        const title = document.createElement("strong");
+        title.textContent = item.name || "सरकारी सेवा";
+
+        const description = document.createElement("small");
+        description.textContent = item.description || "आधिकारिक पोर्टल खोलें";
+
+        const source = document.createElement("span");
+        source.className = "centre-source";
+        source.textContent = item.source ? "स्रोत: " + item.source : "";
+
+        copy.append(title, description, source);
+        card.appendChild(copy);
+        grid.appendChild(card);
+        shown++;
+      });
+
+      group.appendChild(grid);
+      container.appendChild(group);
+    });
+
+    if (!shown) {
+      const empty = document.createElement("p");
+      empty.className = "empty";
+      empty.textContent = "इस खोज में कोई सरकारी लिंक नहीं मिला।";
+      container.appendChild(empty);
+    }
+  }
+
+  window.openGovernmentCentre = function(category) {
+    const allowed = ["schemes", "documents", "scholarships", "exams", "skills"];
+    if (!allowed.includes(category)) return;
+
+    showView("centres");
+    selectedCentreCategory = category;
+    $("centreFilter").value = "";
+    $("centreCategories").querySelectorAll("[data-centre-category]").forEach(button =>
+      button.classList.toggle("active", button.dataset.centreCategory === category)
+    );
+    if (governmentCentres.length) renderGovernmentCentres();
+    history.replaceState(null, "", "#centres");
+  };
+
+  $("centreFilter").addEventListener("input", renderGovernmentCentres);
+  $("centreCategories").addEventListener("click", event => {
+    const button = event.target.closest("[data-centre-category]");
+    if (!button) return;
+
+    selectedCentreCategory = button.dataset.centreCategory;
+    $("centreCategories").querySelectorAll("[data-centre-category]").forEach(item =>
+      item.classList.toggle("active", item === button)
+    );
+    renderGovernmentCentres();
   });
 
   function renderTools() {
@@ -765,7 +946,7 @@ body.light-mode .notification-box{background:white;color:#10213a}
   showView("home");
 })();
 </script>
-  
+
 <style>
 /* ISHWAR SEARCH FUTURE DASHBOARD */
 .isf-wrap {
@@ -927,9 +1108,10 @@ body.light-mode .isf-card p {
 
     <div class="isf-notice">
       <strong>ध्यान दें:</strong>
-      ये 35 प्रस्तावित फीचर्स हैं। अभी ये Roadmap में हैं,
-      चालू सेवाएँ नहीं। हर फीचर को जाँच और परीक्षण के बाद
-      सक्रिय किया जाएगा।
+      इस Roadmap में 35 सुविधाएँ हैं। Government Scheme Finder,
+      Government Document Guide, Scholarship Finder, Exam Centre
+      और Skill Learning Centre अब सरकारी लिंक के साथ उपलब्ध हैं।
+      बाकी सुविधाएँ चरणबद्ध तरीके से विकसित की जाएँगी।
     </div>
 
     <input
@@ -1037,7 +1219,8 @@ body.light-mode .isf-card p {
     grid.replaceChildren();
 
     filtered.forEach((item, index) => {
-      const card = document.createElement("article");
+      const card = document.createElement("button");
+      card.type = "button";
       card.className = "isf-card";
 
       const icon = document.createElement("div");
@@ -1052,9 +1235,18 @@ body.light-mode .isf-card p {
       const description = document.createElement("p");
       description.textContent = item[1];
 
+      const activeCentres = {
+        "Government Scheme Finder":"schemes",
+        "Government Document Guide":"documents",
+        "Scholarship Finder":"scholarships",
+        "Admit Card & Result Center":"exams",
+        "Skill Learning Center":"skills"
+      };
+      const isLive = Boolean(activeCentres[item[0]]);
+
       const status = document.createElement("span");
-      status.className = "isf-status";
-      status.textContent = "योजना में";
+      status.className = isLive ? "isf-status isf-live" : "isf-status";
+      status.textContent = isLive ? "अब उपलब्ध • खोलें" : "योजना में";
 
       content.append(title, description, status);
       card.append(icon, content);
@@ -1069,8 +1261,29 @@ body.light-mode .isf-card p {
     }
 
     count.textContent =
-      filtered.length + " प्रस्तावित सुविधाएँ दिखाई जा रही हैं।";
+      filtered.length + " सुविधाएँ दिखाई जा रही हैं।";
   }
+
+  grid.addEventListener("click", event => {
+    const card = event.target.closest(".isf-card");
+    if (!card) return;
+
+    const title = card.querySelector("h3")?.textContent || "";
+    const featureName = title.replace(/^\d+\.\s*/, "");
+
+    const centreMap = {
+      "Government Scheme Finder":"schemes",
+      "Government Document Guide":"documents",
+      "Scholarship Finder":"scholarships",
+      "Admit Card & Result Center":"exams",
+      "Skill Learning Center":"skills"
+    };
+
+    const category = centreMap[featureName];
+    if (!category) return;
+
+    window.openGovernmentCentre(category);
+  });
 
   search.addEventListener("input", renderFeatures);
 
