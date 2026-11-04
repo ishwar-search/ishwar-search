@@ -1,9 +1,7 @@
-
 /* =====================================================
    ISHWAR PRIVATE VAULT
-   Local-only encrypted photo and video storage
-   Encryption: AES-GCM 256-bit
-   Key derivation: PBKDF2 / SHA-256
+   Local encrypted photo and video storage
+   AES-GCM 256-bit + PBKDF2 SHA-256
 ===================================================== */
 
 (() => {
@@ -15,33 +13,32 @@
   const FILE_STORE = "files";
 
   const PBKDF2_ITERATIONS = 310000;
-  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB per file
-  const AUTO_LOCK_TIME = 5 * 60 * 1000; // 5 minutes
-
+  const MAX_FILE_SIZE = 50 * 1024 * 1024;
+  const AUTO_LOCK_TIME = 5 * 60 * 1000;
   const CHECK_TEXT = "ISHWAR_PRIVATE_VAULT_OK";
 
   let db = null;
   let vaultKey = null;
   let autoLockTimer = null;
   let objectUrls = [];
-  let unlockedFiles = new Map();
 
-  const $ = (id) => document.getElementById(id);
+  const $ = id => document.getElementById(id);
 
   /* -----------------------------
-     MESSAGE / STATUS
+     MESSAGE
   ----------------------------- */
 
   function showMessage(message, isError = false) {
-    let messageBox = $("vaultMessage");
+    let box = $("vaultMessage");
 
-    if (!messageBox) {
-      messageBox = document.createElement("p");
-      messageBox.id = "vaultMessage";
-      messageBox.setAttribute("aria-live", "polite");
-      messageBox.style.margin = "12px 0";
-      messageBox.style.padding = "10px";
-      messageBox.style.borderRadius = "8px";
+    if (!box) {
+      box = document.createElement("p");
+      box.id = "vaultMessage";
+      box.setAttribute("aria-live", "polite");
+
+      box.style.padding = "12px";
+      box.style.margin = "12px 0";
+      box.style.borderRadius = "8px";
 
       const panel = $("vaultPanel");
 
@@ -49,18 +46,16 @@
         const intro = panel.querySelector("p");
 
         if (intro) {
-          intro.insertAdjacentElement("afterend", messageBox);
+          intro.insertAdjacentElement("afterend", box);
         } else {
-          panel.prepend(messageBox);
+          panel.prepend(box);
         }
       }
     }
 
-    messageBox.textContent = message;
-    messageBox.style.color = isError ? "#ff8585" : "#70e6b2";
-    messageBox.style.background = isError
-      ? "#401c25"
-      : "#12352b";
+    box.textContent = message;
+    box.style.color = isError ? "#ff8585" : "#70e6b2";
+    box.style.background = isError ? "#401c25" : "#12352b";
   }
 
   function setVaultStatus(message, isError = false) {
@@ -75,7 +70,7 @@
   }
 
   /* -----------------------------
-     BASIC HELPERS
+     HELPERS
   ----------------------------- */
 
   function randomBytes(length) {
@@ -84,18 +79,14 @@
     return bytes;
   }
 
-  function bytesToHex(bytes) {
-    return Array.from(bytes)
-      .map((byte) => byte.toString(16).padStart(2, "0"))
-      .join("");
-  }
-
   function makeId() {
     if (crypto.randomUUID) {
       return crypto.randomUUID();
     }
 
-    return bytesToHex(randomBytes(16));
+    return Array.from(randomBytes(16))
+      .map(byte => byte.toString(16).padStart(2, "0"))
+      .join("");
   }
 
   function isValidPin(pin) {
@@ -103,15 +94,9 @@
   }
 
   function cleanPinInput(input) {
-    if (!input) return;
-
     input.value = input.value
       .replace(/\D/g, "")
       .slice(0, 6);
-  }
-
-  function bufferToBytes(buffer) {
-    return new Uint8Array(buffer);
   }
 
   /* -----------------------------
@@ -138,16 +123,10 @@
         }
       };
 
-      request.onsuccess = () => {
-        resolve(request.result);
-      };
-
-      request.onerror = () => {
-        reject(request.error);
-      };
-
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
       request.onblocked = () => {
-        reject(new Error("Database is busy. Please reload the page."));
+        reject(new Error("Vault database is blocked."));
       };
     });
   }
@@ -155,8 +134,7 @@
   function getRecord(storeName, id) {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(storeName, "readonly");
-      const store = transaction.objectStore(storeName);
-      const request = store.get(id);
+      const request = transaction.objectStore(storeName).get(id);
 
       request.onsuccess = () => resolve(request.result || null);
       request.onerror = () => reject(request.error);
@@ -166,8 +144,7 @@
   function getAllRecords(storeName) {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(storeName, "readonly");
-      const store = transaction.objectStore(storeName);
-      const request = store.getAll();
+      const request = transaction.objectStore(storeName).getAll();
 
       request.onsuccess = () => resolve(request.result || []);
       request.onerror = () => reject(request.error);
@@ -177,9 +154,8 @@
   function saveRecord(storeName, record) {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(storeName, "readwrite");
-      const store = transaction.objectStore(storeName);
 
-      store.put(record);
+      transaction.objectStore(storeName).put(record);
 
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error);
@@ -190,9 +166,8 @@
   function deleteRecord(storeName, id) {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(storeName, "readwrite");
-      const store = transaction.objectStore(storeName);
 
-      store.delete(id);
+      transaction.objectStore(storeName).delete(id);
 
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error);
@@ -201,15 +176,13 @@
   }
 
   /* -----------------------------
-     ENCRYPTION KEY
+     ENCRYPTION
   ----------------------------- */
 
   async function deriveKey(pin, salt) {
-    const encoder = new TextEncoder();
-
     const pinKey = await crypto.subtle.importKey(
       "raw",
-      encoder.encode(pin),
+      new TextEncoder().encode(pin),
       "PBKDF2",
       false,
       ["deriveKey"]
@@ -218,7 +191,7 @@
     return crypto.subtle.deriveKey(
       {
         name: "PBKDF2",
-        salt: salt,
+        salt,
         iterations: PBKDF2_ITERATIONS,
         hash: "SHA-256"
       },
@@ -238,7 +211,7 @@
     const encrypted = await crypto.subtle.encrypt(
       {
         name: "AES-GCM",
-        iv: iv
+        iv
       },
       key,
       bytes
@@ -254,7 +227,7 @@
     return crypto.subtle.decrypt(
       {
         name: "AES-GCM",
-        iv: bufferToBytes(iv)
+        iv: new Uint8Array(iv)
       },
       key,
       data
@@ -283,18 +256,18 @@
     if (button) button.disabled = true;
 
     try {
-      const existingMeta = await getRecord(META_STORE, "vault");
+      const existing = await getRecord(META_STORE, "vault");
 
-      if (existingMeta) {
-        showMessage("Vault पहले से बना हुआ है। उसे Unlock करें।", true);
+      if (existing) {
+        showMessage("Vault पहले से बना हुआ है। Unlock करें।", true);
         await refreshVaultScreen();
         return;
       }
 
       const salt = randomBytes(16);
       const key = await deriveKey(pin, salt);
-
       const checkIv = randomBytes(12);
+
       const checkData = await crypto.subtle.encrypt(
         {
           name: "AES-GCM",
@@ -308,7 +281,7 @@
         id: "vault",
         salt: salt.buffer,
         checkIv: checkIv.buffer,
-        checkData: checkData
+        checkData
       });
 
       vaultKey = key;
@@ -317,12 +290,14 @@
       $("vaultConfirmPin").value = "";
 
       showMessage("आपका Private Vault बन गया है।");
+
       await showUnlockedVault();
 
     } catch (error) {
       console.error("Vault creation error:", error);
+
       showMessage(
-        "Vault नहीं बन पाया। ब्राउज़र स्टोरेज और HTTPS कनेक्शन जाँचें।",
+        "Vault नहीं बन पाया। ब्राउज़र स्टोरेज जाँचें।",
         true
       );
     } finally {
@@ -349,14 +324,14 @@
       const meta = await getRecord(META_STORE, "vault");
 
       if (!meta) {
-        showMessage("Vault नहीं मिला। पहले नया Vault बनाएँ।", true);
+        showMessage("Vault नहीं मिला। पहले Vault बनाएँ।", true);
         await refreshVaultScreen();
         return;
       }
 
       const key = await deriveKey(
         pin,
-        bufferToBytes(meta.salt)
+        new Uint8Array(meta.salt)
       );
 
       const decrypted = await decryptBytes(
@@ -375,10 +350,12 @@
       $("vaultPin").value = "";
 
       showMessage("Vault सफलतापूर्वक Unlock हो गया।");
+
       await showUnlockedVault();
 
     } catch (error) {
-      console.error("Vault unlock failed:", error);
+      console.error("Vault unlock error:", error);
+
       showMessage("गलत PIN या Vault डेटा पढ़ने में समस्या।", true);
     } finally {
       if (button) button.disabled = false;
@@ -386,9 +363,8 @@
   }
 
   /* -----------------------------
-     PACK FILE + PRIVATE METADATA
-     Metadata is encrypted along
-     with the actual file bytes.
+     PACK FILE
+     Metadata is also encrypted.
   ----------------------------- */
 
   async function packFile(file) {
@@ -403,14 +379,18 @@
       JSON.stringify(metadata)
     );
 
-    const fileBytes = new Uint8Array(await file.arrayBuffer());
+    const fileBytes = new Uint8Array(
+      await file.arrayBuffer()
+    );
 
     const packed = new Uint8Array(
       4 + metadataBytes.length + fileBytes.length
     );
 
-    const view = new DataView(packed.buffer);
-    view.setUint32(0, metadataBytes.length);
+    new DataView(packed.buffer).setUint32(
+      0,
+      metadataBytes.length
+    );
 
     packed.set(metadataBytes, 4);
     packed.set(fileBytes, 4 + metadataBytes.length);
@@ -428,18 +408,25 @@
     const bytes = new Uint8Array(decrypted);
 
     if (bytes.length < 4) {
-      throw new Error("Invalid encrypted file");
+      throw new Error("Invalid file data");
     }
 
-    const view = new DataView(bytes.buffer);
-    const metadataLength = view.getUint32(0);
+    const metadataLength = new DataView(
+      bytes.buffer
+    ).getUint32(0);
 
     if (metadataLength > bytes.length - 4) {
-      throw new Error("Invalid file metadata");
+      throw new Error("Invalid metadata");
     }
 
-    const metadataBytes = bytes.slice(4, 4 + metadataLength);
-    const fileBytes = bytes.slice(4 + metadataLength);
+    const metadataBytes = bytes.slice(
+      4,
+      4 + metadataLength
+    );
+
+    const fileBytes = bytes.slice(
+      4 + metadataLength
+    );
 
     const metadata = JSON.parse(
       new TextDecoder().decode(metadataBytes)
@@ -454,7 +441,7 @@
   }
 
   /* -----------------------------
-     ADD PHOTO / VIDEO
+     ADD FILES
   ----------------------------- */
 
   async function addFiles(fileList) {
@@ -467,16 +454,13 @@
 
     if (!files.length) return;
 
-    const input = $("vaultFiles");
-    if (input) input.value = "";
-
     for (const file of files) {
       if (
         !file.type.startsWith("image/") &&
         !file.type.startsWith("video/")
       ) {
         setVaultStatus(
-          `${file.name}: केवल फोटो और वीडियो जोड़े जा सकते हैं।`,
+          `${file.name}: केवल फोटो और वीडियो जोड़ सकते हैं।`,
           true
         );
         continue;
@@ -503,14 +487,11 @@
         });
 
       } catch (error) {
-        console.error("File encryption error:", error);
+        console.error("File save error:", error);
 
-        if (
-          error?.name === "QuotaExceededError" ||
-          error?.name === "NS_ERROR_DOM_QUOTA_REACHED"
-        ) {
+        if (error.name === "QuotaExceededError") {
           setVaultStatus(
-            "डिवाइस की ब्राउज़र स्टोरेज भर गई है। कुछ जगह खाली करें।",
+            "ब्राउज़र स्टोरेज भर गई है।",
             true
           );
         } else {
@@ -528,27 +509,29 @@
   }
 
   /* -----------------------------
-     GALLERY CLEANUP
+     GALLERY
   ----------------------------- */
 
   function clearGallery() {
-    objectUrls.forEach((url) => {
-      URL.revokeObjectURL(url);
-    });
-
+    objectUrls.forEach(url => URL.revokeObjectURL(url));
     objectUrls = [];
-    unlockedFiles.clear();
 
     const gallery = $("vaultGallery");
 
-    if (gallery) {
-      gallery.replaceChildren();
-    }
+    if (gallery) gallery.replaceChildren();
   }
 
-  /* -----------------------------
-     LOAD GALLERY
-  ----------------------------- */
+  function formatFileSize(bytes) {
+    const size = Number(bytes) || 0;
+
+    if (size < 1024) return size + " Bytes";
+
+    if (size < 1024 * 1024) {
+      return (size / 1024).toFixed(1) + " KB";
+    }
+
+    return (size / (1024 * 1024)).toFixed(2) + " MB";
+  }
 
   async function loadGallery() {
     if (!vaultKey) return;
@@ -562,8 +545,10 @@
 
     if (!records.length) {
       const empty = document.createElement("div");
+
       empty.className = "vault-empty";
-      empty.textContent = "अभी Vault में कोई फोटो या वीडियो नहीं है।";
+      empty.textContent =
+        "अभी Vault में कोई फोटो या वीडियो नहीं है।";
 
       gallery.appendChild(empty);
       return;
@@ -582,11 +567,6 @@
 
         const url = URL.createObjectURL(result.blob);
         objectUrls.push(url);
-
-        unlockedFiles.set(record.id, {
-          url,
-          metadata: result.metadata
-        });
 
         const item = document.createElement("div");
         item.className = "vault-item";
@@ -615,22 +595,23 @@
         size.textContent = formatFileSize(result.metadata.size);
 
         const deleteButton = document.createElement("button");
+
         deleteButton.type = "button";
         deleteButton.className = "vault-delete-button";
         deleteButton.textContent = "🗑️ Delete";
 
         deleteButton.addEventListener("click", async () => {
-          const confirmed = window.confirm(
-            "क्या आप इस फाइल को Vault से हमेशा के लिए डिलीट करना चाहते हैं?"
-          );
-
-          if (!confirmed) return;
+          if (!window.confirm("क्या इस फाइल को डिलीट करना चाहते हैं?")) {
+            return;
+          }
 
           try {
             await deleteRecord(FILE_STORE, record.id);
             await loadGallery();
+
             setVaultStatus("फाइल डिलीट कर दी गई है।");
             resetAutoLockTimer();
+
           } catch (error) {
             console.error(error);
             setVaultStatus("फाइल डिलीट नहीं हो पाई।", true);
@@ -642,60 +623,58 @@
         gallery.appendChild(item);
 
       } catch (error) {
-        console.error("Could not decrypt a vault file:", error);
+        console.error("File decryption error:", error);
 
         const errorItem = document.createElement("div");
+
         errorItem.className = "vault-empty";
         errorItem.textContent =
-          "एक फाइल पढ़ी नहीं जा सकी। उसका डेटा खराब हो सकता है।";
+          "एक फाइल पढ़ी नहीं जा सकी।";
 
         gallery.appendChild(errorItem);
       }
     }
   }
 
-  function formatFileSize(bytes) {
-    const size = Number(bytes) || 0;
-
-    if (size < 1024) return `${size} Bytes`;
-    if (size < 1024 * 1024) {
-      return `${(size / 1024).toFixed(1)} KB`;
-    }
-
-    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
-  }
-
   /* -----------------------------
-     SHOW UNLOCKED VAULT
+     SHOW / LOCK
   ----------------------------- */
 
   async function showUnlockedVault() {
-    if ($("vaultSetup")) $("vaultSetup").hidden = true;
-    if ($("vaultUnlock")) $("vaultUnlock").hidden = true;
-    if ($("vaultContent")) $("vaultContent").hidden = false;
+    $("vaultSetup").hidden = true;
+    $("vaultUnlock").hidden = true;
+    $("vaultContent").hidden = false;
 
     await loadGallery();
     resetAutoLockTimer();
   }
-
-  /* -----------------------------
-     LOCK VAULT
-  ----------------------------- */
 
   function lockVault() {
     clearTimeout(autoLockTimer);
     autoLockTimer = null;
 
     clearGallery();
-
-    // Drop the JavaScript reference to the key.
     vaultKey = null;
 
-    if ($("vaultContent")) $("vaultContent").hidden = true;
+    $("vaultContent").hidden = true;
 
     refreshVaultScreen();
 
     showMessage("Vault Lock कर दिया गया है।");
+  }
+
+  async function refreshVaultScreen() {
+    try {
+      const meta = await getRecord(META_STORE, "vault");
+
+      $("vaultSetup").hidden = !!meta;
+      $("vaultUnlock").hidden = !meta;
+      $("vaultContent").hidden = true;
+
+    } catch (error) {
+      console.error(error);
+      showMessage("Vault की जानकारी पढ़ने में समस्या हुई।", true);
+    }
   }
 
   /* -----------------------------
@@ -713,21 +692,10 @@
   }
 
   function setupActivityTracking() {
-    const events = [
-      "click",
-      "keydown",
-      "touchstart",
-      "mousemove"
-    ];
-
-    events.forEach((eventName) => {
-      document.addEventListener(
-        eventName,
-        () => {
-          if (vaultKey) resetAutoLockTimer();
-        },
-        { passive: true }
-      );
+    ["click", "keydown", "touchstart"].forEach(eventName => {
+      document.addEventListener(eventName, () => {
+        if (vaultKey) resetAutoLockTimer();
+      }, { passive: true });
     });
 
     document.addEventListener("visibilitychange", () => {
@@ -742,27 +710,37 @@
   }
 
   /* -----------------------------
-     REFRESH VAULT SCREEN
+     FILE PICKER BUTTON
   ----------------------------- */
 
-  async function refreshVaultScreen() {
-    try {
-      const meta = await getRecord(META_STORE, "vault");
+  function setupFilePicker() {
+    const fileInput = $("vaultFiles");
+    const chooseButton = $("vaultChooseFilesBtn");
 
-      if (meta) {
-        if ($("vaultSetup")) $("vaultSetup").hidden = true;
-        if ($("vaultUnlock")) $("vaultUnlock").hidden = false;
-      } else {
-        if ($("vaultSetup")) $("vaultSetup").hidden = false;
-        if ($("vaultUnlock")) $("vaultUnlock").hidden = true;
+    if (!fileInput) {
+      showMessage("फोटो चुनने वाला input नहीं मिला।", true);
+      return;
+    }
+
+    // Button मौजूद है तो उससे file picker खोलें।
+    if (chooseButton) {
+      chooseButton.addEventListener("click", event => {
+        event.preventDefault();
+        fileInput.click();
+      });
+    }
+
+    // पुराना label भी हो तो वह native तरीके से काम करेगा।
+    fileInput.addEventListener("change", async event => {
+      const selectedFiles = event.target.files;
+
+      if (selectedFiles && selectedFiles.length) {
+        await addFiles(selectedFiles);
       }
 
-      if ($("vaultContent")) $("vaultContent").hidden = true;
-
-    } catch (error) {
-      console.error(error);
-      showMessage("Vault की जानकारी पढ़ने में समस्या हुई।", true);
-    }
+      // Same file दोबारा चुनने के लिए input reset करें।
+      fileInput.value = "";
+    });
   }
 
   /* -----------------------------
@@ -782,7 +760,7 @@
       "vaultGallery"
     ];
 
-    const missing = requiredElements.filter((id) => !$(id));
+    const missing = requiredElements.filter(id => !$(id));
 
     if (missing.length) {
       console.error("Vault HTML elements missing:", missing);
@@ -791,7 +769,7 @@
 
     if (!window.isSecureContext || !crypto?.subtle) {
       showMessage(
-        "Vault के लिए सुरक्षित HTTPS कनेक्शन और Web Crypto सपोर्ट जरूरी है।",
+        "Vault के लिए HTTPS और Web Crypto सपोर्ट जरूरी है।",
         true
       );
       return;
@@ -811,49 +789,41 @@
       $("vaultCreateBtn").addEventListener("click", createVault);
       $("vaultUnlockBtn").addEventListener("click", unlockVault);
       $("vaultLockBtn").addEventListener("click", lockVault);
-$("vaultChooseFilesBtn").addEventListener("click", () => {
-  $("vaultFiles").click();
-});
-       const chooseFilesButton = $("vaultChooseFilesBtn");
 
-if (chooseFilesButton) {
-  chooseFilesButton.addEventListener("click", () => {
-    $("vaultFiles").click();
-  });
-}
-      $("vaultFiles").addEventListener("change", (event) => {
-        addFiles(event.target.files);
-      });
+      // फोटो/वीडियो चुनने का बटन सेट करें।
+      setupFilePicker();
 
-      ["vaultNewPin", "vaultConfirmPin", "vaultPin"].forEach((id) => {
+      ["vaultNewPin", "vaultConfirmPin", "vaultPin"].forEach(id => {
         const input = $(id);
 
-        if (input) {
-          input.addEventListener("input", () => {
-            cleanPinInput(input);
-          });
+        if (!input) return;
 
-          input.addEventListener("keydown", (event) => {
-            if (event.key === "Enter") {
-              if (id === "vaultPin") {
-                unlockVault();
-              } else if (id === "vaultConfirmPin") {
-                createVault();
-              }
+        input.addEventListener("input", () => {
+          cleanPinInput(input);
+        });
+
+        input.addEventListener("keydown", event => {
+          if (event.key === "Enter") {
+            if (id === "vaultPin") {
+              unlockVault();
+            } else if (id === "vaultConfirmPin") {
+              createVault();
             }
-          });
-        }
+          }
+        });
       });
 
       setupActivityTracking();
+
       await refreshVaultScreen();
 
       console.log("Ishwar Private Vault initialized.");
 
     } catch (error) {
       console.error("Vault initialization error:", error);
+
       showMessage(
-        "Vault शुरू नहीं हो पाया। ब्राउज़र स्टोरेज की अनुमति जाँचें।",
+        "Vault शुरू नहीं हो पाया। ब्राउज़र स्टोरेज जाँचें।",
         true
       );
     }
