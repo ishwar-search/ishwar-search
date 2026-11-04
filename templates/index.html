@@ -161,6 +161,7 @@ footer{
   grid-template-columns:1fr 1fr 1fr;align-items:center;gap:15px;
   padding:22px;background:#020b1bf5
 }
+  <a href="#vault" data-view="vault">🔐 Private Vault</a>
 .footer-brand{display:flex;align-items:center;gap:10px}
 .footer-brand strong{font-size:20px}
 .footer-brand small{display:block;color:var(--muted);margin-top:4px}
@@ -352,7 +353,98 @@ body.light-mode .notification-box{background:white;color:#10213a}
       <button class="action-button" id="checkNewsNotification" type="button">नई खबर जाँचें</button>
     </div>
   </section>
+<!-- ISHWAR PRIVATE VAULT -->
+<section class="tool-panel" id="vaultPanel" hidden>
 
+  <h2>🔐 Ishwar Private Vault</h2>
+
+  <p>
+    आपकी निजी फोटो और वीडियो आपके इसी डिवाइस के ब्राउज़र में
+    एन्क्रिप्ट होकर सुरक्षित रहेंगे।
+  </p>
+
+  <div class="vault-box" id="vaultSetup" hidden>
+    <h3>🔑 नया Vault PIN बनाएँ</h3>
+
+    <input
+      type="password"
+      id="vaultNewPin"
+      class="panel-search"
+      inputmode="numeric"
+      maxlength="6"
+      placeholder="6 अंकों का PIN"
+      autocomplete="new-password"
+    >
+
+    <input
+      type="password"
+      id="vaultConfirmPin"
+      class="panel-search"
+      inputmode="numeric"
+      maxlength="6"
+      placeholder="PIN दोबारा डालें"
+      autocomplete="new-password"
+    >
+
+    <button class="action-button" id="vaultCreateBtn" type="button">
+      Vault बनाएँ
+    </button>
+  </div>
+
+  <div class="vault-box" id="vaultUnlock" hidden>
+    <h3>🔒 अपना Vault खोलें</h3>
+
+    <input
+      type="password"
+      id="vaultPin"
+      class="panel-search"
+      inputmode="numeric"
+      maxlength="6"
+      placeholder="अपना 6 अंकों का PIN डालें"
+      autocomplete="current-password"
+    >
+
+    <button class="action-button" id="vaultUnlockBtn" type="button">
+      Unlock Vault
+    </button>
+  </div>
+
+  <div class="vault-box" id="vaultContent" hidden>
+
+    <div class="vault-toolbar">
+      <h3>📁 मेरी निजी फाइलें</h3>
+
+      <button class="action-button" id="vaultLockBtn" type="button">
+        🔒 Lock Vault
+      </button>
+    </div>
+
+    <label for="vaultFiles" class="action-button vault-add-button">
+      ➕ फोटो / वीडियो जोड़ें
+    </label>
+
+    <input
+      type="file"
+      id="vaultFiles"
+      accept="image/*,video/*"
+      multiple
+      hidden
+    >
+
+    <p id="vaultStatus" class="panel-status" aria-live="polite">
+      Vault तैयार है।
+    </p>
+
+    <div id="vaultGallery" class="vault-gallery"></div>
+
+  </div>
+
+  <p class="vault-warning">
+    ⚠️ PIN भूलने या ब्राउज़र का डेटा मिटने पर आपकी फाइलें वापस
+    पाना संभव नहीं हो सकता। अपनी जरूरी फाइलों का अलग सुरक्षित बैकअप रखें।
+  </p>
+
+</section>
   <section class="tool-panel" id="centresPanel" hidden>
     <h2>🏛️ Government Information Centre</h2>
     <p>सरकारी योजनाओं, दस्तावेज़ों, छात्रवृत्ति, परीक्षाओं और कौशल प्रशिक्षण के आधिकारिक लिंक।</p>
@@ -386,7 +478,15 @@ body.light-mode .notification-box{background:white;color:#10213a}
 (() => {
   "use strict";
   const $ = id => document.getElementById(id);
-  const panelNames = ["websites","tools","images","news","notifications","centres"];
+ const panelNames = [
+  "websites",
+  "tools",
+  "images",
+  "news",
+  "notifications",
+  "centres",
+  "vault"
+];
   const panels = Object.fromEntries(panelNames.map(name => [name,$(name+"Panel")]));
   let allWebsites = [];
   let selectedCategory = "all";
@@ -879,7 +979,7 @@ body.light-mode .notification-box{background:white;color:#10213a}
   $("notificationButton").addEventListener("click",() => {
     showView("notifications");
   });
-
+<a href="#vault" data-view="vault">🔐 Private Vault</a>
   async function checkNewsNotification() {
     if (!("Notification" in window) || Notification.permission !== "granted") {
       $("notificationStatus").textContent = "पहले Notification चालू करें।";
@@ -929,5 +1029,6 @@ body.light-mode .notification-box{background:white;color:#10213a}
 </script>
 
 <script src="/static/notifications.js" defer></script>
+  <script src="/static/vault.js" defer></script>
 </body>
 </html>
