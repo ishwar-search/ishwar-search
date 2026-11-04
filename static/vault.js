@@ -811,7 +811,9 @@
       $("vaultCreateBtn").addEventListener("click", createVault);
       $("vaultUnlockBtn").addEventListener("click", unlockVault);
       $("vaultLockBtn").addEventListener("click", lockVault);
-
+$("vaultChooseFilesBtn").addEventListener("click", () => {
+  $("vaultFiles").click();
+});
       $("vaultFiles").addEventListener("change", (event) => {
         addFiles(event.target.files);
       });
