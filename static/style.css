@@ -990,3 +990,138 @@ footer a {
     padding: 16px;
   }
 }
+/* =====================================
+   ISHWAR PRIVATE VAULT
+===================================== */
+
+.vault-box {
+  margin: 18px 0;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 0 18px #0077ff20;
+}
+
+.vault-box h3 {
+  margin-top: 0;
+  color: var(--cyan);
+}
+
+.vault-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.vault-toolbar h3 {
+  margin: 0;
+}
+
+.vault-add-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+.vault-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.vault-item {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #020d20;
+}
+
+.vault-item img,
+.vault-item video {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  background: #000;
+}
+
+.vault-item-info {
+  padding: 12px;
+}
+
+.vault-item-info strong {
+  display: block;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.vault-item-info small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+}
+
+.vault-delete-button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px;
+  border: 1px solid #a52d43;
+  border-radius: 8px;
+  background: #481322;
+  color: #fff;
+  cursor: pointer;
+}
+
+.vault-delete-button:hover {
+  background: #7d1830;
+}
+
+.vault-warning {
+  margin-top: 22px;
+  padding: 14px;
+  border: 1px solid #a87924;
+  border-radius: 10px;
+  background: #38280c;
+  color: #ffe3a1;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.vault-empty {
+  grid-column: 1 / -1;
+  padding: 28px 15px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .vault-box {
+    padding: 15px;
+  }
+
+  .vault-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .vault-item img,
+  .vault-item video {
+    height: 135px;
+  }
+
+  .vault-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
