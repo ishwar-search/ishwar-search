@@ -2492,6 +2492,155 @@ def future_centre_detail(category):
         "success": False,
         "error": "यह Centre उपलब्ध नहीं है।"
     }), 404
+    # ============================================================
+# ISHWAR SEARCH FUTURE FEATURES API
+# ============================================================
+
+FUTURE_FEATURES = [
+    {"id": 1, "name": "Smart Search Suggestions", "status": "available", "api": "/api/suggestions"},
+    {"id": 2, "name": "Advanced Search Filters", "status": "partial", "api": "/api/services"},
+    {"id": 3, "name": "Voice Search", "status": "planned", "api": None},
+    {"id": 4, "name": "Multi-language Search", "status": "partial", "api": "/api/search"},
+    {"id": 5, "name": "Related Searches", "status": "planned", "api": None},
+
+    {"id": 6, "name": "Government Scheme Finder", "status": "available", "api": "/api/future/centres/schemes"},
+    {"id": 7, "name": "Government Document Guide", "status": "available", "api": "/api/future/centres/documents"},
+    {"id": 8, "name": "Exam Calendar", "status": "planned", "api": None},
+    {"id": 9, "name": "Admit Card & Result Center", "status": "partial", "api": "/api/future/centres/exams"},
+    {"id": 10, "name": "Scholarship Finder", "status": "available", "api": "/api/future/centres/scholarships"},
+    {"id": 11, "name": "College & ITI Directory", "status": "planned", "api": None},
+    {"id": 12, "name": "Skill Learning Center", "status": "available", "api": "/api/future/centres/skills"},
+
+    {"id": 13, "name": "Rajasthan News Desk", "status": "partial", "api": "/api/future/news?region=rajasthan"},
+    {"id": 14, "name": "India News Desk", "status": "available", "api": "/api/news"},
+    {"id": 15, "name": "Weather Information", "status": "available", "api": "/api/weather"},
+    {"id": 16, "name": "Disaster Alert Center", "status": "planned", "api": None},
+    {"id": 17, "name": "Fact Check Center", "status": "planned", "api": None},
+    {"id": 18, "name": "Important Helpline Directory", "status": "planned", "api": None},
+
+    {"id": 19, "name": "QR Code Generator", "status": "planned", "api": None},
+    {"id": 20, "name": "PDF Utility Center", "status": "planned", "api": None},
+    {"id": 21, "name": "Image Compressor", "status": "planned", "api": None},
+    {"id": 22, "name": "Image Converter", "status": "partial", "api": "/api/images"},
+    {"id": 23, "name": "Text Utility Center", "status": "planned", "api": None},
+    {"id": 24, "name": "Website Status Checker", "status": "planned", "api": None},
+
+    {"id": 25, "name": "Local Business Finder", "status": "partial", "api": "/api/places"},
+    {"id": 26, "name": "Business Promotion Center", "status": "planned", "api": None},
+    {"id": 27, "name": "Advertise With Us", "status": "planned", "api": None},
+    {"id": 28, "name": "Community Suggestion Center", "status": "planned", "api": None},
+    {"id": 29, "name": "Public Information Board", "status": "planned", "api": None},
+    {"id": 30, "name": "App Download Center", "status": "planned", "api": None},
+
+    {"id": 31, "name": "Privacy Center", "status": "partial", "api": "/api/about"},
+    {"id": 32, "name": "Accessibility Center", "status": "planned", "api": None},
+    {"id": 33, "name": "Website Feedback", "status": "planned", "api": None},
+    {"id": 34, "name": "Official Source Verification", "status": "partial", "api": "/api/future/centres"},
+    {"id": 35, "name": "Website Performance Center", "status": "partial", "api": "/api/health"}
+]
+
+
+@app.route("/api/future/features", methods=["GET"])
+def future_features_api():
+
+    available = sum(
+        1 for item in FUTURE_FEATURES
+        if item["status"] == "available"
+    )
+
+    partial = sum(
+        1 for item in FUTURE_FEATURES
+        if item["status"] == "partial"
+    )
+
+    planned = sum(
+        1 for item in FUTURE_FEATURES
+        if item["status"] == "planned"
+    )
+
+    return jsonify({
+        "success": True,
+        "app": APP_NAME,
+        "version": APP_VERSION,
+        "total": len(FUTURE_FEATURES),
+        "available": available,
+        "partial": partial,
+        "planned": planned,
+        "features": FUTURE_FEATURES,
+        "updated_at": utc_now()
+    })
+
+
+# ============================================================
+# RAJASTHAN / INDIA NEWS FILTER API
+# ============================================================
+
+@app.route("/api/future/news", methods=["GET"])
+def future_news_api():
+
+    region = clean_text(
+        request.args.get("region", "india")
+    ).casefold()
+
+    allowed_regions = {
+        "india": [
+            "india", "भारत", "देश", "national"
+        ],
+        "rajasthan": [
+            "rajasthan", "राजस्थान", "जयपुर",
+            "जोधपुर", "पाली", "उदयपुर", "अजमेर"
+        ]
+    }
+
+    if region not in allowed_regions:
+        return json_error(
+            "यह News Region उपलब्ध नहीं है।",
+            400
+        )
+
+    all_news = fetch_news(force_refresh=False)
+    keywords = allowed_regions[region]
+
+    results = []
+
+    for item in all_news:
+
+        searchable = normalize_text(
+            " ".join([
+                item.get("title", ""),
+                item.get("description", ""),
+                item.get("source", "")
+            ])
+        )
+
+        if region == "india":
+            results.append(item)
+
+        elif any(
+            normalize_text(word) in searchable
+            for word in keywords
+        ):
+            results.append(item)
+
+    limit = bounded_limit(
+        request.args.get("limit", 15),
+        15,
+        20
+    )
+
+    return jsonify({
+        "success": True,
+        "region": region,
+        "count": min(len(results), limit),
+        "results": results[:limit],
+        "source": "Available RSS feeds",
+        "notice": (
+            "यह उपलब्ध RSS खबरों का क्षेत्र के आधार पर "
+            "फिल्टर है। इसे राजस्थान की सभी खबरों की "
+            "पूर्ण सूची न मानें।"
+        ),
+        "updated_at": utc_now()
+    })
 # ============================================================
 # ERROR HANDLERS
 # ============================================================
