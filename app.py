@@ -846,7 +846,8 @@ def get_weather(place):
     try:
 
         data = json.loads(
-            fetch_url(                "https://api.open-meteo.com/v1/forecast?"
+            fetch_url(
+                "https://api.open-meteo.com/v1/forecast?"
                 + params,
                 timeout=7
             )
@@ -917,8 +918,7 @@ def search_images(query, limit=12):
 
     if not query:
         return []
-
-    limit = bounded_limit(limit, 12, 30)
+            limit = bounded_limit(limit, 12, 30)
 
     key = (
         "images:"
@@ -1450,36 +1450,25 @@ def api_services():
 # IMAGE SEARCH API
 # ============================================================
 
-@app.route("/api/images/search", methods=["GET"])
 @app.route("/api/images", methods=["GET"])
-def api_images_search():
+def api_images():
 
     query = clean_text(request.args.get("q", ""))
 
-    if not query:
-        return json_error("फोटो खोजने के लिए कोई विषय लिखें।")
+    if len(query) > MAX_QUERY_LENGTH:
+        return json_error("खोज का शब्द बहुत लंबा है।")
 
-    if len(query) > 150:
-        return json_error("फोटो खोज का शब्द बहुत लंबा है।")
-
-    limit = bounded_limit(
-        request.args.get("limit", 12),
-        12,
-        30
+    results = search_images(
+        query,
+        request.args.get("limit", 12)
     )
-
-    results = search_images(query, limit)
 
     return jsonify({
         "success": True,
         "query": query,
         "count": len(results),
         "results": results,
-        "source": "Wikimedia Commons",
-        "message": (
-            "" if results
-            else "अभी फोटो परिणाम नहीं मिले। दूसरा शब्द लिखकर देखें।"
-        )
+        "source": "Wikimedia Commons"
     })
 
 
@@ -1492,25 +1481,24 @@ def api_videos():
 
     query = clean_text(request.args.get("q", ""))
 
-    if not query:
-        return json_error("वीडियो खोजने के लिए कोई विषय लिखें।")
+    if len(query) > MAX_QUERY_LENGTH:
+        return json_error("खोज का शब्द बहुत लंबा है।")
 
-    if len(query) > 150:
-        return json_error("वीडियो खोज का शब्द बहुत लंबा है।")
-
-    results = search_videos(query)
+    results = search_videos(
+        query,
+        request.args.get("limit", 10)
+    )
 
     return jsonify({
         "success": True,
         "query": query,
         "count": len(results),
-        "results": results,
-        "message": "ये वीडियो खोज के लिंक हैं, वास्तविक वीडियो सूची नहीं।"
+        "results": results
     })
 
 
 # ============================================================
-# PLACES API
+# PLACES SEARCH API
 # ============================================================
 
 @app.route("/api/places", methods=["GET"])
@@ -1518,63 +1506,19 @@ def api_places():
 
     query = clean_text(request.args.get("q", ""))
 
-    if not query:
-        return json_error(
-            "जगह, होटल, अस्पताल या पुलिस स्टेशन का नाम लिखें।"
-        )
+    if len(query) > MAX_QUERY_LENGTH:
+        return json_error("खोज का शब्द बहुत लंबा है।")
 
-    if len(query) > 150:
-        return json_error("जगह की खोज का शब्द बहुत लंबा है।")
-
-    limit = bounded_limit(
-        request.args.get("limit", 10),
-        10,
-        10
+    results = search_places(
+        query,
+        request.args.get("limit", 10)
     )
-
-    results = search_places(query, limit)
 
     return jsonify({
         "success": True,
         "query": query,
         "count": len(results),
-        "results": results,
-        "source": "OpenStreetMap contributors",
-        "attribution": "© OpenStreetMap contributors",
-        "message": (
-            "" if results
-            else "जगह के परिणाम नहीं मिले या सेवा उपलब्ध नहीं है।"
-        )
-    })
-
-
-# ============================================================
-# COMBINED SEARCH API
-# ============================================================
-
-@app.route("/api/search-all", methods=["GET"])
-def api_search_all():
-
-    query = clean_text(request.args.get("q", ""))
-
-    if not query:
-        return json_error("खोजने के लिए कोई विषय लिखें।")
-
-    if len(query) > 150:
-        return json_error("खोज का शब्द बहुत लंबा है।")
-
-    encoded = urllib.parse.quote(query)
-
-    return jsonify({
-        "success": True,
-        "query": query,
-        "services": search_services(query, 20),
-        "images_api": "/api/images/search?q=" + encoded,
-        "videos_api": "/api/videos?q=" + encoded,
-        "places_api": "/api/places?q=" + encoded,
-        "news_api": "/api/news?q=" + encoded,
-        "weather_api": "/api/weather?place=" + encoded,
-        "rates_api": "/api/rates"
+        "results": results
     })
 
 
@@ -1587,28 +1531,24 @@ def api_news():
 
     query = clean_text(request.args.get("q", ""))
 
-    if len(query) > 150:
-        return json_error("खबर खोजने का शब्द बहुत लंबा है।")
-
-    limit = bounded_limit(
-        request.args.get("limit", 15),
-        15,
-        MAX_NEWS_ITEMS
-    )
+    if len(query) > MAX_QUERY_LENGTH:
+        return json_error("खोज का शब्द बहुत लंबा है।")
 
     force_refresh = (
         request.args.get("refresh", "").lower()
         in ("1", "true", "yes")
     )
 
-    results = fetch_news(query, force_refresh)
+    results = fetch_news(
+        query=query,
+        force_refresh=force_refresh
+    )
 
     return jsonify({
         "success": True,
         "query": query,
-        "count": min(len(results), limit),
-        "results": results[:limit],
-        "updated_at": utc_now(),
+        "count": len(results),
+        "results": results,
         "source": "RSS feeds"
     })
 
@@ -1623,21 +1563,17 @@ def api_weather():
     place = clean_text(
         request.args.get("place")
         or request.args.get("q")
-        or ""
+        or "Bali, Rajasthan"
     )
-
-    if not place:
-        return json_error("कृपया शहर या जगह का नाम लिखें।")
 
     if len(place) > 100:
         return json_error("जगह का नाम बहुत लंबा है।")
 
     result = get_weather(place)
 
-    if not result.get("success"):
-        return jsonify(result), 404
+    status = 200 if result.get("success") else 502
 
-    return jsonify(result)
+    return jsonify(result), status
 
 
 # ============================================================
@@ -1651,58 +1587,333 @@ def api_rates():
         request.args.get("place", "Rajasthan")
     )
 
+    if len(place) > 100:
+        return json_error("जगह का नाम बहुत लंबा है।")
+
     return jsonify(get_rates(place))
 
 
 # ============================================================
-# EDUCATION AND IMPORTANT LINKS
+# EDUCATION LINKS
 # ============================================================
+
+EDUCATION_LINKS = [
+
+    {
+        "name": "National Scholarship Portal",
+        "category": "scholarship",
+        "description": "सरकारी छात्रवृत्ति पोर्टल",
+        "url": "https://scholarships.gov.in/"
+    },
+
+    {
+        "name": "DigiLocker",
+        "category": "documents",
+        "description": "डिजिटल दस्तावेज़ सेवा",
+        "url": "https://www.digilocker.gov.in/"
+    },
+
+    {
+        "name": "National Testing Agency",
+        "category": "exam",
+        "description": "राष्ट्रीय परीक्षा एजेंसी",
+        "url": "https://nta.ac.in/"
+    },
+
+    {
+        "name": "NCERT",
+        "category": "study",
+        "description": "स्कूली शिक्षा की अध्ययन सामग्री",
+        "url": "https://ncert.nic.in/"
+    },
+
+    {
+        "name": "SWAYAM",
+        "category": "course",
+        "description": "ऑनलाइन शिक्षा और पाठ्यक्रम",
+        "url": "https://swayam.gov.in/"
+    },
+
+    {
+        "name": "Skill India Digital",
+        "category": "skill",
+        "description": "कौशल विकास और प्रशिक्षण",
+        "url": "https://www.skillindiadigital.gov.in/"
+    },
+
+    {
+        "name": "National Career Service",
+        "category": "job",
+        "description": "रोजगार और करियर सेवाएँ",
+        "url": "https://www.ncs.gov.in/"
+    },
+
+    {
+        "name": "AICTE",
+        "category": "education",
+        "description": "तकनीकी शिक्षा से जुड़ी जानकारी",
+        "url": "https://www.aicte-india.org/"
+    },
+
+    {
+        "name": "UGC",
+        "category": "education",
+        "description": "उच्च शिक्षा से जुड़ी जानकारी",
+        "url": "https://www.ugc.gov.in/"
+    },
+
+    {
+        "name": "ePathshala",
+        "category": "study",
+        "description": "डिजिटल पाठ्यपुस्तकें",
+        "url": "https://epathshala.nic.in/"
+    },
+
+    {
+        "name": "DIKSHA",
+        "category": "study",
+        "description": "डिजिटल शिक्षा मंच",
+        "url": "https://diksha.gov.in/"
+    },
+
+    {
+        "name": "Apprenticeship India",
+        "category": "training",
+        "description": "अप्रेंटिसशिप प्रशिक्षण पोर्टल",
+        "url": "https://www.apprenticeshipindia.gov.in/"
+    },
+
+    {
+        "name": "NATS",
+        "category": "training",
+        "description": "राष्ट्रीय अप्रेंटिसशिप प्रशिक्षण योजना",
+        "url": "https://nats.education.gov.in/"
+    },
+
+    {
+        "name": "ITI NCVT MIS",
+        "category": "iti",
+        "description": "ITI और NCVT से जुड़ी जानकारी",
+        "url": "https://www.ncvtmis.gov.in/"
+    },
+
+    {
+        "name": "Employment News",
+        "category": "job",
+        "description": "सरकारी रोजगार समाचार",
+        "url": "https://employmentnews.gov.in/"
+    }
+]
+
 
 @app.route("/api/education", methods=["GET"])
 def api_education():
 
-    results = [
-        {
-            "name": "National Scholarship Portal",
-            "url": "https://scholarships.gov.in/",
-            "category": "scholarship"
-        },
-        {
-            "name": "DigiLocker",
-            "url": "https://www.digilocker.gov.in/",
-            "category": "documents"
-        },
-        {
-            "name": "National Career Service",
-            "url": "https://www.ncs.gov.in/",
-            "category": "jobs"
-        },
-        {
-            "name": "Skill India Digital",
-            "url": "https://www.skillindiadigital.gov.in/",
-            "category": "skills"
-        },
-        {
-            "name": "Railway Recruitment Board",
-            "url": "https://www.rrbapply.gov.in/",
-            "category": "railway"
-        },
-        {
-            "name": "Union Public Service Commission",
-            "url": "https://upsc.gov.in/",
-            "category": "government jobs"
-        },
-        {
-            "name": "Rajasthan Public Service Commission",
-            "url": "https://rpsc.rajasthan.gov.in/",
-            "category": "rajasthan jobs"
-        },
-        {
-            "name": "Rajasthan Staff Selection Board",
-            "url": "https://rssb.rajasthan.gov.in/",
-            "category": "rajasthan jobs"
-        }
-    ]
+    category = normalize_text(
+        request.args.get("category", "")
+    )
+
+    results = EDUCATION_LINKS
+
+    if category and category != "all":
+
+        results = [
+            item for item in EDUCATION_LINKS
+            if normalize_text(item["category"]) == category
+        ]
+
+    return jsonify({
+        "success": True,
+        "count": len(results),
+        "results": results
+    })
+
+
+# ============================================================
+# JOB AND RECRUITMENT LINKS
+# ============================================================
+
+JOB_LINKS = [
+
+    {
+        "name": "UPSC",
+        "description": "संघ लोक सेवा आयोग",
+        "url": "https://upsc.gov.in/"
+    },
+
+    {
+        "name": "SSC",
+        "description": "कर्मचारी चयन आयोग",
+        "url": "https://ssc.gov.in/"
+    },
+
+    {
+        "name": "Railway Recruitment Boards",
+        "description": "रेलवे भर्ती बोर्ड",
+        "url": "https://www.rrbapply.gov.in/"
+    },
+
+    {
+        "name": "Rajasthan Public Service Commission",
+        "description": "राजस्थान लोक सेवा आयोग",
+        "url": "https://rpsc.rajasthan.gov.in/"
+    },
+
+    {
+        "name": "Rajasthan Staff Selection Board",
+        "description": "राजस्थान कर्मचारी चयन बोर्ड",
+        "url": "https://rssb.rajasthan.gov.in/"
+    },
+
+    {
+        "name": "India Post",
+        "description": "भारतीय डाक विभाग",
+        "url": "https://indiapost.gov.in/"
+    },
+
+    {
+        "name": "ISRO Careers",
+        "description": "इसरो भर्ती और करियर",
+        "url": "https://www.isro.gov.in/Careers.html"
+    },
+
+    {
+        "name": "DRDO Careers",
+        "description": "DRDO भर्ती और करियर",
+        "url": "https://www.drdo.gov.in/"
+    },
+
+    {
+        "name": "National Career Service",
+        "description": "राष्ट्रीय करियर सेवा",
+        "url": "https://www.ncs.gov.in/"
+    }
+]
+
+
+@app.route("/api/jobs", methods=["GET"])
+def api_jobs():
+
+    return jsonify({
+        "success": True,
+        "count": len(JOB_LINKS),
+        "results": JOB_LINKS
+    })
+
+
+# ============================================================
+# GOVERNMENT INFORMATION LINKS
+# ============================================================
+
+GOVERNMENT_LINKS = [
+
+    {
+        "name": "National Portal of India",
+        "category": "government",
+        "url": "https://www.india.gov.in/"
+    },
+
+    {
+        "name": "MyGov India",
+        "category": "government",
+        "url": "https://www.mygov.in/"
+    },
+
+    {
+        "name": "UIDAI",
+        "category": "identity",
+        "url": "https://uidai.gov.in/"
+    },
+
+    {
+        "name": "Income Tax India",
+        "category": "tax",
+        "url": "https://www.incometax.gov.in/"
+    },
+
+    {
+        "name": "GST Portal",
+        "category": "tax",
+        "url": "https://www.gst.gov.in/"
+    },
+
+    {
+        "name": "Passport Seva",
+        "category": "documents",
+        "url": "https://www.passportindia.gov.in/"
+    },
+
+    {
+        "name": "Voter Services",
+        "category": "election",
+        "url": "https://voters.eci.gov.in/"
+    },
+
+    {
+        "name": "National Consumer Helpline",
+        "category": "consumer",
+        "url": "https://consumerhelpline.gov.in/"
+    },
+
+    {
+        "name": "Cyber Crime Portal",
+        "category": "safety",
+        "url": "https://cybercrime.gov.in/"
+    },
+
+    {
+        "name": "Rajasthan Government",
+        "category": "state",
+        "url": "https://rajasthan.gov.in/"
+    },
+
+    {
+        "name": "Rajasthan SSO",
+        "category": "state",
+        "url": "https://sso.rajasthan.gov.in/"
+    },
+
+    {
+        "name": "Jan Aadhaar Rajasthan",
+        "category": "state",
+        "url": "https://janaadhaar.rajasthan.gov.in/"
+    },
+
+    {
+        "name": "e-Mitra Rajasthan",
+        "category": "state",
+        "url": "https://emitra.rajasthan.gov.in/"
+    },
+
+    {
+        "name": "Rajasthan Sampark",
+        "category": "complaint",
+        "url": "https://sampark.rajasthan.gov.in/"
+    },
+
+    {
+        "name": "Public Distribution System",
+        "category": "ration",
+        "url": "https://nfsa.gov.in/"
+    }
+]
+
+
+@app.route("/api/government", methods=["GET"])
+def api_government():
+
+    category = normalize_text(
+        request.args.get("category", "")
+    )
+
+    results = GOVERNMENT_LINKS
+
+    if category and category != "all":
+
+        results = [
+            item for item in GOVERNMENT_LINKS
+            if normalize_text(item["category"]) == category
+        ]
 
     return jsonify({
         "success": True,
@@ -1714,6 +1925,76 @@ def api_education():
 # ============================================================
 # NOTIFICATION CONFIGURATION
 # ============================================================
+
+VAPID_PUBLIC_KEY = os.environ.get(
+    "VAPID_PUBLIC_KEY",
+    ""
+)
+
+VAPID_PRIVATE_KEY = os.environ.get(
+    "VAPID_PRIVATE_KEY",
+    ""
+)
+
+VAPID_SUBJECT = os.environ.get(
+    "VAPID_SUBJECT",
+    "mailto:admin@example.com"
+)
+
+
+def get_push_config():
+
+    return {
+        "enabled": bool(
+            VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY
+        ),
+        "public_key": VAPID_PUBLIC_KEY,
+        "subject": VAPID_SUBJECT
+    }
+
+
+@app.route("/api/notifications/config", methods=["GET"])
+def notification_config():
+
+    return jsonify({
+        "success": True,
+        **get_push_config()
+    })
+
+
+# ============================================================
+# PUSH SUBSCRIPTION STORAGE
+# ============================================================
+
+def load_subscriptions():
+
+    if not PUSH_DATA_FILE.exists():
+        return []
+
+    try:
+
+        with PUSH_DATA_FILE.open(
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            data = json.load(file)
+
+        if isinstance(data, list):
+            return data
+
+        return []
+
+    except (OSError, json.JSONDecodeError):
+
+        logger.exception("Could not load subscriptions")
+        return []
+        # ============================================================
+# SUBSCRIPTION STORAGE
+# ============================================================
+
+_subscription_lock = threading.RLock()
+
 
 def get_vapid_settings():
 
@@ -1758,61 +2039,7 @@ def push_configuration():
     }
 
 
-# ============================================================
-# SUBSCRIPTION STORAGE
-# ============================================================
-
-_subscription_lock = threading.RLock()
-
-
-def load_subscriptions():
-
-    with _subscription_lock:
-
-        if not PUSH_DATA_FILE.is_file():
-            return []
-
-        try:
-
-            with PUSH_DATA_FILE.open(
-                "r",
-                encoding="utf-8"
-            ) as file:
-
-                data = json.load(file)
-
-            if not isinstance(data, list):
-                return []
-
-            valid = []
-
-            for item in data:
-
-                if not isinstance(item, dict):
-                    continue
-
-                endpoint = safe_url(item.get("endpoint"))
-                keys = item.get("keys", {})
-
-                if not endpoint or not isinstance(keys, dict):
-                    continue
-
-                if not keys.get("p256dh") or not keys.get("auth"):
-                    continue
-
-                item["endpoint"] = endpoint
-                valid.append(item)
-
-            return valid
-
-        except (OSError, json.JSONDecodeError):
-
-            logger.exception(
-                "Subscription file could not be read"
-            )
-
-            return []
-            def save_subscriptions(subscriptions):
+def save_subscriptions(subscriptions):
 
     with _subscription_lock:
 
@@ -2550,4 +2777,3 @@ if __name__ == "__main__":
         port=port,
         debug=False
     )
-                
