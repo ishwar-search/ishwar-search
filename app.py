@@ -1600,18 +1600,67 @@ def future_centre_detail(category):
         "success": False,
         "error": "यह Centre उपलब्ध नहीं है।"
     }), 404
-एक जरूरी बात: पिछले संदेश में बड़े code blocks की display कट सकती है। इसलिए मैंने पूरे कोड की तीन अलग-अलग फाइलें भी तैयार कर दी हैं। इन्हें क्रम से खोलकर जोड़ना सुरक्षित रहेगा।
+# ============================================================
+# ERROR HANDLERS
+# ============================================================
 
-- [Part 1/3](sandbox:/mnt/data/app_part_1_of_3.txt)
-- [Part 2/3](sandbox:/mnt/data/app_part_2_of_3.txt)
-- [Part 3/3](sandbox:/mnt/data/app_part_3_of_3.txt)
+@app.errorhandler(404)
+def page_not_found(error):
 
-**जाँच का परिणाम:**
-- <badge color="success">Syntax OK</badge> Python syntax जाँच सफल।
-- पुराने 35 Future Features API हटाए गए।
-- पुराना Future News Filter API हटाया गया।
-- Government Information Centre सुरक्षित है।
-- Ishwar Alert का `/api/news` सुरक्षित है।
-- Search, Weather, Images और Notifications का कोड सुरक्षित है।
+    if request.path.startswith("/api/"):
 
-तीनों भागों को इसी क्रम में जोड़कर `app.py` बनाना है। फिर पुरानी फाइल की जगह नई फाइल रखकर वेबसाइट deploy करना।
+        return json_error(
+            "यह API endpoint उपलब्ध नहीं है।",
+            404
+        )
+
+    return jsonify({
+        "success": False,
+        "error": "यह पेज नहीं मिला।"
+    }), 404
+
+
+@app.errorhandler(413)
+def request_too_large(error):
+
+    return json_error(
+        "भेजा गया डेटा बहुत बड़ा है।",
+        413
+    )
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+
+    logger.exception(
+        "Internal server error"
+    )
+
+    if request.path.startswith("/api/"):
+
+        return json_error(
+            "Server पर समस्या आई है। कृपया बाद में प्रयास करें।",
+            500
+        )
+
+    return jsonify({
+        "success": False,
+        "error": "Server पर समस्या आई है।"
+    }), 500
+
+
+# ============================================================
+# APPLICATION START
+# ============================================================
+
+if __name__ == "__main__":
+
+    port = int(
+        os.environ.get("PORT", 5000)
+    )
+
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        debug=False
+    )
