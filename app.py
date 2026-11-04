@@ -1608,7 +1608,6 @@ def future_centre_detail(category):
 def page_not_found(error):
 
     if request.path.startswith("/api/"):
-
         return json_error(
             "यह API endpoint उपलब्ध नहीं है।",
             404
@@ -1632,12 +1631,9 @@ def request_too_large(error):
 @app.errorhandler(500)
 def internal_server_error(error):
 
-    logger.exception(
-        "Internal server error"
-    )
+    logger.exception("Internal server error")
 
     if request.path.startswith("/api/"):
-
         return json_error(
             "Server पर समस्या आई है। कृपया बाद में प्रयास करें।",
             500
@@ -1655,9 +1651,7 @@ def internal_server_error(error):
 
 if __name__ == "__main__":
 
-    port = int(
-        os.environ.get("PORT", 5000)
-    )
+    port = int(os.environ.get("PORT", 5000))
 
     app.run(
         host="0.0.0.0",
