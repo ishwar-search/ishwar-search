@@ -1,4 +1,3 @@
-
 [
   {
     "name": "Railway Recruitment Boards",
@@ -33,25 +32,25 @@
   {
     "name": "Staff Selection Commission",
     "category": "Jobs",
-    "keywords": "SSC CGL CHSL MTS GD recruitment vacancy भर्ती नौकरी",
+    "keywords": "SSC CGL CHSL MTS GD recruitment vacancy भर्ती नौकरी result",
     "url": "https://ssc.gov.in/"
   },
   {
     "name": "Union Public Service Commission",
     "category": "Jobs",
-    "keywords": "UPSC civil services NDA CDS recruitment परीक्षा भर्ती",
+    "keywords": "UPSC civil services NDA CDS recruitment परीक्षा भर्ती result",
     "url": "https://upsc.gov.in/"
   },
   {
     "name": "Rajasthan Public Service Commission",
     "category": "Rajasthan Jobs",
-    "keywords": "RPSC Rajasthan government jobs भर्ती सरकारी नौकरी",
+    "keywords": "RPSC Rajasthan government jobs भर्ती सरकारी नौकरी result",
     "url": "https://rpsc.rajasthan.gov.in/"
   },
   {
     "name": "Rajasthan Staff Selection Board",
     "category": "Rajasthan Jobs",
-    "keywords": "RSSB RSMSSB Rajasthan vacancy jobs भर्ती राजस्थान नौकरी",
+    "keywords": "RSSB RSMSSB Rajasthan vacancy jobs भर्ती राजस्थान नौकरी result",
     "url": "https://rssb.rajasthan.gov.in/"
   },
   {
@@ -69,7 +68,7 @@
   {
     "name": "National Testing Agency",
     "category": "Education",
-    "keywords": "NTA JEE NEET CUET exam परीक्षा",
+    "keywords": "NTA JEE NEET CUET exam परीक्षा result",
     "url": "https://nta.ac.in/"
   },
   {
@@ -353,5 +352,251 @@
     "category": "Weather",
     "keywords": "weather mausam मौसम तापमान forecast बारिश",
     "url": "https://open-meteo.com/"
+  },
+  {
+    "name": "IBPS",
+    "category": "Banking Jobs",
+    "keywords": "IBPS bank PO clerk SO RRB banking recruitment vacancy result बैंक नौकरी",
+    "url": "https://www.ibps.in/"
+  },
+  {
+    "name": "SBI Careers",
+    "category": "Banking Jobs",
+    "keywords": "SBI recruitment PO clerk junior associate bank jobs result स्टेट बैंक भर्ती",
+    "url": "https://sbi.bank.in/en/web/careers"
+  },
+  {
+    "name": "RBI Opportunities",
+    "category": "Banking Jobs",
+    "keywords": "RBI recruitment assistant grade B jobs रिजर्व बैंक भर्ती",
+    "url": "https://opportunities.rbi.org.in/"
+  },
+  {
+    "name": "Indian Army Recruitment",
+    "category": "Defence Jobs",
+    "keywords": "Indian Army Agniveer officer recruitment rally सेना भर्ती",
+    "url": "https://joinindianarmy.nic.in/"
+  },
+  {
+    "name": "Indian Navy Recruitment",
+    "category": "Defence Jobs",
+    "keywords": "Indian Navy Agniveer SSR MR officer vacancy नौसेना भर्ती",
+    "url": "https://www.joinindiannavy.gov.in/"
+  },
+  {
+    "name": "Indian Air Force Recruitment",
+    "category": "Defence Jobs",
+    "keywords": "Indian Air Force AFCAT Agniveervayu recruitment वायु सेना भर्ती",
+    "url": "https://indianairforce.nic.in/"
+  },
+  {
+    "name": "AFCAT",
+    "category": "Defence Jobs",
+    "keywords": "AFCAT air force officer exam admit card result",
+    "url": "https://afcat.cdac.in/"
+  },
+  {
+    "name": "India Post GDS Recruitment",
+    "category": "Postal Jobs",
+    "keywords": "India Post GDS gramin dak sevak recruitment post office भर्ती",
+    "url": "https://indiapost.gov.in/gdsonlineengagement"
+  },
+  {
+    "name": "Apprenticeship India",
+    "category": "Apprenticeship",
+    "keywords": "apprenticeship apprentice trade ITI training vacancy अप्रेंटिस",
+    "url": "https://www.apprenticeshipindia.gov.in/"
+  },
+  {
+    "name": "NATS 2.0",
+    "category": "Apprenticeship",
+    "keywords": "NATS graduate diploma technician apprentice training",
+    "url": "https://nats.education.gov.in/"
+  },
+  {
+    "name": "DRDO Careers",
+    "category": "Defence Jobs",
+    "keywords": "DRDO recruitment scientist apprentice technician vacancy",
+    "url": "https://www.drdo.gov.in/careers"
+  },
+  {
+    "name": "ISRO Careers",
+    "category": "Science Jobs",
+    "keywords": "ISRO recruitment scientist assistant technician apprentice",
+    "url": "https://www.isro.gov.in/Careers.html"
+  },
+  {
+    "name": "Indian Coast Guard Recruitment",
+    "category": "Defence Jobs",
+    "keywords": "coast guard navik yantrik assistant commandant भर्ती",
+    "url": "https://joinindiancoastguard.cdac.in/"
+  },
+  {
+    "name": "BSF Recruitment",
+    "category": "Defence Jobs",
+    "keywords": "BSF recruitment constable head constable tradesman सीमा सुरक्षा भर्ती",
+    "url": "https://rectt.bsf.gov.in/"
+  },
+  {
+    "name": "CRPF Recruitment",
+    "category": "Defence Jobs",
+    "keywords": "CRPF recruitment constable head constable SI केंद्रीय रिजर्व पुलिस",
+    "url": "https://rect.crpf.gov.in/"
+  },
+  {
+    "name": "CISF Recruitment",
+    "category": "Defence Jobs",
+    "keywords": "CISF recruitment constable head constable ASI",
+    "url": "https://cisfrectt.cisf.gov.in/"
+  },
+  {
+    "name": "ITBP Recruitment",
+    "category": "Defence Jobs",
+    "keywords": "ITBP recruitment constable SI tradesman हिमवीर भर्ती",
+    "url": "https://recruitment.itbpolice.nic.in/"
+  },
+  {
+    "name": "SSB Recruitment",
+    "category": "Defence Jobs",
+    "keywords": "SSB recruitment constable SI assistant commandant सशस्त्र सीमा बल",
+    "url": "https://ssb.gov.in/"
+  },
+  {
+    "name": "Rajasthan Shala Darpan",
+    "category": "Rajasthan Education",
+    "keywords": "Rajasthan Shala Darpan school result class 5 8 school search शिक्षा विभाग",
+    "url": "https://rajshaladarpan.rajasthan.gov.in/"
+  },
+  {
+    "name": "Rajasthan Sanskrit Education",
+    "category": "Rajasthan Education",
+    "keywords": "Rajasthan Sanskrit education department school recruitment result",
+    "url": "https://sanskrit.nic.in/"
+  },
+  {
+    "name": "CBSE Results",
+    "category": "Exam Results",
+    "keywords": "CBSE class 10 12 result marksheet बोर्ड रिजल्ट",
+    "url": "https://results.cbse.nic.in/"
+  },
+  {
+    "name": "CISCE Results",
+    "category": "Exam Results",
+    "keywords": "ICSE ISC class 10 12 results council result",
+    "url": "https://cisce.org/"
+  },
+  {
+    "name": "IGNOU",
+    "category": "Education",
+    "keywords": "IGNOU admission exam result grade card open university",
+    "url": "https://www.ignou.ac.in/"
+  },
+  {
+    "name": "NIOS",
+    "category": "Education",
+    "keywords": "NIOS open schooling admission exam result 10th 12th",
+    "url": "https://www.nios.ac.in/"
+  },
+  {
+    "name": "JEE Main",
+    "category": "Entrance Exams",
+    "keywords": "JEE Main application admit card answer key result engineering",
+    "url": "https://jeemain.nta.nic.in/"
+  },
+  {
+    "name": "NEET UG",
+    "category": "Entrance Exams",
+    "keywords": "NEET UG medical entrance application admit card result",
+    "url": "https://neet.nta.nic.in/"
+  },
+  {
+    "name": "JEE Advanced",
+    "category": "Entrance Exams",
+    "keywords": "JEE Advanced IIT entrance exam result admission",
+    "url": "https://jeeadv.ac.in/"
+  },
+  {
+    "name": "CUET",
+    "category": "Entrance Exams",
+    "keywords": "CUET UG PG entrance exam application result university",
+    "url": "https://exams.nta.ac.in/"
+  },
+  {
+    "name": "CTET",
+    "category": "Teacher Exams",
+    "keywords": "CTET teacher eligibility test application admit card result",
+    "url": "https://ctet.nic.in/"
+  },
+  {
+    "name": "Rajasthan University",
+    "category": "Rajasthan Education",
+    "keywords": "University of Rajasthan exam result admission syllabus",
+    "url": "https://www.uniraj.ac.in/"
+  },
+  {
+    "name": "VMOU Kota",
+    "category": "Rajasthan Education",
+    "keywords": "Vardhman Mahaveer Open University admission result distance education",
+    "url": "https://vmou.ac.in/"
+  },
+  {
+    "name": "NCVT MIS",
+    "category": "ITI Results",
+    "keywords": "NCVT MIS ITI result marksheet trade certificate",
+    "url": "https://www.ncvtmis.gov.in/"
+  },
+  {
+    "name": "Skill India Digital Hub",
+    "category": "Skill Training",
+    "keywords": "Skill India courses training certification jobs skills",
+    "url": "https://www.skillindiadigital.gov.in/"
+  },
+  {
+    "name": "Free Job Alert",
+    "category": "Private Job Information",
+    "keywords": "free job alert latest government jobs vacancy admit card result",
+    "url": "https://www.freejobalert.com/"
+  },
+  {
+    "name": "Sarkari Result",
+    "category": "Private Job Information",
+    "keywords": "sarkari result government job result admit card online form",
+    "url": "https://www.sarkariresult.com/"
+  },
+  {
+    "name": "Sarkari Naukri",
+    "category": "Private Job Information",
+    "keywords": "sarkari naukri latest recruitment government vacancy",
+    "url": "https://www.sarkarinaukri.com/"
+  },
+  {
+    "name": "Indeed India Jobs",
+    "category": "Private Jobs",
+    "keywords": "private jobs fresher jobs work from home job search",
+    "url": "https://in.indeed.com/"
+  },
+  {
+    "name": "LinkedIn Jobs",
+    "category": "Private Jobs",
+    "keywords": "professional jobs internships hiring careers",
+    "url": "https://www.linkedin.com/jobs/"
+  },
+  {
+    "name": "Freshersworld",
+    "category": "Private Jobs",
+    "keywords": "fresher jobs ITI diploma graduate jobs placement",
+    "url": "https://www.freshersworld.com/"
+  },
+  {
+    "name": "Apna Jobs",
+    "category": "Private Jobs",
+    "keywords": "Apna jobs local jobs fresher jobs employment",
+    "url": "https://apna.co/"
+  },
+  {
+    "name": "Naukri.com",
+    "category": "Private Jobs",
+    "keywords": "Naukri jobs private sector jobs resume careers",
+    "url": "https://www.naukri.com/"
   }
 ]
