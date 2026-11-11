@@ -1,15 +1,18 @@
+
 (() => {
   "use strict";
 
-  const $ = id => document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
+
+  const safeText = (value) => String(value ?? "").trim();
 
   const panelNames = [
     "websites",
+    "centres",
     "tools",
     "images",
     "news",
     "notifications",
-    "centres",
     "vault"
   ];
 
@@ -18,229 +21,232 @@
   );
 
   let allWebsites = [];
-  let selectedCategory = "all";
-  let newsLoaded = false;
+  let governmentCentres = [];
   let latestNews = [];
   let alertsLoaded = false;
-  let governmentCentres = [];
+  let newsLoaded = false;
+  let currentResults = [];
+  let currentQuery = "";
+  let currentResultTab = "all";
+  let selectedWebsiteCategory = "all";
   let selectedCentreCategory = "all";
 
-  $("year").textContent = new Date().getFullYear();
-
   const builtInWebsites = [
-    ["Instagram","https://www.instagram.com/","social","फोटो और Reels"],
-    ["Facebook","https://www.facebook.com/","social","सोशल मीडिया"],
-    ["YouTube","https://www.youtube.com/","social","वीडियो और चैनल"],
-    ["WhatsApp","https://www.whatsapp.com/","social","मैसेज और कॉल"],
-    ["Telegram","https://web.telegram.org/","social","मैसेज और चैनल"],
-    ["LinkedIn","https://www.linkedin.com/","social","प्रोफेशनल नेटवर्क"],
-    ["PAN Services","https://www.protean-tinpan.com/","government","PAN सेवाएँ"],
-    ["UIDAI Aadhaar","https://uidai.gov.in/","government","आधार की आधिकारिक वेबसाइट"],
-    ["DigiLocker","https://www.digilocker.gov.in/","government","डिजिटल दस्तावेज़"],
-    ["Rajasthan SSO","https://sso.rajasthan.gov.in/","government","राजस्थान ऑनलाइन सेवाएँ"],
-    ["Cyber Crime Portal","https://cybercrime.gov.in/","government","साइबर शिकायत"],
-    ["National Consumer Helpline","https://consumerhelpline.gov.in/","government","उपभोक्ता शिकायत"],
-    ["Indian Railways","https://indianrailways.gov.in/","jobs","रेलवे"],
-    ["IRCTC","https://www.irctc.co.in/","travel","रेल टिकट"],
-    ["RRB","https://www.rrbcdg.gov.in/","jobs","रेलवे भर्ती"],
-    ["SSC","https://ssc.gov.in/","jobs","सरकारी भर्ती"],
-    ["RPSC","https://rpsc.rajasthan.gov.in/","jobs","राजस्थान भर्ती"],
-    ["National Career Service","https://www.ncs.gov.in/","jobs","नौकरी"],
-    ["Scholarship Portal","https://scholarships.gov.in/","education","छात्रवृत्ति"],
-    ["NTA","https://nta.ac.in/","education","परीक्षा"],
-    ["SWAYAM","https://swayam.gov.in/","education","ऑनलाइन पढ़ाई"],
-    ["RBI","https://www.rbi.org.in/","finance","रिजर्व बैंक"],
-    ["SBI","https://sbi.co.in/","finance","बैंकिंग"],
-    ["Amazon India","https://www.amazon.in/","shopping","ऑनलाइन खरीदारी"],
-    ["Flipkart","https://www.flipkart.com/","shopping","ऑनलाइन खरीदारी"],
-    ["Google News","https://news.google.com/","news","समाचार"],
-    ["PIB India","https://pib.gov.in/","news","सरकारी प्रेस रिलीज़"],
-    ["GitHub","https://github.com/","technology","कोड और प्रोजेक्ट"],
-    ["Python","https://www.python.org/","technology","Python programming"],
-    ["MDN Web Docs","https://developer.mozilla.org/","technology","वेब डेवलपमेंट"],
-    ["Photopea","https://www.photopea.com/","technology","फोटो एडिटिंग"],
-    ["Canva","https://www.canva.com/","technology","पोस्टर डिजाइन"],
-    ["Pexels","https://www.pexels.com/","technology","फोटो और वीडियो"],
-    ["Google Maps","https://maps.google.com/","travel","मैप और रास्ते"],
-    ["RSRTC","https://rsrtconline.rajasthan.gov.in/","travel","राजस्थान रोडवेज"],
-    ["Ayushman Bharat","https://pmjay.gov.in/","health","स्वास्थ्य योजना"],
-    ["ABHA","https://abha.abdm.gov.in/","health","स्वास्थ्य खाता"]
-  ].map(([name,url,category,description]) => ({
-    name,url,category,description
+    ["Instagram", "https://www.instagram.com/", "social", "फोटो और Reels"],
+    ["Facebook", "https://www.facebook.com/", "social", "सोशल मीडिया"],
+    ["YouTube", "https://www.youtube.com/", "social", "वीडियो और चैनल"],
+    ["WhatsApp", "https://www.whatsapp.com/", "social", "मैसेज और कॉल"],
+    ["Telegram", "https://web.telegram.org/", "social", "मैसेज और चैनल"],
+    ["LinkedIn", "https://www.linkedin.com/", "social", "प्रोफेशनल नेटवर्क"],
+    ["UIDAI Aadhaar", "https://uidai.gov.in/", "government", "आधार की आधिकारिक वेबसाइट"],
+    ["DigiLocker", "https://www.digilocker.gov.in/", "government", "डिजिटल दस्तावेज़"],
+    ["Rajasthan SSO", "https://sso.rajasthan.gov.in/", "government", "राजस्थान ऑनलाइन सेवाएँ"],
+    ["Cyber Crime Portal", "https://cybercrime.gov.in/", "government", "साइबर शिकायत"],
+    ["Indian Railways", "https://indianrailways.gov.in/", "jobs", "रेलवे"],
+    ["IRCTC", "https://www.irctc.co.in/", "travel", "रेल टिकट"],
+    ["RRB", "https://www.rrbcdg.gov.in/", "jobs", "रेलवे भर्ती"],
+    ["SSC", "https://ssc.gov.in/", "jobs", "सरकारी भर्ती"],
+    ["RPSC", "https://rpsc.rajasthan.gov.in/", "jobs", "राजस्थान भर्ती"],
+    ["National Career Service", "https://www.ncs.gov.in/", "jobs", "नौकरी"],
+    ["Scholarship Portal", "https://scholarships.gov.in/", "education", "छात्रवृत्ति"],
+    ["NTA", "https://nta.ac.in/", "education", "परीक्षा"],
+    ["SWAYAM", "https://swayam.gov.in/", "education", "ऑनलाइन पढ़ाई"],
+    ["RBI", "https://www.rbi.org.in/", "finance", "रिजर्व बैंक"],
+    ["SBI", "https://sbi.co.in/", "finance", "बैंकिंग"],
+    ["Amazon India", "https://www.amazon.in/", "shopping", "ऑनलाइन खरीदारी"],
+    ["Flipkart", "https://www.flipkart.com/", "shopping", "ऑनलाइन खरीदारी"],
+    ["Google News", "https://news.google.com/", "news", "समाचार"],
+    ["PIB India", "https://pib.gov.in/", "news", "सरकारी प्रेस रिलीज़"],
+    ["GitHub", "https://github.com/", "technology", "कोड और प्रोजेक्ट"],
+    ["Python", "https://www.python.org/", "technology", "Python programming"],
+    ["MDN Web Docs", "https://developer.mozilla.org/", "technology", "वेब डेवलपमेंट"],
+    ["Photopea", "https://www.photopea.com/", "technology", "फोटो एडिटिंग"],
+    ["Canva", "https://www.canva.com/", "technology", "पोस्टर डिजाइन"],
+    ["Pexels", "https://www.pexels.com/", "technology", "फोटो और वीडियो"],
+    ["Google Maps", "https://maps.google.com/", "travel", "मैप और रास्ते"],
+    ["RSRTC", "https://rsrtconline.rajasthan.gov.in/", "travel", "राजस्थान रोडवेज"],
+    ["Ayushman Bharat", "https://pmjay.gov.in/", "health", "स्वास्थ्य योजना"],
+    ["ABHA", "https://abha.abdm.gov.in/", "health", "स्वास्थ्य खाता"]
+  ].map(([name, url, category, description]) => ({
+    name, url, category, description
   }));
 
   const tools = [
     {
-      name:"Photopea",
-      url:"https://www.photopea.com/",
-      category:"technology",
-      description:"फोटो एडिटिंग"
+      name: "Photopea",
+      url: "https://www.photopea.com/",
+      description: "फोटो एडिटिंग"
     },
     {
-      name:"Canva",
-      url:"https://www.canva.com/",
-      category:"technology",
-      description:"पोस्टर और डिजाइन"
+      name: "Canva",
+      url: "https://www.canva.com/",
+      description: "पोस्टर और डिजाइन"
     },
     {
-      name:"Pexels",
-      url:"https://www.pexels.com/",
-      category:"technology",
-      description:"फोटो और वीडियो"
+      name: "Pexels",
+      url: "https://www.pexels.com/",
+      description: "फोटो और वीडियो"
     },
     {
-      name:"Pixabay",
-      url:"https://pixabay.com/",
-      category:"technology",
-      description:"चित्र और फोटो"
+      name: "Pixabay",
+      url: "https://pixabay.com/",
+      description: "चित्र और फोटो"
     },
     {
-      name:"freeCodeCamp",
-      url:"https://www.freecodecamp.org/",
-      category:"education",
-      description:"मुफ्त कोडिंग"
+      name: "freeCodeCamp",
+      url: "https://www.freecodecamp.org/",
+      description: "मुफ्त कोडिंग"
     },
     {
-      name:"CodePen",
-      url:"https://codepen.io/",
-      category:"technology",
-      description:"HTML, CSS और JavaScript"
+      name: "CodePen",
+      url: "https://codepen.io/",
+      description: "HTML, CSS और JavaScript"
     },
     {
-      name:"Stack Overflow",
-      url:"https://stackoverflow.com/",
-      category:"technology",
-      description:"प्रोग्रामिंग सवाल-जवाब"
+      name: "Stack Overflow",
+      url: "https://stackoverflow.com/",
+      description: "प्रोग्रामिंग सवाल-जवाब"
     },
     {
-      name:"Google Translate",
-      url:"https://translate.google.com/",
-      category:"technology",
-      description:"भाषा अनुवाद"
+      name: "Google Translate",
+      url: "https://translate.google.com/",
+      description: "भाषा अनुवाद"
     }
   ];
 
   function validUrl(value) {
     try {
       const url = new URL(value);
-      return url.protocol === "https:" ||
-             url.protocol === "http:";
+      return url.protocol === "https:" || url.protocol === "http:";
     } catch {
       return false;
     }
   }
 
   function normalizeSite(item) {
-    const name = String(
-      item.name || item.title || ""
-    ).trim();
+    if (!item || typeof item !== "object") return null;
 
-    const url = String(
-      item.url || item.link || ""
-    ).trim();
+    const name = safeText(item.name || item.title);
+    const url = safeText(item.url || item.link);
 
     if (!name || !validUrl(url)) return null;
 
     return {
       name,
       url,
-      category: String(
-        item.category || "general"
-      ).toLowerCase(),
-      description: String(
-        item.description ||
-        item.category ||
-        "वेबसाइट खोलें"
+      category: safeText(item.category || "general").toLowerCase(),
+      description: safeText(
+        item.description || item.category || "वेबसाइट खोलें"
       )
     };
   }
 
-  function logoFor(url) {
-    const img = document.createElement("img");
+  function createElement(tag, className, text) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
+  }
 
-    img.className = "site-logo";
-    img.alt = "";
-    img.loading = "lazy";
-    img.referrerPolicy = "no-referrer";
+  function makeLogo(url) {
+    const image = document.createElement("img");
+    image.className = "site-logo";
+    image.alt = "";
+    image.loading = "lazy";
+    image.referrerPolicy = "no-referrer";
 
     try {
       const host = new URL(url).hostname;
-
-      img.src =
+      image.src =
         "https://www.google.com/s2/favicons?domain=" +
         encodeURIComponent(host) +
         "&sz=128";
 
-      img.addEventListener("error", () => {
-        img.hidden = true;
-      }, {once:true});
-
+      image.addEventListener("error", () => {
+        image.hidden = true;
+      }, { once: true });
     } catch {
-      img.hidden = true;
+      image.hidden = true;
     }
 
-    return img;
+    return image;
   }
 
-  function renderCards(container,items,options={}) {
-    container.replaceChildren();
+  function renderCards(container, items, options = {}) {
+    if (!container) return;
 
+    container.replaceChildren();
     let shown = 0;
 
-    items.forEach(raw => {
+    (items || []).forEach(raw => {
       const item = normalizeSite(raw);
-
       if (!item) return;
 
-      shown++;
-
-      const card = document.createElement("a");
-
-      card.className = options.resultCard
-        ? "result-card"
-        : "directory-card";
+      const card = createElement(
+        "a",
+        options.resultCard ? "result-card" : "directory-card"
+      );
 
       card.href = item.url;
       card.target = "_blank";
       card.rel = "noopener noreferrer";
 
       if (options.logo) {
-        card.appendChild(logoFor(item.url));
+        card.appendChild(makeLogo(item.url));
       }
 
-      const copy = document.createElement("span");
-      copy.className = "card-copy";
+      const copy = createElement("span", "card-copy");
+      const title = createElement("strong", "", item.name);
+      const description = createElement("small", "", item.description);
 
-      const title = document.createElement("strong");
-      title.textContent = item.name;
-
-      const description = document.createElement("small");
-      description.textContent = item.description;
-
-      copy.append(title,description);
+      copy.append(title, description);
       card.appendChild(copy);
-
       container.appendChild(card);
+      shown++;
     });
 
     if (!shown) {
-      const empty = document.createElement("p");
-
-      empty.className = "empty";
-      empty.textContent =
-        options.empty || "कोई परिणाम नहीं मिला।";
-
-      container.appendChild(empty);
+      container.appendChild(
+        createElement(
+          "p",
+          "empty",
+          options.empty || "कोई परिणाम नहीं मिला।"
+        )
+      );
     }
   }
 
+  async function getJson(url) {
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" }
+    });
+
+    if (!response.ok) {
+      throw new Error("HTTP " + response.status);
+    }
+
+    return response.json();
+  }
+
+  // PAGE NAVIGATION
+
   function showView(name) {
-    $("homePanel").hidden = name !== "home";
-    $("searchResults").hidden = true;
+    const home = $("homePanel");
+    const results = $("searchResults");
+
+    if (home) home.hidden = name !== "home";
+    if (results) results.hidden = true;
 
     panelNames.forEach(key => {
-      panels[key].hidden = key !== name;
+      if (panels[key]) {
+        panels[key].hidden = key !== name;
+      }
     });
+
+    document.body.classList.toggle(
+      "has-searched",
+      name !== "home"
+    );
 
     document.querySelectorAll("[data-view]").forEach(link => {
       link.classList.toggle(
@@ -253,210 +259,162 @@
       loadWebsites();
     }
 
-    if (name === "home" && !alertsLoaded) {
-      loadAlerts();
-    }
-
-    if (name === "tools") {
-      renderTools();
-    }
-
-    if (name === "news" && !newsLoaded) {
-      loadNews();
-    }
-
     if (name === "centres" && !governmentCentres.length) {
       loadGovernmentCentres();
     }
 
-    window.scrollTo({
-      top:0,
-      behavior:"smooth"
-    });
+    if (name === "tools") renderTools();
+    if (name === "news" && !newsLoaded) loadNews();
+    if (name === "home" && !alertsLoaded) loadAlerts();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   document.querySelectorAll("[data-view]").forEach(link => {
-    link.addEventListener("click",event => {
+    link.addEventListener("click", event => {
       event.preventDefault();
-
-      showView(link.dataset.view);
-
-      history.replaceState(
-        null,
-        "",
-        "#" + link.dataset.view
-      );
+      const view = link.dataset.view;
+      showView(view);
+      history.replaceState(null, "", "#" + view);
     });
   });
 
+  // WEBSITE DIRECTORY
+
   async function loadWebsites() {
-    $("websiteStatus").textContent =
-      "वेबसाइटें लोड हो रही हैं...";
+    const status = $("websiteStatus");
+    if (status) status.textContent = "वेबसाइटें लोड हो रही हैं...";
 
     try {
-      const response = await fetch("/api/services");
-
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
-      }
-
-      const data = await response.json();
+      const data = await getJson("/api/services");
 
       const combined = [
         ...builtInWebsites,
-        ...(Array.isArray(data.results)
-          ? data.results
-          : [])
+        ...(Array.isArray(data.results) ? data.results : [])
       ].map(normalizeSite).filter(Boolean);
 
       const seen = new Set();
 
       allWebsites = combined.filter(item => {
-        const key = item.url
-          .replace(/\/+$/,"")
-          .toLowerCase();
-
+        const key = item.url.replace(/\/+$/, "").toLowerCase();
         if (seen.has(key)) return false;
-
         seen.add(key);
         return true;
       });
 
       renderWebsites();
 
-      $("websiteStatus").textContent =
-        allWebsites.length +
-        " वेबसाइटें उपलब्ध हैं।";
-
-    } catch(error) {
-      console.error(error);
-
+      if (status) {
+        status.textContent = allWebsites.length + " वेबसाइटें उपलब्ध हैं।";
+      }
+    } catch (error) {
+      console.error("Website load failed:", error);
       allWebsites = builtInWebsites;
-
       renderWebsites();
 
-      $("websiteStatus").textContent =
-        "स्थानीय वेबसाइट सूची दिखाई जा रही है।";
+      if (status) {
+        status.textContent = "स्थानीय वेबसाइट सूची दिखाई जा रही है।";
+      }
     }
   }
 
   function renderWebsites() {
-    const query = $("websiteFilter")
-      .value.trim().toLowerCase();
+    const filter = $("websiteFilter");
+    const query = filter ? filter.value.trim().toLowerCase() : "";
 
     const items = allWebsites.filter(site => {
-      const text = (
-        site.name + " " +
-        site.url + " " +
-        site.category + " " +
-        site.description
-      ).toLowerCase();
+      const text = [
+        site.name, site.url, site.category, site.description
+      ].join(" ").toLowerCase();
 
       const categoryMatch =
-        selectedCategory === "all" ||
-        site.category === selectedCategory ||
+        selectedWebsiteCategory === "all" ||
+        site.category === selectedWebsiteCategory ||
         (
-          selectedCategory === "government" &&
-          ["documents","legal","rajasthan"]
-            .includes(site.category)
+          selectedWebsiteCategory === "government" &&
+          ["documents", "legal", "rajasthan"].includes(site.category)
         );
 
-      return categoryMatch &&
-        (!query || text.includes(query));
+      return categoryMatch && (!query || text.includes(query));
     });
 
-    renderCards($("websiteList"),items,{
-      logo:true,
-      empty:"कोई वेबसाइट नहीं मिली।"
+    renderCards($("websiteList"), items, {
+      logo: true,
+      empty: "कोई वेबसाइट नहीं मिली।"
     });
   }
 
-  $("websiteFilter").addEventListener(
-    "input",
-    renderWebsites
-  );
+  if ($("websiteFilter")) {
+    $("websiteFilter").addEventListener("input", renderWebsites);
+  }
 
-  $("websiteCategories").addEventListener(
-    "click",
-    event => {
-      const button = event.target.closest(
-        "[data-category]"
-      );
-
+  if ($("websiteCategories")) {
+    $("websiteCategories").addEventListener("click", event => {
+      const button = event.target.closest("[data-category]");
       if (!button) return;
 
-      selectedCategory = button.dataset.category;
+      selectedWebsiteCategory = button.dataset.category;
 
       $("websiteCategories")
         .querySelectorAll("[data-category]")
         .forEach(item => {
-          item.classList.toggle(
-            "active",
-            item === button
-          );
+          item.classList.toggle("active", item === button);
         });
 
       renderWebsites();
-    }
-  );
-    // GOVERNMENT INFORMATION CENTRE
+    });
+  }
+
+  // GOVERNMENT CENTRES
 
   async function loadGovernmentCentres() {
-    $("centreStatus").textContent =
-      "सरकारी केंद्र लोड हो रहे हैं...";
+    const status = $("centreStatus");
+    const list = $("centreList");
 
-    $("centreList").replaceChildren();
+    if (status) status.textContent = "सरकारी केंद्र लोड हो रहे हैं...";
+    if (list) list.replaceChildren();
 
     try {
-      const response = await fetch("/api/future/centres");
-
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
-      }
-
-      const data = await response.json();
+      const data = await getJson("/api/future/centres");
 
       if (!data.success || !Array.isArray(data.categories)) {
-        throw new Error("Invalid Government Centres response");
+        throw new Error("Invalid centres response");
       }
 
       governmentCentres = data.categories;
-
       renderGovernmentCentres();
 
-      $("centreStatus").textContent =
-        (data.total_links || 0) +
-        " आधिकारिक लिंक " +
-        governmentCentres.length +
-        " केंद्रों में उपलब्ध हैं।";
-
+      if (status) {
+        status.textContent =
+          (data.total_links || 0) +
+          " आधिकारिक लिंक उपलब्ध हैं।";
+      }
     } catch (error) {
-      console.error(
-        "Government Centres load failed:",
-        error
-      );
+      console.error("Government centres failed:", error);
 
-      $("centreStatus").textContent =
-        "सरकारी केंद्र लोड नहीं हुए। कृपया API /api/future/centres जाँचें।";
+      if (status) {
+        status.textContent =
+          "सरकारी केंद्र लोड नहीं हुए। API जाँचें।";
+      }
     }
   }
 
   function renderGovernmentCentres() {
-    const query = $("centreFilter")
-      .value.trim().toLowerCase();
-
     const container = $("centreList");
+    if (!container) return;
+
+    const filter = $("centreFilter");
+    const query = filter ? filter.value.trim().toLowerCase() : "";
 
     container.replaceChildren();
+    let shown = 0;
 
-    const centres = governmentCentres.filter(centre =>
+    const groups = governmentCentres.filter(centre =>
       selectedCentreCategory === "all" ||
       centre.id === selectedCentreCategory
     );
 
-    let shown = 0;
-
-    centres.forEach(centre => {
+    groups.forEach(centre => {
       const items = (centre.items || []).filter(item => {
         const text = [
           centre.name,
@@ -472,52 +430,43 @@
 
       if (!items.length) return;
 
-      const group = document.createElement("section");
-      group.className = "centre-group";
+      const group = createElement("section", "centre-group");
+      group.appendChild(createElement("h3", "", centre.name));
 
-      const heading = document.createElement("h3");
-      heading.textContent = centre.name;
+      group.appendChild(
+        createElement("p", "panel-status", centre.description || "")
+      );
 
-      const summary = document.createElement("p");
-      summary.className = "panel-status";
-      summary.textContent = centre.description || "";
-
-      group.append(heading,summary);
-
-      const grid = document.createElement("div");
-      grid.className = "directory-grid";
+      const grid = createElement("div", "directory-grid");
 
       items.forEach(item => {
         if (!validUrl(item.url)) return;
 
-        const card = document.createElement("a");
-
-        card.className = "directory-card";
+        const card = createElement("a", "directory-card");
         card.href = item.url;
         card.target = "_blank";
         card.rel = "noopener noreferrer";
 
-        const copy = document.createElement("span");
-        copy.className = "card-copy";
+        const copy = createElement("span", "card-copy");
+        copy.appendChild(
+          createElement("strong", "", item.name || "सरकारी सेवा")
+        );
+        copy.appendChild(
+          createElement(
+            "small",
+            "",
+            item.description || "आधिकारिक पोर्टल खोलें"
+          )
+        );
 
-        const title = document.createElement("strong");
-        title.textContent = item.name || "सरकारी सेवा";
+        if (item.source) {
+          copy.appendChild(
+            createElement("small", "centre-source", "स्रोत: " + item.source)
+          );
+        }
 
-        const description = document.createElement("small");
-        description.textContent =
-          item.description || "आधिकारिक पोर्टल खोलें";
-
-        const source = document.createElement("span");
-        source.className = "centre-source";
-
-        source.textContent = item.source
-          ? "स्रोत: " + item.source
-          : "";
-
-        copy.append(title,description,source);
         card.appendChild(copy);
         grid.appendChild(card);
-
         shown++;
       });
 
@@ -526,60 +475,19 @@
     });
 
     if (!shown) {
-      const empty = document.createElement("p");
-
-      empty.className = "empty";
-      empty.textContent =
-        "इस खोज में कोई सरकारी लिंक नहीं मिला।";
-
-      container.appendChild(empty);
+      container.appendChild(
+        createElement("p", "empty", "इस खोज में कोई सरकारी लिंक नहीं मिला।")
+      );
     }
   }
 
-  window.openGovernmentCentre = function(category) {
-    const allowed = [
-      "schemes",
-      "documents",
-      "scholarships",
-      "exams",
-      "skills"
-    ];
+  if ($("centreFilter")) {
+    $("centreFilter").addEventListener("input", renderGovernmentCentres);
+  }
 
-    if (!allowed.includes(category)) return;
-
-    showView("centres");
-
-    selectedCentreCategory = category;
-    $("centreFilter").value = "";
-
-    $("centreCategories")
-      .querySelectorAll("[data-centre-category]")
-      .forEach(button => {
-        button.classList.toggle(
-          "active",
-          button.dataset.centreCategory === category
-        );
-      });
-
-    if (governmentCentres.length) {
-      renderGovernmentCentres();
-    }
-
-    history.replaceState(null,"","#centres");
-  };
-
-  $("centreFilter").addEventListener(
-    "input",
-    renderGovernmentCentres
-  );
-
-  $("centreCategories").addEventListener(
-    "click",
-    event => {
-      const button = event.target.closest(
-        "[data-centre-category]"
-      );
-
+  if ($("centreCategories")) {
+    $("centreCategories").addEventListener("click", event => {
+      const button = event.target.closest("[data-centre-category]");
       if (!button) return;
 
       selectedCentreCategory = button.dataset.centreCategory;
@@ -587,173 +495,145 @@
       $("centreCategories")
         .querySelectorAll("[data-centre-category]")
         .forEach(item => {
-          item.classList.toggle(
-            "active",
-            item === button
-          );
+          item.classList.toggle("active", item === button);
         });
 
       renderGovernmentCentres();
+    });
+  }
+
+  window.openGovernmentCentre = function(category) {
+    const allowed = ["schemes", "documents", "scholarships", "exams", "skills"];
+    if (!allowed.includes(category)) return;
+
+    showView("centres");
+    selectedCentreCategory = category;
+
+    if ($("centreFilter")) $("centreFilter").value = "";
+
+    if ($("centreCategories")) {
+      $("centreCategories")
+        .querySelectorAll("[data-centre-category]")
+        .forEach(button => {
+          button.classList.toggle(
+            "active",
+            button.dataset.centreCategory === category
+          );
+        });
     }
-  );
+
+    renderGovernmentCentres();
+    history.replaceState(null, "", "#centres");
+  };
 
   // TOOLS
 
   function renderTools() {
-    const query = $("toolFilter")
-      .value.trim().toLowerCase();
+    const filter = $("toolFilter");
+    const query = filter ? filter.value.trim().toLowerCase() : "";
 
-    renderCards(
-      $("toolList"),
-      tools.filter(item =>
-        (
-          item.name + " " +
-          item.description
-        ).toLowerCase().includes(query)
-      ),
-      {logo:true}
+    const filtered = tools.filter(item =>
+      (item.name + " " + item.description).toLowerCase().includes(query)
     );
+
+    renderCards($("toolList"), filtered, { logo: true });
   }
 
-  $("toolFilter").addEventListener(
-    "input",
-    renderTools
-  );
+  if ($("toolFilter")) {
+    $("toolFilter").addEventListener("input", renderTools);
+  }
 
   // IMAGE SEARCH
 
   async function searchImages(query) {
-    $("imageStatus").textContent =
-      "तस्वीरें खोजी जा रही हैं...";
+    const status = $("imageStatus");
+    const container = $("imageResults");
 
-    $("imageResults").replaceChildren();
+    if (!container) return;
+
+    if (status) status.textContent = "तस्वीरें खोजी जा रही हैं...";
+    container.replaceChildren();
 
     try {
-      const response = await fetch(
+      const data = await getJson(
         "/api/images?q=" + encodeURIComponent(query)
       );
 
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
-      }
-
-      const data = await response.json();
-
-      const items = Array.isArray(data.results)
-        ? data.results
-        : [];
-
-      const container = $("imageResults");
-
-      container.style.gridTemplateColumns =
-        "repeat(auto-fit,minmax(180px,1fr))";
+      const items = Array.isArray(data.results) ? data.results : [];
+      let shown = 0;
 
       items.forEach(item => {
-        const src =
-          item.image_url ||
-          item.image ||
-          item.src ||
-          item.thumbnail;
-
+        const src = item.image_url || item.image || item.src || item.thumbnail;
         if (!validUrl(src)) return;
 
-        const card = document.createElement("a");
-
-        card.className = "directory-card";
-
-        card.href = validUrl(item.page_url)
-          ? item.page_url
-          : src;
-
+        const card = createElement("a", "directory-card");
+        card.href = validUrl(item.page_url) ? item.page_url : src;
         card.target = "_blank";
         card.rel = "noopener noreferrer";
         card.style.display = "block";
 
         const img = document.createElement("img");
-
         img.src = src;
-        img.alt = String(
-          item.alt || item.title || query
+        img.alt = safeText(item.alt || item.title || query);
+        img.loading = "lazy";
+
+        img.addEventListener("error", () => card.remove(), { once: true });
+
+        const caption = createElement(
+          "small",
+          "",
+          safeText(item.title || query)
         );
 
-        img.loading = "lazy";
-        img.style.width = "100%";
-        img.style.height = "190px";
-        img.style.objectFit = "cover";
-        img.style.borderRadius = "8px";
-
-        const caption = document.createElement("small");
-        caption.textContent = String(item.title || query);
-
-        img.addEventListener("error",() => {
-          card.remove();
-        },{once:true});
-
-        card.append(img,caption);
+        card.append(img, caption);
         container.appendChild(card);
+        shown++;
       });
 
-      $("imageStatus").textContent = items.length
-        ? items.length +
-          " तस्वीरें मिलीं। स्रोत और लाइसेंस की शर्तें देखें।"
-        : "कोई तस्वीर नहीं मिली।";
+      if (status) {
+        status.textContent = shown
+          ? shown + " तस्वीरें मिलीं। स्रोत और लाइसेंस की शर्तें देखें।"
+          : "कोई तस्वीर नहीं मिली।";
+      }
+    } catch (error) {
+      console.error("Image search failed:", error);
 
-    } catch(error) {
-      console.error(error);
-
-      $("imageStatus").textContent =
-        "Image API उपलब्ध नहीं है। app.py का अगला अपडेट जरूरी हो सकता है।";
+      if (status) {
+        status.textContent = "Image API उपलब्ध नहीं है। बाद में कोशिश करें।";
+      }
     }
   }
 
-  $("imageSearchForm").addEventListener(
-    "submit",
-    event => {
+  if ($("imageSearchForm")) {
+    $("imageSearchForm").addEventListener("submit", event => {
       event.preventDefault();
+      const query = $("imageQuery")?.value.trim();
+      if (query) searchImages(query);
+    });
+  }
 
-      const query = $("imageQuery").value.trim();
-
-      if (query) {
-        searchImages(query);
-      }
-    }
-  );
-
-  $("imageCategories").addEventListener(
-    "click",
-    event => {
-      const button = event.target.closest(
-        "[data-image-query]"
-      );
-
+  if ($("imageCategories")) {
+    $("imageCategories").addEventListener("click", event => {
+      const button = event.target.closest("[data-image-query]");
       if (!button) return;
 
-      $("imageQuery").value = button.dataset.imageQuery;
+      if ($("imageQuery")) {
+        $("imageQuery").value = button.dataset.imageQuery;
+      }
 
       searchImages(button.dataset.imageQuery);
-    }
-  );
+    });
+  }
 
   // NEWS
 
   async function loadNews() {
-    $("newsStatus").textContent =
-      "नई खबरें लोड हो रही हैं...";
-
-    $("newsList").replaceChildren();
+    const status = $("newsStatus");
+    if (status) status.textContent = "नई खबरें लोड हो रही हैं...";
 
     try {
-      const response = await fetch("/api/news?limit=15");
-
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
-      }
-
-      const data = await response.json();
-
-      latestNews = Array.isArray(data.results)
-        ? data.results
-        : [];
+      const data = await getJson("/api/news?limit=15");
+      latestNews = Array.isArray(data.results) ? data.results : [];
 
       const items = latestNews.map(item => ({
         name: item.title || item.name || "समाचार",
@@ -766,45 +646,27 @@
         ].filter(Boolean).join(" • ")
       }));
 
-      renderCards($("newsList"),items,{
-        empty:"अभी खबरें उपलब्ध नहीं हैं।"
+      renderCards($("newsList"), items, {
+        empty: "अभी खबरें उपलब्ध नहीं हैं।"
       });
 
-      $("newsStatus").textContent =
-        latestNews.length + " खबरें मिलीं।";
-
+      if (status) status.textContent = latestNews.length + " खबरें मिलीं।";
       newsLoaded = true;
-
-    } catch(error) {
-      console.error(error);
-
-      $("newsStatus").textContent =
-        "खबरें लोड नहीं हुईं। app.py का news endpoint जाँचें।";
+    } catch (error) {
+      console.error("News load failed:", error);
+      if (status) status.textContent = "खबरें लोड नहीं हुईं।";
     }
   }
 
-  // ISHWAR ALERT
+  // BREAKING NEWS / ISHWAR ALERT
 
   async function loadAlerts() {
-    $("alertStatus").textContent =
-      "Ishwar Alert के लिए ताज़ा अपडेट लोड हो रहे हैं...";
-
-    $("alertList").replaceChildren();
+    const status = $("alertStatus");
+    if (status) status.textContent = "ताज़ा अपडेट लोड हो रहे हैं...";
 
     try {
-      const response = await fetch(
-        "/api/news?limit=5&refresh=1"
-      );
-
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
-      }
-
-      const data = await response.json();
-
-      const items = Array.isArray(data.results)
-        ? data.results
-        : [];
+      const data = await getJson("/api/news?limit=5&refresh=1");
+      const items = Array.isArray(data.results) ? data.results : [];
 
       const alerts = items.map(item => ({
         name: item.title || item.name || "नई खबर",
@@ -814,276 +676,222 @@
           item.source,
           item.published,
           item.description
-        ].filter(Boolean).join(" • ") ||
-          "ताज़ा समाचार अपडेट"
+        ].filter(Boolean).join(" • ") || "ताज़ा समाचार अपडेट"
       }));
 
-      renderCards($("alertList"),alerts,{
-        empty:"अभी कोई नया अपडेट उपलब्ध नहीं है।"
+      renderCards($("alertList"), alerts, {
+        empty: "अभी कोई नया अपडेट उपलब्ध नहीं है।"
       });
 
-      $("alertStatus").textContent = alerts.length
-        ? alerts.length +
-          " ताज़ा अपडेट उपलब्ध हैं। खबर खोलकर स्रोत और तारीख जाँचें।"
-        : "अभी कोई नया अपडेट उपलब्ध नहीं है।";
-
-      alertsLoaded = true;
-
-    } catch (error) {
-      console.error(
-        "Ishwar Alert load failed:",
-        error
-      );
-
-      $("alertStatus").textContent =
-        "अलर्ट लोड नहीं हुए। कृपया थोड़ी देर बाद फिर कोशिश करें।";
-    }
-  }
-
-  $("refreshAlerts").addEventListener(
-    "click",
-    loadAlerts
-  );
-
-  $("refreshNews").addEventListener(
-    "click",
-    loadNews
-  );
-    // ISHWAR ALERT
-
-  async function loadAlerts() {
-    $("alertStatus").textContent =
-      "Ishwar Alert के लिए ताज़ा अपडेट लोड हो रहे हैं...";
-
-    $("alertList").replaceChildren();
-
-    try {
-      const response = await fetch(
-        "/api/news?limit=5&refresh=1"
-      );
-
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
+      if (status) {
+        status.textContent = alerts.length
+          ? alerts.length + " ताज़ा अपडेट उपलब्ध हैं।"
+          : "अभी कोई नया अपडेट उपलब्ध नहीं है।";
       }
 
-      const data = await response.json();
-
-      const items = Array.isArray(data.results)
-        ? data.results
-        : [];
-
-      const alerts = items.map(item => ({
-        name: item.title || item.name || "नई खबर",
-        url: item.url || item.link,
-        category: "alert",
-        description: [
-          item.source,
-          item.published,
-          item.description
-        ].filter(Boolean).join(" • ") ||
-          "ताज़ा समाचार अपडेट"
-      }));
-
-      renderCards($("alertList"),alerts,{
-        empty:"अभी कोई नया अपडेट उपलब्ध नहीं है।"
-      });
-
-      $("alertStatus").textContent = alerts.length
-        ? alerts.length +
-          " ताज़ा अपडेट उपलब्ध हैं। खबर खोलकर स्रोत और तारीख जाँचें।"
-        : "अभी कोई नया अपडेट उपलब्ध नहीं है।";
-
       alertsLoaded = true;
-
     } catch (error) {
-      console.error(
-        "Ishwar Alert load failed:",
-        error
-      );
-
-      $("alertStatus").textContent =
-        "अलर्ट लोड नहीं हुए। कृपया थोड़ी देर बाद फिर कोशिश करें।";
+      console.error("Alert load failed:", error);
+      if (status) status.textContent = "अलर्ट लोड नहीं हुए।";
     }
   }
 
-  $("refreshAlerts").addEventListener(
-    "click",
-    loadAlerts
-  );
+  if ($("refreshAlerts")) {
+    $("refreshAlerts").addEventListener("click", loadAlerts);
+  }
 
-  $("refreshNews").addEventListener(
-    "click",
-    loadNews
-  );
+  if ($("refreshNews")) {
+    $("refreshNews").addEventListener("click", loadNews);
+  }
 
   // MAIN SEARCH
 
-  async function performSearch(query) {
-    showView("home");
+  function renderSearchResults() {
+    const filtered = currentResults.filter(item => {
+      const category = safeText(
+        item.result_type || item.category || "websites"
+      ).toLowerCase();
 
-    $("searchResults").hidden = false;
+      if (currentResultTab === "all") return true;
 
-    $("resultsHeading").textContent =
-      "“" + query + "” के परिणाम";
-
-    $("resultsStatus").textContent = "खोज रहे हैं...";
-
-    $("resultsList").replaceChildren();
-
-    try {
-      const response = await fetch(
-        "/api/search?q=" +
-        encodeURIComponent(query) +
-        "&limit=30"
-      );
-
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
+      if (currentResultTab === "websites") {
+        return ["website", "websites", "web", "general"].includes(category);
       }
 
-      const data = await response.json();
+      return category.includes(currentResultTab);
+    });
 
-      const results = Array.isArray(data.results)
-        ? data.results
-        : [];
+    renderCards($("resultsList"), filtered, {
+      logo: true,
+      resultCard: true,
+      empty: "इस श्रेणी में कोई परिणाम नहीं मिला।"
+    });
 
-      renderCards($("resultsList"),results,{
-        logo:true,
-        resultCard:true
-      });
+    const status = $("resultsStatus");
+    if (status) {
+      status.textContent = filtered.length
+        ? filtered.length + " परिणाम मिले।"
+        : "कोई परिणाम नहीं मिला।";
+    }
+  }
 
-      $("resultsStatus").textContent = results.length
-        ? results.length +
-          " परिणाम मिले। कार्ड पर क्लिक करके वेबसाइट खोलें।"
-        : "कोई परिणाम नहीं मिला। Websites सेक्शन भी देखें।";
+  async function performSearch(query) {
+    query = safeText(query);
+    if (!query) return;
 
-    } catch(error) {
-      console.error(error);
+    currentQuery = query;
+    currentResultTab = "all";
 
-      $("resultsStatus").textContent =
-        "सर्च सेवा उपलब्ध नहीं है। बाद में कोशिश करें।";
+    showView("home");
+
+    document.body.classList.add("has-searched");
+
+    const results = $("searchResults");
+    if (results) results.hidden = false;
+
+    if ($("resultsHeading")) {
+      $("resultsHeading").textContent = "“" + query + "” के परिणाम";
     }
 
-    $("searchResults").scrollIntoView({
-      behavior:"smooth",
-      block:"start"
+    if ($("resultsStatus")) {
+      $("resultsStatus").textContent = "खोज रहे हैं...";
+    }
+
+    if ($("resultsList")) {
+      $("resultsList").replaceChildren();
+    }
+
+    try {
+      const data = await getJson(
+        "/api/search?q=" + encodeURIComponent(query) + "&limit=50"
+      );
+
+      currentResults = Array.isArray(data.results) ? data.results : [];
+      renderSearchResults();
+    } catch (error) {
+      console.error("Search failed:", error);
+
+      if ($("resultsStatus")) {
+        $("resultsStatus").textContent =
+          "सर्च सेवा उपलब्ध नहीं है। बाद में कोशिश करें।";
+      }
+    }
+
+    if (results) {
+      results.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  if ($("searchForm")) {
+    $("searchForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const query = $("searchInput")?.value.trim();
+      if (query) performSearch(query);
     });
   }
 
-  $("searchForm").addEventListener(
-    "submit",
-    event => {
-      event.preventDefault();
+  // RESULT CATEGORY TABS
 
-      const query = $("searchInput").value.trim();
+  document.querySelectorAll("[data-result-tab]").forEach(button => {
+    button.addEventListener("click", () => {
+      currentResultTab = button.dataset.resultTab || "all";
 
-      if (query) {
-        performSearch(query);
-      }
-    }
-  );
+      document.querySelectorAll("[data-result-tab]").forEach(item => {
+        item.classList.toggle("active", item === button);
+      });
 
-  // NEWS NOTIFICATIONS
-  // Push subscription notifications.js संभालता है।
+      renderSearchResults();
+    });
+  });
 
-  $("notificationButton").addEventListener(
-    "click",
-    () => {
+  // NOTIFICATIONS
+  // Push subscription का काम notifications.js संभालता है।
+
+  if ($("notificationButton")) {
+    $("notificationButton").addEventListener("click", () => {
       showView("notifications");
-    }
-  );
+    });
+  }
 
   async function checkNewsNotification() {
-    if (
-      !("Notification" in window) ||
-      Notification.permission !== "granted"
-    ) {
-      $("notificationStatus").textContent =
-        "पहले Notification चालू करें।";
+    const status = $("notificationStatus");
 
+    if (!("Notification" in window) ||
+        Notification.permission !== "granted") {
+      if (status) status.textContent = "पहले Notification चालू करें।";
       return;
     }
 
     try {
-      const response = await fetch(
-        "/api/news?limit=5&refresh=1"
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "News API " + response.status
-        );
-      }
-
-      const data = await response.json();
-
-      const news = Array.isArray(data.results)
-        ? data.results
-        : [];
+      const data = await getJson("/api/news?limit=5&refresh=1");
+      const news = Array.isArray(data.results) ? data.results : [];
 
       if (!news.length) {
-        $("notificationStatus").textContent =
-          "अभी नई खबरें उपलब्ध नहीं हैं।";
-
+        if (status) status.textContent = "अभी नई खबरें उपलब्ध नहीं हैं।";
         return;
       }
 
-      const registration =
-        await navigator.serviceWorker.ready;
+      if (!("serviceWorker" in navigator)) {
+        throw new Error("Service Worker unavailable");
+      }
+
+      const registration = await navigator.serviceWorker.ready;
 
       await registration.showNotification(
         "Ishwar Search — News Update",
         {
-          body: String(
-            news[0].title || "नई खबर उपलब्ध है।"
-          ).slice(0,180),
-
+          body: safeText(news[0].title || "नई खबर उपलब्ध है।").slice(0, 180),
           icon: "/static/logo.png",
           badge: "/static/logo.png",
-
-          tag: "ishwar-search-manual-news-test",
-
+          tag: "ishwar-search-news-test",
           data: {
-            url: news[0].url ||
-                 news[0].link ||
-                 "/"
+            url: news[0].url || news[0].link || "/"
           }
         }
       );
 
-      $("notificationStatus").textContent =
-        "ताज़ा खबर का टेस्ट नोटिफिकेशन दिखाया गया।";
-
-      latestNews = news;
-
+      if (status) {
+        status.textContent = "टेस्ट नोटिफिकेशन दिखाया गया।";
+      }
     } catch (error) {
-      console.error(
-        "News notification test failed:",
-        error
-      );
-
-      $("notificationStatus").textContent =
-        "खबर जाँच नहीं पाए। News API या Service Worker जाँचें।";
+      console.error("Notification test failed:", error);
+      if (status) status.textContent = "टेस्ट नोटिफिकेशन नहीं दिखा।";
     }
   }
 
-  $("checkNewsNotification").addEventListener(
-    "click",
-    checkNewsNotification
-  );
+  if ($("checkNewsNotification")) {
+    $("checkNewsNotification").addEventListener(
+      "click",
+      checkNewsNotification
+    );
+  }
 
   // THEME
 
-  $("themeButton").addEventListener(
-    "click",
-    () => {
-      const light =
-        document.body.classList.toggle("light-mode");
+  if ($("themeButton")) {
+    const savedTheme = localStorage.getItem("ishwar-theme");
 
-      $("themeButton").textContent =
-        light ? "☀" : "☾";
+    if (savedTheme === "light") {
+      document.body.classList.add("light-mode");
     }
-  );
+
+    $("themeButton").addEventListener("click", () => {
+      const light = document.body.classList.toggle("light-mode");
+
+      localStorage.setItem(
+        "ishwar-theme",
+        light ? "light" : "default"
+      );
+
+      $("themeButton").textContent = light ? "☀" : "☾";
+    });
+  }
+
+  // FOOTER YEAR
+
+  if ($("year")) {
+    $("year").textContent = new Date().getFullYear();
+  }
 
   // INITIAL PAGE
 
